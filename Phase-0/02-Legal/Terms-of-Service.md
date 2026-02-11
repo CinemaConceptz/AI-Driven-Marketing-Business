@@ -1,7 +1,7 @@
 Terms of Service
 Verified Sound – Representation Platform
 
-Effective Date: [Insert Date]
+Effective Date: February 11, 2026
 
 1. Agreement to Terms
 
@@ -154,6 +154,8 @@ Verified Sound
 18300 S. Halsted Street
 suite B1-227
 Glenwood, Illinois 60425
+United States
+
 verifiedsoundmedia@gmail.com
 
 END OF DOCUMENT
