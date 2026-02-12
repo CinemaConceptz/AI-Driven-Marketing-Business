@@ -173,9 +173,9 @@ export default function DashboardPage() {
     return subscription.status;
   }, [subscription]);
 
-  const applicationStatus = application?.status || "new";
+  const applicationStatus = application?.status || "none";
   const applicationCopy = applicationStatusCopy[applicationStatus] || {
-    title: "Submission pending",
+    title: "No submission yet",
     description: "Submit your intake to start the review process.",
   };
 
