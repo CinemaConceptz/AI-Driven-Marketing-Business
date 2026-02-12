@@ -24,6 +24,8 @@ const initialState: FormState = {
 
 export default function ApplyPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const isAuthenticated = Boolean(user);
   const [formState, setFormState] = useState<FormState>(initialState);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
