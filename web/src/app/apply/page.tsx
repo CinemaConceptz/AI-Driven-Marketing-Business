@@ -179,7 +179,7 @@ export default function ApplyPage() {
         )}
         <button
           type="submit"
-          disabled={status === "loading"}
+          disabled={status === "loading" || !isAuthenticated}
           className="w-full rounded-full bg-[#6ee7ff] px-6 py-3 text-sm font-semibold text-[#021024] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
           data-testid="apply-submit-button"
         >
