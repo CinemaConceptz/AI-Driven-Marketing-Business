@@ -1,0 +1,30 @@
+{
+  "summary": "Critical Issue: Next.js application not found. The /web directory and all referenced files do not exist. Cannot proceed with frontend testing until the Next.js 14+ App Router application is implemented.",
+  "backend_issues": {},
+  "frontend_issues": {
+    "critical_bugs": [
+      {
+        "component": "Entire Application",
+        "issue": "Next.js application directory /web does not exist",
+        "impact": "Cannot test any frontend functionality - no application to test",
+        "fix_priority": "CRITICAL"
+      },
+      {
+        "component": "Project Structure",
+        "issue": "Missing all referenced files: /web/src/app/page.tsx, /web/src/app/pricing/page.tsx, /web/src/app/apply/page.tsx, /web/src/app/login/page.tsx, /web/src/app/dashboard/page.tsx, /web/src/app/billing/success/page.tsx, /web/src/app/billing/cancel/page.tsx, /web/src/app/privacy/page.tsx, /web/src/app/terms/page.tsx, /web/src/components/NavBar.tsx",
+        "impact": "No pages or components exist to test",
+        "fix_priority": "CRITICAL"
+      }
+    ],
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [],
+  "test_report_links": [],
+  "success_percentage": "Frontend: 0% (Application not implemented)",
+  "updated_files": [],
+  "action_item_for_main_agent": "CRITICAL: Create the Next.js 14+ App Router application in /web directory with all required pages and components. The entire application structure is missing and needs to be implemented before any testing can be performed.",
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}
