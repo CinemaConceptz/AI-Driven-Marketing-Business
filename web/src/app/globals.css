@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #060b18;
+  --foreground: #eef4ff;
+  --primary: #6ee7ff;
+  --primary-foreground: #021024;
+  --muted: #9fb3c8;
+  --card: #0b1324;
+  --border: #1c2a44;
+  --accent: #1bd7c9;
 }
 
 @theme inline {
@@ -12,15 +18,31 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background: radial-gradient(1200px 600px at 20% -10%, rgba(27, 215, 201, 0.18), transparent),
+    radial-gradient(900px 500px at 90% -20%, rgba(110, 231, 255, 0.15), transparent),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Inter", "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+.bg-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.glass-panel {
+  background: rgba(11, 19, 36, 0.8);
+  border: 1px solid rgba(110, 231, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(2, 16, 36, 0.35);
 }
