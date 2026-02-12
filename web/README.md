@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Verified Sound A&R – Representation Platform
 
-## Getting Started
+Production-ready Next.js 14+ (App Router) experience for Verified Sound.
 
-First, run the development server:
+## Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configure environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Fill in Firebase client values in `.env.local`.
 
-## Learn More
+## Run locally
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+yarn dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+yarn build
+```
 
-## Deploy on Vercel
+## Deploy to Firebase Hosting (App Hosting preferred)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> Project placeholder: **verifiedsound-aec78**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Install Firebase CLI (one-time):
+   ```bash
+   npm install -g firebase-tools
+   ```
+2. Authenticate:
+   ```bash
+   firebase login
+   ```
+3. Initialize App Hosting (recommended for Next.js SSR):
+   ```bash
+   firebase init hosting
+   ```
+   - Select **App Hosting** when prompted.
+   - Choose your Firebase project (verifiedsound-aec78).
+4. Deploy:
+   ```bash
+   firebase deploy
+   ```
+
+For classic Hosting (static export), ensure routing and SSR requirements are satisfied before deployment.
