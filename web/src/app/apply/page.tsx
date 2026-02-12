@@ -41,13 +41,22 @@ export default function ApplyPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!user) {
+      setStatus("error");
+      setErrorMessage("Please sign in to submit your intake.");
+      router.push("/login?next=/apply");
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage(null);
 
     try {
       await addDoc(collection(db, "applications"), {
         ...formState,
-        uid: user?.uid || null,
+        uid: user.uid,
+        status: "new",
+        reviewNotes: null,
         createdAt: serverTimestamp(),
       });
       setStatus("success");
