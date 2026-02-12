@@ -82,6 +82,15 @@ export default function ApplyPage() {
         </p>
         <h1 className="mt-3 text-3xl font-semibold text-white" data-testid="apply-title">
           Submit your representation request
+        {!isAuthenticated && (
+          <div
+            className="rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+            data-testid="apply-auth-alert"
+          >
+            Please sign in before submitting your intake.
+          </div>
+        )}
+
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-200" data-testid="apply-subtitle">
           Share your details, release focus, and goals. We review every intake
