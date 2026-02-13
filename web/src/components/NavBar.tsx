@@ -65,6 +65,16 @@ export default function NavBar() {
               >
                 Media
               </Link>
+              <Link
+                href="/epk"
+                data-testid="nav-epk-link"
+                className={`transition hover:text-white ${
+                  pathname === "/epk" ? "text-white" : "text-slate-200"
+                }`}
+              >
+                EPK
+              </Link>
+
 
               <button
                 onClick={handleSignOut}
