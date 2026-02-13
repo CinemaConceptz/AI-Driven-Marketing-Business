@@ -6,9 +6,8 @@
 
 | Record | Host | Type | Value | TTL |
 |---|---|---|---|---|
-| DKIM CNAME #1 | {{POSTMARK_DKIM1_HOST}} | CNAME | {{POSTMARK_DKIM1_VALUE}} | Auto/Default |
-| DKIM CNAME #2 | {{POSTMARK_DKIM2_HOST}} | CNAME | {{POSTMARK_DKIM2_VALUE}} | Auto/Default |
-| Return-Path CNAME | {{POSTMARK_RETURN_PATH_HOST}} | CNAME | {{POSTMARK_RETURN_PATH_VALUE}} | Auto/Default |
+| DKIM TXT | 20260213033206pm._domainkey. | TXT | k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCTcUP9shBjkVJy+Aj5OM3rcB1PdaFmGLJ+OOeUXhCVUh0MiFTPzDolcNrRr2/p1gAotXgjFoCKKQmicZ27/WMN509N2zhLv9EIfyMgjRxvigfS7vVA/I+ROPIDZCG/d8k/IhhPUtbnaOu7VEgnT8K/cZlL4s7QF43ak0ud6fFWPQIDAQAB | 3600 |
+| Return-Path CNAME (if provided) | {{POSTMARK_RETURN_PATH_HOST}} | CNAME | {{POSTMARK_RETURN_PATH_VALUE}} | Auto/Default |
 
 ## SPF TXT (Google Workspace + Postmark — single record only)
 
