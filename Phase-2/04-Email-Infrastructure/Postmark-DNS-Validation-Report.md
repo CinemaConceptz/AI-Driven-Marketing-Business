@@ -1,7 +1,7 @@
 # Postmark DNS Validation Report — verifiedsoundar.com
 
 ## Summary
-DNS lookups show **DKIM, Return-Path, and DMARC are present**. **SPF is still missing the Postmark include**.
+DNS lookups show **DKIM, Return-Path, SPF, and DMARC are present**. DMARC appears truncated in the resolver output and should be double-checked in Google Cloud DNS.
 
 ## Authoritative Nameservers (from DNS lookup)
 - ns-cloud-a1.googledomains.com
