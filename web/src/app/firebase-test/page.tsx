@@ -1,314 +1,130 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { useAuth } from "@/providers/AuthProvider";
-import { db, storage } from "@/lib/firebase";
-
-type StatusState = "idle" | "working" | "pass" | "fail";
-
-type MediaDoc = {
-  id: string;
-  name?: string;
-  url?: string;
-  storagePath?: string;
-};
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import PressImageManager from "@/components/PressImageManager";
+import PressImageThumb from "@/components/PressImageThumb";
 
 export default function FirebaseTestPage() {
-  const { user, loading } = useAuth();
-  const [userDocStatus, setUserDocStatus] = useState<StatusState>("idle");
-  const [mediaDocStatus, setMediaDocStatus] = useState<StatusState>("idle");
-  const [listenerStatus, setListenerStatus] = useState<StatusState>("idle");
-  const [uploadStatus, setUploadStatus] = useState<StatusState>("idle");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [mediaDocs, setMediaDocs] = useState<MediaDoc[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [log, setLog] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (loading || !user) {
-      setMediaDocs([]);
-      setListenerStatus("idle");
-      return;
-    }
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
 
-    const mediaCollection = collection(db, "users", user.uid, "media");
-    const unsubscribe = onSnapshot(
-      mediaCollection,
-      (snapshot) => {
-        const docs = snapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...(docSnap.data() as Omit<MediaDoc, "id">),
-        }));
-        setMediaDocs(docs);
-        setListenerStatus("pass");
-      },
-      (error) => {
-        setListenerStatus("fail");
-        setMessage(error?.message ?? String(error));
-      }
-    );
-
-    return () => unsubscribe();
-  }, [loading, user]);
-
-  const handleEnsureUserDoc = async () => {
-    if (!user) {
-      setUserDocStatus("fail");
-      setMessage("Not logged in — cannot test private Firestore paths.");
-      return;
-    }
-
-    setUserDocStatus("working");
-    setMessage(null);
+  async function runFirestoreChecks() {
+    if (!user?.uid) return;
+    setBusy(true);
+    setLog([]);
+    const uid = user.uid;
 
     try {
-      const userRef = doc(db, "users", user.uid);
-      const snapshot = await getDoc(userRef);
-      if (!snapshot.exists()) {
-        await setDoc(
-          userRef,
-          {
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
+      setLog((l) => [...l, "Auth OK: " + uid]);
+
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, { createdAt: serverTimestamp() }, { merge: true });
+        setLog((l) => [...l, "Created users/{uid} doc"]);
+      } else {
+        setLog((l) => [...l, "users/{uid} doc exists"]);
       }
-      setUserDocStatus("pass");
-    } catch (error) {
-      setUserDocStatus("fail");
-      setMessage(error instanceof Error ? error.message : String(error));
-    }
-  };
 
-  const handleCreateMediaDoc = async () => {
-    if (!user) {
-      setMediaDocStatus("fail");
-      setMessage("Not logged in — cannot test private Firestore paths.");
-      return;
-    }
-
-    setMediaDocStatus("working");
-    setMessage(null);
-
-    try {
-      const mediaRef = doc(db, "users", user.uid, "media", "press");
+      const pressRef = doc(db, "users", uid, "media", "press");
       await setDoc(
-        mediaRef,
+        pressRef,
         {
-          name: "press",
-          updatedAt: serverTimestamp(),
+          title: "Press Image",
+          caption: "",
+          tags: [],
+          sortOrder: 0,
+          createdAt: serverTimestamp(),
+          width: 0,
+          height: 0,
+          storagePath: "",
+          downloadURL: "",
+          contentType: "",
+          sizeBytes: 0,
         },
         { merge: true }
       );
-      setMediaDocStatus("pass");
-    } catch (error) {
-      setMediaDocStatus("fail");
-      setMessage(error instanceof Error ? error.message : String(error));
+      setLog((l) => [...l, "Wrote users/{uid}/media/press (merge)"]);
+
+      const pressSnap = await getDoc(pressRef);
+      setLog((l) => [
+        ...l,
+        "Read users/{uid}/media/press OK: " +
+          (pressSnap.exists() ? "exists" : "missing"),
+      ]);
+    } catch (e: any) {
+      setLog((l) => [...l, "ERROR: " + (e?.message ?? String(e))]);
+    } finally {
+      setBusy(false);
     }
-  };
-
-  const handleUpload = async () => {
-    if (!user) {
-      setUploadStatus("fail");
-      setMessage("Not logged in — cannot test private Firestore paths.");
-      return;
-    }
-
-    setUploadStatus("working");
-    setUploadProgress(0);
-    setMessage(null);
-
-    try {
-      const dataUrl =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2cbY8AAAAASUVORK5CYII=";
-      const blob = await (await fetch(dataUrl)).blob();
-      const storagePath = `users/${user.uid}/media/press-image.png`;
-      const storageRef = ref(storage, storagePath);
-      const uploadTask = uploadBytesResumable(storageRef, blob, {
-        contentType: "image/png",
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress = Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            );
-            setUploadProgress(progress);
-          },
-          (error) => reject(error),
-          () => resolve()
-        );
-      });
-
-      const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      const mediaRef = doc(db, "users", user.uid, "media", "press");
-      await setDoc(
-        mediaRef,
-        {
-          name: "press-image.png",
-          url: downloadUrl,
-          storagePath,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-      setUploadStatus("pass");
-    } catch (error) {
-      setUploadStatus("fail");
-      setMessage(error instanceof Error ? error.message : String(error));
-    }
-  };
-
-  const statusLabel = (status: StatusState) => {
-    switch (status) {
-      case "working":
-        return "Running";
-      case "pass":
-        return "PASS";
-      case "fail":
-        return "FAIL";
-      default:
-        return "Idle";
-    }
-  };
+  }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <section className="glass-panel rounded-3xl px-8 py-10">
+    <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <div className="glass-panel rounded-3xl px-8 py-10">
         <h1 className="text-3xl font-semibold text-white" data-testid="firebase-test-title">
-          Firebase Diagnostics
+          Firebase Test
         </h1>
         <p className="mt-3 text-sm text-slate-200" data-testid="firebase-test-subtitle">
-          Validate Auth, Firestore, and Storage access.
+          Validate private Firestore + Storage paths.
         </p>
+      </div>
+
+      {!user ? (
         <div
-          className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
-          data-testid="firebase-test-auth-status"
+          className="glass-panel rounded-2xl px-6 py-5 text-sm text-slate-200"
+          data-testid="firebase-test-locked"
         >
-          {loading
-            ? "Checking auth status..."
-            : user
-            ? `Signed in as ${user.email}`
-            : "Not logged in — cannot test private Firestore paths"}
+          <p className="font-semibold text-white">Not logged in</p>
+          <p className="mt-1">Log in to test private Firestore + Storage paths.</p>
         </div>
-      </section>
-
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-white">User doc test</h2>
-              <p className="text-sm text-slate-200">Ensure users/{`{uid}`} exists.</p>
-            </div>
-            <button
-              onClick={handleEnsureUserDoc}
-              className="rounded-full bg-[#6ee7ff] px-5 py-3 text-sm font-semibold text-[#021024]"
-              data-testid="firebase-test-userdoc-button"
-            >
-              Run test
-            </button>
-          </div>
-          <div className="text-sm text-slate-200" data-testid="firebase-test-userdoc-status">
-            Status: {statusLabel(userDocStatus)}
-          </div>
-        </div>
-      </section>
-
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-white">Media doc test</h2>
-              <p className="text-sm text-slate-200">
-                Write users/{`{uid}`}/media/press.
-              </p>
-            </div>
-            <button
-              onClick={handleCreateMediaDoc}
-              className="rounded-full bg-[#6ee7ff] px-5 py-3 text-sm font-semibold text-[#021024]"
-              data-testid="firebase-test-media-button"
-            >
-              Run test
-            </button>
-          </div>
-          <div className="text-sm text-slate-200" data-testid="firebase-test-media-status">
-            Status: {statusLabel(mediaDocStatus)}
-          </div>
-        </div>
-      </section>
-
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-white">Storage test</h2>
-              <p className="text-sm text-slate-200">
-                Upload press-image.png and store metadata.
-              </p>
-            </div>
-            <button
-              onClick={handleUpload}
-              className="rounded-full bg-[#6ee7ff] px-5 py-3 text-sm font-semibold text-[#021024]"
-              data-testid="firebase-test-storage-button"
-            >
-              Run test
-            </button>
-          </div>
-          <div className="text-sm text-slate-200" data-testid="firebase-test-storage-status">
-            Status: {statusLabel(uploadStatus)}
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[#6ee7ff] transition-all"
-              style={{ width: `${uploadProgress}%` }}
-              data-testid="firebase-test-storage-progress"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <h2 className="text-xl font-semibold text-white">Media listener output</h2>
-        <p className="mt-2 text-sm text-slate-200" data-testid="firebase-test-listener-status">
-          Listener status: {statusLabel(listenerStatus)}
-        </p>
-        <div className="mt-4 space-y-2 text-sm text-slate-200">
-          {mediaDocs.length === 0 ? (
-            <p data-testid="firebase-test-media-empty">No media docs found.</p>
-          ) : (
-            mediaDocs.map((docItem) => (
-              <div
-                key={docItem.id}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
-                data-testid={`firebase-test-media-${docItem.id}`}
+      ) : (
+        <>
+          <div className="glass-panel rounded-2xl px-6 py-5 space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#021024] disabled:opacity-50"
+                onClick={runFirestoreChecks}
+                disabled={busy}
+                data-testid="firebase-test-run-button"
               >
-                <p>ID: {docItem.id}</p>
-                <p>Name: {docItem.name || "—"}</p>
-                <p>Storage: {docItem.storagePath || "—"}</p>
+                Run Firestore checks
+              </button>
+              <div className="text-xs text-slate-200" data-testid="firebase-test-uid">
+                UID: {user.uid}
               </div>
-            ))
-          )}
-        </div>
-      </section>
+            </div>
+            <div
+              className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-slate-200"
+              data-testid="firebase-test-log"
+            >
+              {log.length ? log.join("\n") : "No logs yet."}
+            </div>
+          </div>
 
-      {message && (
-        <div
-          className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-          data-testid="firebase-test-error"
-        >
-          {message}
-        </div>
+          <div className="glass-panel rounded-2xl px-6 py-5 space-y-4">
+            <p className="font-semibold text-white" data-testid="firebase-test-press-title">
+              Press Image Flow
+            </p>
+            <PressImageManager user={user} />
+            <div className="pt-2">
+              <p className="text-xs text-slate-200" data-testid="firebase-test-thumb-label">
+                Thumbnail render test:
+              </p>
+              <PressImageThumb uid={user.uid} size={140} />
+            </div>
+          </div>
+        </>
       )}
-    </div>
+    </main>
   );
 }
