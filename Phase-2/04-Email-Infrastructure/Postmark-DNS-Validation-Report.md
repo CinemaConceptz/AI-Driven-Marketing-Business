@@ -23,10 +23,9 @@ DNS lookups show **DKIM, Return-Path, and DMARC are present**. **SPF is still mi
 - Return-Path: **Likely Verified**
 
 ## Required Fixes in Google Cloud DNS
-1) Add DKIM TXT record (provided in DNS docs)
-2) Add Return-Path CNAME: `pm-bounces` → `pm.mtasv.net`
-3) Update SPF to: `v=spf1 include:_spf.google.com include:spf.mtasv.net ~all`
-4) Add DMARC: `v=DMARC1; p=none; rua=mailto:dmarc@verifiedsoundar.com;`
+1) Update SPF to: `v=spf1 include:_spf.google.com include:spf.mtasv.net ~all`
+
+> DKIM, Return-Path, and DMARC are already present based on authoritative DNS lookup.
 
 After updates:
 - Wait 5–15 minutes
