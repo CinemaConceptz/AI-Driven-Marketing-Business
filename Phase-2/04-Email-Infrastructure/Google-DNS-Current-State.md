@@ -21,6 +21,15 @@
   - verifiedsoundar.com. NS 21600
   - ns-cloud-b1.googledomains.com.
 
+## Authoritative Lookup (from DNS query)
+- ns-cloud-a1.googledomains.com
+- ns-cloud-a2.googledomains.com
+- ns-cloud-a3.googledomains.com
+- ns-cloud-a4.googledomains.com
+
+> This does **not** match the `ns-cloud-b*` set you provided. Please confirm the active NS set in Google Cloud DNS.
+
+
 > Note: This NS entry conflicts with the previously provided `ns-cloud-a*` set. Please confirm the authoritative nameserver set in Cloud DNS.
 
   - ns-cloud-a1.googledomains.com ✅
