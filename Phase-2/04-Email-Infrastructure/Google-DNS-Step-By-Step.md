@@ -96,7 +96,7 @@ Click **Save**.
 
 ---
 
-## SECTION C — DMARC TXT
+## SECTION D — DMARC TXT
 **DNS Name:**
 ```
 _dmarc.verifiedsoundar.com.
