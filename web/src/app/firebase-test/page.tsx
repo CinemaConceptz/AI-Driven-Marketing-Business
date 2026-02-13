@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from "@/providers/AuthProvider";
 import { db, storage } from "@/lib/firebase";
