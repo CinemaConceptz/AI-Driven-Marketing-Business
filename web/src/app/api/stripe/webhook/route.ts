@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import admin from "firebase-admin";
 import { getStripe } from "@/lib/stripe";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { sendTransactionalEmail, sendWithTemplate } from "@/services/email/postmark";
+
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
