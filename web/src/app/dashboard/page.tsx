@@ -117,7 +117,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (loading || !user) return;
 
-    const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+    const mediaRef = doc(db, "users", user.uid, "media", "press");
     const unsubscribe = onSnapshot(mediaRef, (snapshot) => {
       if (snapshot.exists()) {
         setPressImage(snapshot.data() as MediaItem);
