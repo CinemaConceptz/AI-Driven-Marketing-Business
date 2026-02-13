@@ -9,13 +9,16 @@ service firebase.storage {
       return request.auth != null && request.auth.uid == "hryXqvyqmjdfEy4TG0nvcmDbQxp2";
     }
 
-    match /users/{uid}/media/{allPaths=**} {
-      allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
-      allow write: if isSignedIn()
+    match /users/{uid}/media/{fileName} {
+      allow read: if fileName.matches('press-image\\.[A-Za-z0-9]+')
+        && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
+      allow write: if fileName.matches('press-image\\.[A-Za-z0-9]+')
+        && isSignedIn()
         && request.auth.uid == uid
         && request.resource.contentType.matches('image/.*')
         && request.resource.size < 10 * 1024 * 1024;
-      allow delete: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+      allow delete: if fileName.matches('press-image\\.[A-Za-z0-9]+')
+        && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
     }
 
     match /{allPaths=**} {
