@@ -1,17 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useMemo } from "react";
+import Link from "next/link";
 import PressImageManager from "@/components/PressImageManager";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function MediaPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading } = useAuth();
+  const uid = useMemo(() => user?.uid ?? null, [user]);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsub();
-  }, []);
+  if (loading) {
+    return (
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <div className="glass-panel rounded-3xl px-8 py-10 text-slate-200">
+          Loading...
+        </div>
+      </main>
+    );
+  }
+
+  if (!uid) {
+    return (
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <div
+          className="glass-panel rounded-3xl px-8 py-10 text-slate-200"
+          data-testid="media-login-required"
+        >
+          <p className="text-lg font-semibold text-white">Please log in to manage media.</p>
+          <p className="mt-2 text-sm text-slate-200">
+            Media tools are available after authentication.
+          </p>
+          <Link
+            href="/login"
+            className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#021024]"
+            data-testid="media-login-button"
+          >
+            Go to login
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
