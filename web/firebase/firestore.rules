@@ -28,6 +28,11 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
+    match /subscriptions/{uid} {
+      allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+    }
+
+
     match /{document=**} {
       allow read, write: if false;
     }
