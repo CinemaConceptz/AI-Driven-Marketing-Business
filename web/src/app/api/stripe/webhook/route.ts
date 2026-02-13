@@ -45,50 +45,7 @@ export async function POST(req: Request) {
         { merge: true }
       );
 
-      const userTemplateId = process.env.POSTMARK_TEMPLATE_WELCOME_ID;
-      const adminTemplateId = process.env.POSTMARK_TEMPLATE_ADMIN_NEW_APP_ID;
-      const adminEmail = process.env.ADMIN_NOTIFY_EMAIL;
-      const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
-      const receiptUrl = `${baseUrl}/apply/success`;
 
-      if (customerEmail) {
-        if (userTemplateId) {
-          await sendWithTemplate({
-            to: customerEmail,
-            templateId: userTemplateId,
-            model: { receiptUrl, uid },
-          });
-        } else {
-          await sendTransactionalEmail({
-            to: customerEmail,
-            subject: "Payment confirmed",
-            html: `<p>Your submission payment is confirmed.</p><p><a href="${receiptUrl}">View receipt</a></p>`,
-            text: `Your submission payment is confirmed. ${receiptUrl}`,
-          });
-        }
-      }
-
-      if (adminEmail) {
-        if (adminTemplateId) {
-          await sendWithTemplate({
-            to: adminEmail,
-            templateId: adminTemplateId,
-            model: {
-              uid,
-              paymentStatus: session.payment_status,
-              amountTotal: session.amount_total,
-              currency: session.currency,
-            },
-          });
-        } else {
-          await sendTransactionalEmail({
-            to: adminEmail,
-            subject: "Submission payment confirmed",
-            html: `<p>Payment confirmed for UID: ${uid}</p>`,
-            text: `Payment confirmed for UID: ${uid}`,
-          });
-        }
-      }
     }
 
     return NextResponse.json({ ok: true });
