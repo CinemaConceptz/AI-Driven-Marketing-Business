@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.text();
-    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    const event = getStripe().webhooks.constructEvent(body, signature, webhookSecret);
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as any;
