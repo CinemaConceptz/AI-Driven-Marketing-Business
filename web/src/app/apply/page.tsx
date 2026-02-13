@@ -188,12 +188,18 @@ export default function ApplyPage() {
           <p className="mt-3 text-sm text-slate-200">
             Complete your submission payment to unlock the intake form.
           </p>
+          {paymentError && (
+            <p className="mt-4 text-sm text-red-200" data-testid="apply-payment-error">
+              {paymentError}
+            </p>
+          )}
           <button
-            onClick={() => router.push("/pricing")}
-            className="mt-6 rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024]"
-            data-testid="apply-go-to-pricing"
+            onClick={handleCheckout}
+            className="mt-6 rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024] disabled:opacity-60"
+            data-testid="apply-pay-cta"
+            disabled={checkoutLoading}
           >
-            Go to pricing
+            {checkoutLoading ? "Starting checkout..." : "Pay submission fee"}
           </button>
         </div>
       </div>
