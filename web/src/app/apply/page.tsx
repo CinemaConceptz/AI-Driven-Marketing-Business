@@ -114,6 +114,42 @@ export default function ApplyPage() {
     }
   };
 
+  if (loading || !user) {
+    return (
+      <div className="mx-auto w-full max-w-3xl" data-testid="apply-loading">
+        Loading...
+      </div>
+    );
+  }
+
+  if (paymentStatus === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-3xl" data-testid="apply-payment-loading">
+        Checking payment status...
+      </div>
+    );
+  }
+
+  if (paymentStatus !== "paid") {
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        <div className="glass-panel rounded-3xl px-8 py-10" data-testid="apply-payment-required">
+          <h1 className="text-2xl font-semibold text-white">Payment required</h1>
+          <p className="mt-3 text-sm text-slate-200">
+            Complete your submission payment to unlock the intake form.
+          </p>
+          <button
+            onClick={() => router.push("/pricing")}
+            className="mt-6 rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024]"
+            data-testid="apply-go-to-pricing"
+          >
+            Go to pricing
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
       <section className="glass-panel rounded-3xl px-8 py-10">
