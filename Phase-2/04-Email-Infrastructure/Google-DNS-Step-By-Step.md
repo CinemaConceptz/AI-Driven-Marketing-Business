@@ -66,7 +66,7 @@ Click **Save**.
 
 ---
 
-## SECTION B — SPF TXT (Merged Google + Postmark)
+## SECTION C — SPF TXT (Merged Google + Postmark)
 **Before adding:**
 - Check if an SPF TXT record already exists at host `verifiedsoundar.com.` or `@`.
 - If it exists, **edit** it instead of creating a duplicate.
