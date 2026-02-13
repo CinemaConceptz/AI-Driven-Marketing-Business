@@ -12,10 +12,10 @@
 - **Zone Type:** Public / Private → `___________________________`
 - **Record Count:** `___________________________`
 - **Name Servers:**
-  - ns-cloud-b1.googledomains.com ✅
-  - ns-cloud-b2.googledomains.com ✅
-  - ns-cloud-____.googledomains.com
-  - ns-cloud-____.googledomains.com
+  - ns-cloud-a1.googledomains.com ✅
+  - ns-cloud-a2.googledomains.com ✅
+  - ns-cloud-a3.googledomains.com ✅
+  - ns-cloud-a4.googledomains.com ✅
 
 ## Notes
 - Confirm the zone is **Public**.
