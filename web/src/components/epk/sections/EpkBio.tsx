@@ -19,11 +19,11 @@ export default function EpkBio({ profile }: Props) {
         <p className="mt-4 text-sm text-slate-200" data-testid="epk-bio-empty">
           Bio not set. Add one in{" "}
           <Link
-            href="/apply"
+            href="/settings"
             className="underline"
             data-testid="epk-bio-settings-link"
           >
-            Apply
+            Settings
           </Link>
           .
         </p>
