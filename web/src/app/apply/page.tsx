@@ -22,6 +22,9 @@ const initialFormState: ApplicationFormState = {
   goals: "",
 };
 
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
 export default function ApplyPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
