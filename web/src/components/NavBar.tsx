@@ -74,6 +74,16 @@ export default function NavBar() {
               >
                 EPK
               </Link>
+              <Link
+                href="/settings"
+                data-testid="nav-settings-link"
+                className={`transition hover:text-white ${
+                  pathname === "/settings" ? "text-white" : "text-slate-200"
+                }`}
+              >
+                Settings
+              </Link>
+
 
 
               <button
