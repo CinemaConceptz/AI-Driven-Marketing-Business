@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         await adminDb.collection("users").doc(uid).set(
           {
             paymentStatus: "paid",
-            paymentUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            paymentPaidAt: admin.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true }
         );
@@ -36,9 +36,10 @@ export async function POST(req: Request) {
       await adminDb.collection("payments").doc(sessionId).set(
         {
           uid: uid || null,
-          status: session.payment_status,
+          status: "paid",
           amountTotal: session.amount_total,
           currency: session.currency,
+          customerEmail: session.customer_email || null,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
