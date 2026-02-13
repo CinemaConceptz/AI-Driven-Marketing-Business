@@ -9,7 +9,7 @@ DNS lookups show **DKIM, Return-Path, and DMARC are present**. **SPF is still mi
 - ns-cloud-a3.googledomains.com
 - ns-cloud-a4.googledomains.com
 
-> This does **not** match the `ns-cloud-b*` set you provided. Please confirm which NS set is active in Google Cloud DNS.
+> Authoritative nameservers resolved to the `ns-cloud-a*` set.
 
 ## Record Checks (Authoritative Query)
 - **DKIM TXT** `20260213033206pm._domainkey.verifiedsoundar.com` → **FOUND**
