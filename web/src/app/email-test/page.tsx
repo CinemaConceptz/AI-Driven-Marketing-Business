@@ -1,22 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function EmailTestPage() {
+  const { user, loading } = useAuth();
+  const searchParams = useSearchParams();
   const [to, setTo] = useState("");
   const [status, setStatus] = useState<string>("");
+  const [key, setKey] = useState("");
+
+  useEffect(() => {
+    const queryKey = searchParams.get("key");
+    if (queryKey) {
+      setKey(queryKey);
+    }
+  }, [searchParams]);
 
   async function send() {
+    if (!key) {
+      setStatus("❌ Missing test key.");
+      return;
+    }
+
     setStatus("Sending...");
     try {
-      const res = await fetch("/api/email/send", {
+      const res = await fetch("/api/email/test", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to,
-          subject: "Verified Sound A&R — Test Email",
-          text: "If you received this, Postmark is connected correctly.",
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-email-test-key": key,
+        },
+        body: JSON.stringify({ to }),
       });
 
       const data = await res.json();
@@ -25,6 +41,21 @@ export default function EmailTestPage() {
     } catch (e: any) {
       setStatus(`❌ ${e.message}`);
     }
+  }
+
+  if (!loading && !user && !key) {
+    return (
+      <main className="mx-auto w-full max-w-2xl space-y-4">
+        <div className="glass-panel rounded-3xl px-8 py-8 text-slate-200">
+          <p className="text-lg font-semibold text-white" data-testid="email-test-locked">
+            Email test is restricted.
+          </p>
+          <p className="mt-2 text-sm text-slate-200">
+            Log in or provide ?key= in the URL.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -51,10 +82,22 @@ export default function EmailTestPage() {
           data-testid="email-test-to-input"
         />
 
+        <label className="block text-sm font-medium text-white" htmlFor="email-key">
+          Test Key
+        </label>
+        <input
+          id="email-key"
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+          placeholder="EMAIL_TEST_KEY"
+          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white"
+          data-testid="email-test-key-input"
+        />
+
         <button
           onClick={send}
           className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#021024] disabled:opacity-50"
-          disabled={!to}
+          disabled={!to || !key}
           data-testid="email-test-send-button"
         >
           Send test email
