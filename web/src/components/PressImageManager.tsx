@@ -50,6 +50,17 @@ export default function PressImageManager({ user }: Props) {
       if (!user) throw new Error("You must be logged in.");
       const updated = await uploadPressImage(file, user);
       setMedia(updated);
+      try {
+        const token = await user.getIdToken();
+        await fetch("/api/email/epk-updated", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (err) {
+        console.error("EPK update email failed", err);
+      }
     } catch (e: any) {
       setError(e?.message ?? "Upload failed");
     } finally {
