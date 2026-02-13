@@ -168,90 +168,88 @@ export default function ApplyPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="glass-panel grid gap-6 rounded-3xl px-8 py-10"
+        className="glass-panel space-y-6 rounded-3xl px-8 py-10"
         data-testid="apply-form"
       >
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-sm text-slate-200">
-            Name
-            <input
-              name="name"
-              value={formState.name}
-              onChange={handleChange}
-              required
-              className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-              data-testid="apply-name-input"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm text-slate-200">
-            Email
-            <input
-              type="email"
-              name="email"
-              value={formState.email}
-              onChange={handleChange}
-              required
-              className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-              data-testid="apply-email-input"
-            />
-          </label>
-        </div>
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Genre / Focus
-          <input
-            name="genre"
-            value={formState.genre}
-            onChange={handleChange}
-            placeholder="House / EDM / Disco / Afro / Soulful / Trance"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-genre-input"
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Links (Spotify, SoundCloud, socials)
-          <input
-            name="links"
-            value={formState.links}
-            onChange={handleChange}
-            placeholder="https://"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-links-input"
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Representation goals
-          <textarea
-            name="goals"
-            value={formState.goals}
-            onChange={handleChange}
-            rows={5}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-goals-textarea"
-          />
-        </label>
         {status === "success" && (
           <div
-            className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100"
-            data-testid="apply-success-alert"
+            className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+            data-testid="apply-success"
           >
-            Intake received. We will follow up with next steps.
+            Intake submitted. Our team will follow up with next steps.
           </div>
         )}
         {status === "error" && (
           <div
             className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-            data-testid="apply-error-alert"
+            data-testid="apply-error"
           >
             {errorMessage}
           </div>
         )}
+
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          Name
+          <input
+            type="text"
+            value={formState.name}
+            onChange={(event) => handleChange("name", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            data-testid="apply-name-input"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          Email
+          <input
+            type="email"
+            value={formState.email}
+            onChange={(event) => handleChange("email", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            data-testid="apply-email-input"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          Primary genre
+          <input
+            type="text"
+            value={formState.genre}
+            onChange={(event) => handleChange("genre", event.target.value)}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            data-testid="apply-genre-input"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          Links (Spotify, SoundCloud, socials)
+          <textarea
+            value={formState.links}
+            onChange={(event) => handleChange("links", event.target.value)}
+            rows={3}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            data-testid="apply-links-input"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-slate-200">
+          Goals
+          <textarea
+            value={formState.goals}
+            onChange={(event) => handleChange("goals", event.target.value)}
+            rows={4}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            data-testid="apply-goals-input"
+          />
+        </label>
+
         <button
           type="submit"
-          disabled={status === "loading" || !isAuthenticated}
-          className="w-full rounded-full bg-[#6ee7ff] px-6 py-3 text-sm font-semibold text-[#021024] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={!canSubmit || status === "submitting"}
           data-testid="apply-submit-button"
         >
-          {status === "loading" ? "Submitting..." : "Submit intake"}
+          {status === "submitting" ? "Submitting..." : "Submit intake"}
         </button>
       </form>
     </div>
