@@ -32,8 +32,10 @@ export async function POST(req: Request) {
     const mediaUrl = `${baseUrl}/media`;
 
     const templateId = process.env.POSTMARK_TEMPLATE_WELCOME_ID;
+    let messageId: string | undefined;
+
     if (templateId) {
-      await sendWithTemplate({
+      const result = await sendWithTemplate({
         to: targetEmail,
         templateId,
         model: {
@@ -42,19 +44,22 @@ export async function POST(req: Request) {
           name: userData.artistName || userData.displayName || "",
         },
       });
+      messageId = result.messageId;
     } else {
-      await sendTransactionalEmail({
+      const result = await sendTransactionalEmail({
         to: targetEmail,
         subject: "Welcome to Verified Sound A&R",
         html: `<p>Welcome to Verified Sound A&R.</p><p>Start here: <a href="${dashboardUrl}">Dashboard</a> or upload media in <a href="${mediaUrl}">Media</a>.</p>`,
         text: `Welcome to Verified Sound A&R. Dashboard: ${dashboardUrl} Media: ${mediaUrl}`,
       });
+      messageId = result.messageId;
     }
 
     await userRef.set(
       {
         emailFlags: {
           welcomeSentAt: admin.firestore.FieldValue.serverTimestamp(),
+          welcomeMessageId: messageId || null,
         },
         email: targetEmail,
       },
