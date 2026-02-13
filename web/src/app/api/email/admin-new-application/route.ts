@@ -33,17 +33,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Payment required" }, { status: 402 });
     }
 
-    const submissionRef = adminDb.collection("submissions").doc();
-    await submissionRef.set({
-      uid,
-      email: email || userData.email || "",
-      name,
-      genre,
-      links,
-      goals,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      paymentStatus: "paid",
-    });
+    const submissionRef = adminDb.collection("submissions").doc(uid);
+    const submissionSnap = await submissionRef.get();
+
+    if (submissionSnap.exists && submissionSnap.data()?.emailFlags?.adminNotifiedAt) {
+      return NextResponse.json({ ok: true, skipped: true, submissionId: submissionRef.id });
+    }
+
+    await submissionRef.set(
+      {
+        uid,
+        email: email || userData.email || "",
+        name,
+        genre,
+        links,
+        goals,
+        submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+        paymentStatus: "paid",
+      },
+      { merge: true }
+    );
 
     await userRef.set(
       {
@@ -54,8 +63,10 @@ export async function POST(req: Request) {
     );
 
     const templateId = process.env.POSTMARK_TEMPLATE_ADMIN_NEW_APP_ID;
+    let messageId: string | undefined;
+
     if (templateId) {
-      await sendWithTemplate({
+      const result = await sendWithTemplate({
         to: adminEmail,
         templateId,
         model: {
@@ -65,17 +76,30 @@ export async function POST(req: Request) {
           genre,
           links,
           goals,
+          submissionId: submissionRef.id,
           submittedAt: new Date().toISOString(),
         },
       });
+      messageId = result.messageId;
     } else {
-      await sendTransactionalEmail({
+      const result = await sendTransactionalEmail({
         to: adminEmail,
         subject: "New Verified Sound A&R Application",
-        html: `<p>New application received.</p><p>Name: ${name}</p><p>Email: ${email || ""}</p><p>UID: ${uid}</p>`,
-        text: `New application received. Name: ${name}. Email: ${email || ""}. UID: ${uid}.`,
+        html: `<p>New application received.</p><p>Name: ${name}</p><p>Email: ${email || ""}</p><p>UID: ${uid}</p><p>Submission: ${submissionRef.id}</p>`,
+        text: `New application received. Name: ${name}. Email: ${email || ""}. UID: ${uid}. Submission: ${submissionRef.id}.`,
       });
+      messageId = result.messageId;
     }
+
+    await submissionRef.set(
+      {
+        emailFlags: {
+          adminNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+          adminNotifiedMessageId: messageId || null,
+        },
+      },
+      { merge: true }
+    );
 
     return NextResponse.json({ ok: true, submissionId: submissionRef.id });
   } catch (error: any) {
