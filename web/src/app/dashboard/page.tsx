@@ -2,22 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  addDoc,
-  collection,
-  doc,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  where,
-} from "firebase/firestore";
+import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from "@/providers/AuthProvider";
 import { db, storage } from "@/lib/firebase";
 
-type SubscriptionData = {
+type UserProfile = {
   tier?: string;
   status?: string;
   currentPeriodEnd?: {
@@ -25,18 +15,17 @@ type SubscriptionData = {
     nanoseconds?: number;
   } | string | number | null;
   monthlyCap?: string | number | null;
-};
-
-type ApplicationData = {
-  status?: string;
-  reviewNotes?: string | null;
-  createdAt?: {
+  subscriptionTier?: string;
+  subscriptionStatus?: string;
+  subscriptionCurrentPeriodEnd?: {
     seconds?: number;
   } | string | number | null;
+  subscriptionMonthlyCap?: string | number | null;
+  applicationStatus?: string;
+  applicationReviewNotes?: string | null;
 };
 
 type MediaItem = {
-  id: string;
   name: string;
   url: string;
   storagePath: string;
@@ -46,14 +35,13 @@ type MediaItem = {
 };
 
 type UploadItem = {
-  id: string;
   name: string;
   progress: number;
   status: "uploading" | "complete" | "error";
   error?: string;
 };
 
-function formatDate(value?: SubscriptionData["currentPeriodEnd"]) {
+function formatDate(value?: UserProfile["currentPeriodEnd"] | UserProfile["subscriptionCurrentPeriodEnd"]) {
   if (!value) return "—";
   if (typeof value === "string" || typeof value === "number") {
     const date = new Date(value);
@@ -90,12 +78,11 @@ const applicationStatusCopy: Record<
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [application, setApplication] = useState<ApplicationData | null>(null);
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const [pressImage, setPressImage] = useState<MediaItem | null>(null);
+  const [upload, setUpload] = useState<UploadItem | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,16 +92,16 @@ export default function DashboardPage() {
   }, [loading, router, user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (loading || !user) return;
 
-    const subscriptionRef = doc(db, "subscriptions", user.uid);
+    const userRef = doc(db, "users", user.uid);
     const unsubscribe = onSnapshot(
-      subscriptionRef,
+      userRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          setSubscription(snapshot.data() as SubscriptionData);
+          setProfile(snapshot.data() as UserProfile);
         } else {
-          setSubscription(null);
+          setProfile(null);
         }
         setStatus("ready");
       },
@@ -125,130 +112,93 @@ export default function DashboardPage() {
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [loading, user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (loading || !user) return;
 
-    const applicationsQuery = query(
-      collection(db, "applications"),
-      where("uid", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      limit(1)
-    );
-
-    const unsubscribe = onSnapshot(applicationsQuery, (snapshot) => {
-      if (snapshot.empty) {
-        setApplication(null);
+    const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+    const unsubscribe = onSnapshot(mediaRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setPressImage(snapshot.data() as MediaItem);
       } else {
-        const docData = snapshot.docs[0].data() as ApplicationData;
-        setApplication(docData);
+        setPressImage(null);
       }
     });
 
     return () => unsubscribe();
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const mediaQuery = query(
-      collection(db, "users", user.uid, "media"),
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe = onSnapshot(mediaQuery, (snapshot) => {
-      const items: MediaItem[] = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...(docSnap.data() as Omit<MediaItem, "id">),
-      }));
-      setMediaItems(items);
-    });
-
-    return () => unsubscribe();
-  }, [user]);
+  }, [loading, user]);
 
   const statusLabel = useMemo(() => {
-    if (!subscription?.status) return "Inactive";
-    return subscription.status;
-  }, [subscription]);
+    const rawStatus = profile?.subscriptionStatus ?? profile?.status;
+    if (!rawStatus) return "Inactive";
+    return rawStatus;
+  }, [profile]);
 
-  const applicationStatus = application?.status || "none";
+  const tierLabel = profile?.subscriptionTier ?? profile?.tier ?? "—";
+  const monthlyCapLabel = profile?.subscriptionMonthlyCap ?? profile?.monthlyCap ?? "—";
+  const periodEndLabel = formatDate(
+    profile?.subscriptionCurrentPeriodEnd ?? profile?.currentPeriodEnd
+  );
+
+  const applicationStatus = profile?.applicationStatus || "none";
   const applicationCopy = applicationStatusCopy[applicationStatus] || {
     title: "No submission yet",
     description: "Submit your intake to start the review process.",
   };
 
-  const handleUpload = (files: FileList | null) => {
-    if (!user || !files || files.length === 0) return;
+  const handleUpload = (file: File | null) => {
+    if (!user || !file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Only image files are allowed.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("Images must be under 10MB.");
+      return;
+    }
 
     setUploadError(null);
+    const extension = file.name.split(".").pop() || "jpg";
+    const storagePath = `users/${user.uid}/media/press-image.${extension}`;
+    const storageRef = ref(storage, storagePath);
 
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        setUploadError("Only image files are allowed.");
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        setUploadError("Images must be under 10MB.");
-        return;
-      }
+    setUpload({ name: file.name, progress: 0, status: "uploading" });
 
-      const uploadId = crypto.randomUUID();
-      const storagePath = `users/${user.uid}/media/${uploadId}-${file.name}`;
-      const storageRef = ref(storage, storagePath);
+    const uploadTask = uploadBytesResumable(storageRef, file, {
+      contentType: file.type,
+    });
 
-      setUploads((prev) => [
-        {
-          id: uploadId,
-          name: file.name,
-          progress: 0,
-          status: "uploading",
-        },
-        ...prev,
-      ]);
-
-      const uploadTask = uploadBytesResumable(storageRef, file, {
-        contentType: file.type,
-      });
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === uploadId ? { ...item, progress } : item
-            )
-          );
-        },
-        (error) => {
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === uploadId
-                ? { ...item, status: "error", error: error.message }
-                : item
-            )
-          );
-        },
-        async () => {
-          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-          await addDoc(collection(db, "users", user.uid, "media"), {
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setUpload((prev) => (prev ? { ...prev, progress } : prev));
+      },
+      (error) => {
+        setUpload((prev) =>
+          prev ? { ...prev, status: "error", error: error.message } : prev
+        );
+      },
+      async () => {
+        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+        await setDoc(
+          mediaRef,
+          {
             name: file.name,
             url: downloadUrl,
             storagePath,
             createdAt: serverTimestamp(),
-          });
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === uploadId ? { ...item, status: "complete" } : item
-            )
-          );
-        }
-      );
-    });
+          },
+          { merge: true }
+        );
+        setUpload((prev) => (prev ? { ...prev, status: "complete" } : prev));
+      }
+    );
   };
 
   if (!user && loading) {
@@ -283,7 +233,7 @@ export default function DashboardPage() {
         {[
           {
             label: "Tier",
-            value: subscription?.tier || "—",
+            value: tierLabel,
             testId: "dashboard-tier-value",
           },
           {
@@ -293,12 +243,12 @@ export default function DashboardPage() {
           },
           {
             label: "Current period end",
-            value: formatDate(subscription?.currentPeriodEnd),
+            value: periodEndLabel,
             testId: "dashboard-period-end-value",
           },
           {
             label: "Monthly cap",
-            value: subscription?.monthlyCap || "—",
+            value: monthlyCapLabel,
             testId: "dashboard-cap-value",
           },
         ].map((item) => (
@@ -331,12 +281,12 @@ export default function DashboardPage() {
           <p className="mt-2 text-sm text-slate-200" data-testid="dashboard-application-message">
             {applicationCopy.description}
           </p>
-          {application?.reviewNotes && (
+          {profile?.applicationReviewNotes && (
             <p
               className="mt-3 text-sm text-slate-200"
               data-testid="dashboard-application-review-notes"
             >
-              Notes: {application.reviewNotes}
+              Notes: {profile.applicationReviewNotes}
             </p>
           )}
         </div>
@@ -349,15 +299,14 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-semibold text-white">Press images</h2>
           <p className="text-sm text-slate-200">
-            Upload high-resolution press images (JPEG/PNG, max 10MB).
+            Upload a single press image (JPEG/PNG, max 10MB).
           </p>
         </div>
         <div className="mt-6 flex flex-col gap-4">
           <input
             type="file"
             accept="image/*"
-            multiple
-            onChange={(event) => handleUpload(event.target.files)}
+            onChange={(event) => handleUpload(event.target.files?.[0] ?? null)}
             className="text-sm text-slate-200"
             data-testid="dashboard-upload-input"
           />
@@ -369,59 +318,51 @@ export default function DashboardPage() {
               {uploadError}
             </div>
           )}
-          <div className="space-y-3">
-            {uploads.map((upload) => (
-              <div
-                key={upload.id}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
-                data-testid={`dashboard-upload-${upload.id}`}
-              >
-                <div className="flex items-center justify-between text-sm text-slate-200">
-                  <span>{upload.name}</span>
-                  <span>
-                    {upload.status === "complete"
-                      ? "Complete"
-                      : upload.status === "error"
-                      ? "Error"
-                      : `${upload.progress}%`}
-                  </span>
-                </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-[#6ee7ff] transition-all"
-                    style={{ width: `${upload.progress}%` }}
-                    data-testid={`dashboard-upload-progress-${upload.id}`}
-                  />
-                </div>
-                {upload.error && (
-                  <p className="mt-2 text-xs text-red-200">{upload.error}</p>
-                )}
+          {upload && (
+            <div
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+              data-testid="dashboard-upload-progress"
+            >
+              <div className="flex items-center justify-between text-sm text-slate-200">
+                <span>{upload.name}</span>
+                <span>
+                  {upload.status === "complete"
+                    ? "Complete"
+                    : upload.status === "error"
+                    ? "Error"
+                    : `${upload.progress}%`}
+                </span>
               </div>
-            ))}
-          </div>
-          {mediaItems.length === 0 ? (
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-[#6ee7ff] transition-all"
+                  style={{ width: `${upload.progress}%` }}
+                  data-testid="dashboard-upload-progress-bar"
+                />
+              </div>
+              {upload.error && (
+                <p className="mt-2 text-xs text-red-200">{upload.error}</p>
+              )}
+            </div>
+          )}
+          {!pressImage ? (
             <div
               className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
               data-testid="dashboard-media-placeholder"
             >
-              No press images uploaded yet.
+              No press image uploaded yet.
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {mediaItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                  data-testid={`dashboard-media-item-${item.id}`}
-                >
-                  <img
-                    src={item.url}
-                    alt={item.name}
-                    className="h-40 w-full rounded-xl object-cover"
-                  />
-                  <p className="mt-3 text-sm text-slate-200">{item.name}</p>
-                </div>
-              ))}
+            <div
+              className="rounded-2xl border border-white/10 bg-white/5 p-4"
+              data-testid="dashboard-media-item"
+            >
+              <img
+                src={pressImage.url}
+                alt={pressImage.name}
+                className="h-52 w-full rounded-xl object-cover"
+              />
+              <p className="mt-3 text-sm text-slate-200">{pressImage.name}</p>
             </div>
           )}
         </div>
@@ -450,12 +391,12 @@ export default function DashboardPage() {
             {errorMessage}
           </div>
         )}
-        {status === "ready" && !subscription && (
+        {status === "ready" && !profile && (
           <div
             className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
             data-testid="dashboard-empty-alert"
           >
-            No active subscription found. Visit pricing to activate a tier.
+            No profile found yet. Submit your intake to get started.
           </div>
         )}
       </section>
