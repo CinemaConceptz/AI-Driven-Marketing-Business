@@ -35,6 +35,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing 'to' field" }, { status: 400 });
     }
 
+    const fromEmail = process.env.POSTMARK_FROM_EMAIL;
+    const messageStream = process.env.POSTMARK_MESSAGE_STREAM;
+    if (!fromEmail || !messageStream) {
+      return NextResponse.json(
+        { ok: false, error: "Missing POSTMARK_FROM_EMAIL or POSTMARK_MESSAGE_STREAM" },
+        { status: 500 }
+      );
+    }
+
     const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
     const timestamp = new Date().toISOString();
 
