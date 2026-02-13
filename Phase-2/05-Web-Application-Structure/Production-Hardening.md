@@ -5,7 +5,7 @@
 - `/api/email/test` returns **404** in production unless `x-email-test-key` is present.
 
 ## Rate Limiting
-- In-memory limiter applied to `/api/email/*` routes.
+- In-memory limiter applied to `/api/email/*` routes and `/api/stripe/checkout`.
 - Default: 10 requests/hour per `uid + ip`.
 
 ## Error Handling
