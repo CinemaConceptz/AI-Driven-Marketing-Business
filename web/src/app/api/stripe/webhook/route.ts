@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       const session = event.data.object as any;
       const sessionId = session.id as string;
       const uid = session.client_reference_id || session.metadata?.uid;
-      const customerEmail = session.customer_email as string | undefined;
+
 
       if (uid) {
         await adminDb.collection("users").doc(uid).set(
