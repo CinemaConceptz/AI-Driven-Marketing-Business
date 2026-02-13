@@ -20,14 +20,15 @@ export async function POST(req: Request) {
     }
 
     const payload = await req.json();
-    const name = payload?.name || "";
-    const genre = payload?.genre || "";
-    const links = payload?.links || "";
-    const goals = payload?.goals || "";
 
     const userRef = adminDb.collection("users").doc(uid);
     const userSnap = await userRef.get();
     const userData = userSnap.data() || {};
+
+    const name = payload?.name || userData.artistName || userData.displayName || "";
+    const genre = payload?.genre || "";
+    const links = payload?.links || "";
+    const goals = payload?.goals || "";
 
     if (userData.paymentStatus !== "paid") {
       return NextResponse.json({ ok: false, error: "Payment required" }, { status: 402 });
