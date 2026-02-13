@@ -52,13 +52,18 @@ export default function ApplyPage() {
     setErrorMessage(null);
 
     try {
-      await addDoc(collection(db, "applications"), {
-        ...formState,
-        uid: user.uid,
-        status: "new",
-        reviewNotes: null,
-        createdAt: serverTimestamp(),
-      });
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(
+        userRef,
+        {
+          ...formState,
+          applicationStatus: "new",
+          applicationReviewNotes: null,
+          applicationSubmittedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
       setStatus("success");
       setFormState(initialState);
     } catch (error) {
