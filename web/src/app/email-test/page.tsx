@@ -35,7 +35,11 @@ export default function EmailTestPage() {
         body: JSON.stringify({ to }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json()
+        : { ok: false, error: await res.text() };
+
       if (!data.ok) throw new Error(data.error || "Failed");
       setStatus(`✅ Sent. MessageId: ${data.messageId || "(none)"}`);
     } catch (e: any) {
