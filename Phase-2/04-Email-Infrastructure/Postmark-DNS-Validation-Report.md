@@ -1,7 +1,7 @@
 # Postmark DNS Validation Report — verifiedsoundar.com
 
 ## Summary
-DNS lookups indicate the Postmark records are **not yet present** on the authoritative nameservers.
+DNS lookups show **DKIM, Return-Path, and DMARC are present**. **SPF is still missing the Postmark include**.
 
 ## Authoritative Nameservers (from DNS lookup)
 - ns-cloud-a1.googledomains.com
