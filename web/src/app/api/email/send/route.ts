@@ -1,7 +1,22 @@
 import { NextResponse } from "next/server";
+import { getRequestIp, rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  const requestId = crypto.randomUUID();
   try {
+    const internalKey = process.env.EMAIL_TEST_KEY;
+    const headerKey = req.headers.get("x-email-test-key");
+
+    if (!internalKey || headerKey !== internalKey) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const ip = getRequestIp(req);
+    const limit = rateLimit(`email:send:${ip}`);
+    if (!limit.allowed) {
+      return NextResponse.json({ ok: false, error: "Rate limit exceeded" }, { status: 429 });
+    }
+
     const token = process.env.POSTMARK_SERVER_TOKEN;
     const fromEmail = process.env.POSTMARK_FROM_EMAIL;
     const fromName = process.env.POSTMARK_FROM_NAME || "Verified Sound A&R";
@@ -47,6 +62,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, messageId: data?.MessageID || null });
   } catch (error: any) {
+    console.error(`[email/send] requestId=${requestId}`, error?.message || error);
     return NextResponse.json(
       { ok: false, error: error?.message || "Unknown error" },
       { status: 500 }
