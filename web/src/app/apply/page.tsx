@@ -68,6 +68,37 @@ export default function ApplyPage() {
     () =>
       formState.name &&
       formState.email &&
+  const handleCheckout = async () => {
+    if (!user) return;
+    setPaymentError(null);
+    setCheckoutLoading(true);
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error || "Unable to start checkout.");
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      setPaymentError(
+        error instanceof Error
+          ? error.message
+          : "Unable to start checkout."
+      );
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
       formState.genre &&
       formState.links &&
       formState.goals,
