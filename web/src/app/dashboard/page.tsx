@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import PressImageManager from "@/components/PressImageManager";
 
 type UserProfile = {
   tier?: string;
@@ -25,23 +25,9 @@ type UserProfile = {
   applicationReviewNotes?: string | null;
 };
 
-type MediaItem = {
-  name: string;
-  url: string;
-  storagePath: string;
-  createdAt?: {
-    seconds?: number;
-  } | string | number | null;
-};
-
-type UploadItem = {
-  name: string;
-  progress: number;
-  status: "uploading" | "complete" | "error";
-  error?: string;
-};
-
-function formatDate(value?: UserProfile["currentPeriodEnd"] | UserProfile["subscriptionCurrentPeriodEnd"]) {
+function formatDate(
+  value?: UserProfile["currentPeriodEnd"] | UserProfile["subscriptionCurrentPeriodEnd"]
+) {
   if (!value) return "—";
   if (typeof value === "string" || typeof value === "number") {
     const date = new Date(value);
@@ -81,9 +67,6 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [pressImage, setPressImage] = useState<MediaItem | null>(null);
-  const [upload, setUpload] = useState<UploadItem | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -92,41 +75,36 @@ export default function DashboardPage() {
   }, [loading, router, user]);
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user) {
+      setProfile(null);
+      return;
+    }
 
-    const userRef = doc(db, "users", user.uid);
-    const unsubscribe = onSnapshot(
-      userRef,
-      (snapshot) => {
+    let alive = true;
+    const loadProfile = async () => {
+      try {
+        setStatus("loading");
+        const userRef = doc(db, "users", user.uid);
+        const snapshot = await getDoc(userRef);
+        if (!alive) return;
         if (snapshot.exists()) {
           setProfile(snapshot.data() as UserProfile);
         } else {
           setProfile(null);
         }
         setStatus("ready");
-      },
-      (error) => {
-        setErrorMessage(error.message);
+      } catch (error: any) {
+        if (!alive) return;
+        setErrorMessage(error?.message ?? String(error));
         setStatus("error");
       }
-    );
+    };
 
-    return () => unsubscribe();
-  }, [loading, user]);
+    loadProfile();
 
-  useEffect(() => {
-    if (loading || !user) return;
-
-    const mediaRef = doc(db, "users", user.uid, "media", "press");
-    const unsubscribe = onSnapshot(mediaRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setPressImage(snapshot.data() as MediaItem);
-      } else {
-        setPressImage(null);
-      }
-    });
-
-    return () => unsubscribe();
+    return () => {
+      alive = false;
+    };
   }, [loading, user]);
 
   const statusLabel = useMemo(() => {
@@ -145,60 +123,6 @@ export default function DashboardPage() {
   const applicationCopy = applicationStatusCopy[applicationStatus] || {
     title: "No submission yet",
     description: "Submit your intake to start the review process.",
-  };
-
-  const handleUpload = (file: File | null) => {
-    if (!user || !file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setUploadError("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError("Images must be under 10MB.");
-      return;
-    }
-
-    setUploadError(null);
-    const extension = file.name.split(".").pop() || "jpg";
-    const storagePath = `users/${user.uid}/media/press-image.${extension}`;
-    const storageRef = ref(storage, storagePath);
-
-    setUpload({ name: file.name, progress: 0, status: "uploading" });
-
-    const uploadTask = uploadBytesResumable(storageRef, file, {
-      contentType: file.type,
-    });
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setUpload((prev) => (prev ? { ...prev, progress } : prev));
-      },
-      (error) => {
-        setUpload((prev) =>
-          prev ? { ...prev, status: "error", error: error.message } : prev
-        );
-      },
-      async () => {
-        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        const mediaRef = doc(db, "users", user.uid, "media", "press");
-        await setDoc(
-          mediaRef,
-          {
-            name: file.name,
-            url: downloadUrl,
-            storagePath,
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-        setUpload((prev) => (prev ? { ...prev, status: "complete" } : prev));
-      }
-    );
   };
 
   if (!user && loading) {
@@ -299,72 +223,11 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-semibold text-white">Press images</h2>
           <p className="text-sm text-slate-200">
-            Upload a single press image (JPEG/PNG, max 10MB).
+            Upload a single press image (JPG/PNG/WEBP, max 1000×1000).
           </p>
         </div>
-        <div className="mt-6 flex flex-col gap-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => handleUpload(event.target.files?.[0] ?? null)}
-            className="text-sm text-slate-200"
-            data-testid="dashboard-upload-input"
-          />
-          {uploadError && (
-            <div
-              className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-              data-testid="dashboard-upload-error"
-            >
-              {uploadError}
-            </div>
-          )}
-          {upload && (
-            <div
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
-              data-testid="dashboard-upload-progress"
-            >
-              <div className="flex items-center justify-between text-sm text-slate-200">
-                <span>{upload.name}</span>
-                <span>
-                  {upload.status === "complete"
-                    ? "Complete"
-                    : upload.status === "error"
-                    ? "Error"
-                    : `${upload.progress}%`}
-                </span>
-              </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full bg-[#6ee7ff] transition-all"
-                  style={{ width: `${upload.progress}%` }}
-                  data-testid="dashboard-upload-progress-bar"
-                />
-              </div>
-              {upload.error && (
-                <p className="mt-2 text-xs text-red-200">{upload.error}</p>
-              )}
-            </div>
-          )}
-          {!pressImage ? (
-            <div
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
-              data-testid="dashboard-media-placeholder"
-            >
-              No press image uploaded yet.
-            </div>
-          ) : (
-            <div
-              className="rounded-2xl border border-white/10 bg-white/5 p-4"
-              data-testid="dashboard-media-item"
-            >
-              <img
-                src={pressImage.url}
-                alt={pressImage.name}
-                className="h-52 w-full rounded-xl object-cover"
-              />
-              <p className="mt-3 text-sm text-slate-200">{pressImage.name}</p>
-            </div>
-          )}
+        <div className="mt-6">
+          <PressImageManager user={user} />
         </div>
       </section>
 
