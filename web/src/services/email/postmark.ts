@@ -24,7 +24,11 @@ function getFromAddress() {
 }
 
 function getMessageStream(value?: string) {
-  return value || process.env.POSTMARK_MESSAGE_STREAM || "outbound";
+  const stream = value || process.env.POSTMARK_MESSAGE_STREAM;
+  if (!stream) {
+    throw new Error("Missing POSTMARK_MESSAGE_STREAM");
+  }
+  return stream;
 }
 
 export async function sendTransactionalEmail(args: {
