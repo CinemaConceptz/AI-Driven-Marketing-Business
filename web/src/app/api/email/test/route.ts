@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
+import { getRequestIp, rateLimit } from "@/lib/rateLimit";
 import { sendTransactionalEmail } from "@/services/email/postmark";
 
 export async function POST(req: Request) {
+  const requestId = crypto.randomUUID();
   try {
     const testKey = process.env.EMAIL_TEST_KEY;
+    const headerKey = req.headers.get("x-email-test-key");
+
+    if (process.env.NODE_ENV === "production" && (!headerKey || headerKey !== testKey)) {
+      return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+    }
+
     if (!testKey) {
       return NextResponse.json(
         { ok: false, error: "Missing EMAIL_TEST_KEY" },
@@ -11,9 +19,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const headerKey = req.headers.get("x-email-test-key");
     if (!headerKey || headerKey !== testKey) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const ip = getRequestIp(req);
+    const limit = rateLimit(`email:test:${ip}`);
+    if (!limit.allowed) {
+      return NextResponse.json({ ok: false, error: "Rate limit exceeded" }, { status: 429 });
     }
 
     const body = await req.json();
@@ -34,6 +47,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, messageId: result.messageId || null });
   } catch (error: any) {
+    console.error(`[email/test] requestId=${requestId}`, error?.message || error);
     return NextResponse.json(
       { ok: false, error: error?.message || "Unknown error" },
       { status: 500 }
