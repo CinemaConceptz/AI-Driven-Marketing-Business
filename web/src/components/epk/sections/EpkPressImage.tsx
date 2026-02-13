@@ -36,13 +36,13 @@ export default function EpkPressImage({ pressMedia }: Props) {
           className="mt-4 rounded-2xl border border-dashed border-white/20 bg-white/5 px-6 py-8 text-sm text-slate-200"
           data-testid="epk-press-image-empty"
         >
-          <p>No press image uploaded yet.</p>
+          <p>No press image yet. Upload one in Media.</p>
           <Link
             href="/media"
             className="mt-3 inline-flex rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#021024]"
             data-testid="epk-press-image-upload-link"
           >
-            Upload your press image
+            Go to Media
           </Link>
         </div>
       )}
