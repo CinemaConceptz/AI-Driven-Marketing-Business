@@ -14,24 +14,11 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == uid;
 
       match /media/{mediaId} {
-        allow create: if isSignedIn() && request.auth.uid == uid;
-        allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
-        allow delete: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+        allow read: if mediaId == "press-image" && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
+        allow create, update: if mediaId == "press-image" && isSignedIn() && request.auth.uid == uid;
+        allow delete: if mediaId == "press-image" && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
       }
     }
-
-    match /applications/{applicationId} {
-      allow create: if isSignedIn()
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.status == "new";
-      allow read: if (isSignedIn() && resource.data.uid == request.auth.uid) || isAdmin();
-      allow update: if isAdmin();
-    }
-
-    match /subscriptions/{uid} {
-      allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
-    }
-
 
     match /{document=**} {
       allow read, write: if false;
