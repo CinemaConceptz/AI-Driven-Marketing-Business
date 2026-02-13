@@ -23,6 +23,9 @@ type UserProfile = {
   subscriptionMonthlyCap?: string | number | null;
   applicationStatus?: string;
   applicationReviewNotes?: string | null;
+  emailFlags?: {
+    welcomeSentAt?: any;
+  };
 };
 
 function formatDate(
