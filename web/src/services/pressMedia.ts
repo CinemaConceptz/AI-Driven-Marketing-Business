@@ -21,6 +21,7 @@ export type PressMediaDoc = {
   tags: string[];
   sortOrder: number;
   createdAt: any;
+  updatedAt?: any;
   width: number;
   height: number;
   storagePath: string;
