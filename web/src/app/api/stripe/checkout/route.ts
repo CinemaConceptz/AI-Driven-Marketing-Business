@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { verifyAuth } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
