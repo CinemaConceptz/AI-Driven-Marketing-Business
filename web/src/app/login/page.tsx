@@ -25,7 +25,18 @@ export default function LoginPage() {
 
     try {
       if (mode === "signup") {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        try {
+          const token = await credential.user.getIdToken();
+          await fetch("/api/email/welcome", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (err) {
+          console.error("Welcome email failed", err);
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
