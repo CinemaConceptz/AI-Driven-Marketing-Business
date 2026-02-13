@@ -20,9 +20,13 @@ export default function EpkPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (loading || !uid) {
+    if (loading) return;
+
+    if (!uid) {
       setProfile(null);
       setPressMedia(null);
+      setStatus("ready");
+      setErrorMessage(null);
       return;
     }
 
