@@ -56,8 +56,7 @@ export default function FirebaseTestPage() {
       const dataUrl =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2cbY8AAAAASUVORK5CYII=";
       const blob = await (await fetch(dataUrl)).blob();
-      const uploadId = crypto.randomUUID();
-      const storagePath = `users/${user.uid}/media/test-upload-${uploadId}.png`;
+      const storagePath = `users/${user.uid}/media/press-image.png`;
       const storageRef = ref(storage, storagePath);
       const uploadTask = uploadBytesResumable(storageRef, blob, {
         contentType: "image/png",
@@ -78,13 +77,17 @@ export default function FirebaseTestPage() {
       });
 
       const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      await addDoc(collection(db, "users", user.uid, "media"), {
-        name: "test-upload.png",
-        url: downloadUrl,
-        storagePath,
-        createdAt: serverTimestamp(),
-        isTest: true,
-      });
+      const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+      await setDoc(
+        mediaRef,
+        {
+          name: "press-image.png",
+          url: downloadUrl,
+          storagePath,
+          createdAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
       setUploadStatus("pass");
     } catch (error) {
       setUploadStatus("fail");
