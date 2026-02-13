@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { sendTransactionalEmail, sendWithTemplate } from "@/services/email/postmark";
 
