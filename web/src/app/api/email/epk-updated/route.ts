@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const [userSnap, pressSnap] = await Promise.all([userRef.get(), pressRef.get()]);
     if (!pressSnap.exists) {
-      return NextResponse.json({ ok: false, error: "Press media not found" }, { status: 404 });
+      return NextResponse.json({ ok: true, skipped: true, reason: "no-press-doc" });
     }
 
     const userData = userSnap.data() || {};
@@ -30,19 +30,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing user email" }, { status: 400 });
     }
 
-    const pressUpdatedAt = pressData.updatedAt || pressData.createdAt || pressSnap.updateTime;
+    let pressUpdatedAt = pressData.updatedAt || pressData.createdAt || pressSnap.updateTime;
+    const now = admin.firestore.Timestamp.now();
     const lastSent = userData.emailFlags?.epkUpdatedLastSentAt;
 
+    if (!pressUpdatedAt) {
+      pressUpdatedAt = now;
+      await pressRef.set({ updatedAt: pressUpdatedAt }, { merge: true });
+    }
+
     if (pressUpdatedAt && lastSent && pressUpdatedAt.toMillis() <= lastSent.toMillis()) {
-      return NextResponse.json({ ok: true, skipped: true });
+      return NextResponse.json({ ok: true, skipped: true, reason: "not-newer" });
+    }
+
+    if (lastSent && now.toMillis() - lastSent.toMillis() < 10 * 60 * 1000) {
+      return NextResponse.json({ ok: true, skipped: true, reason: "cooldown" });
     }
 
     const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
     const epkUrl = `${baseUrl}/epk`;
 
     const templateId = process.env.POSTMARK_TEMPLATE_EPK_UPDATED_ID;
+    let messageId: string | undefined;
+
     if (templateId) {
-      await sendWithTemplate({
+      const result = await sendWithTemplate({
         to: targetEmail,
         templateId,
         model: {
@@ -52,19 +64,22 @@ export async function POST(req: Request) {
           downloadUrl: pressData.downloadURL || "",
         },
       });
+      messageId = result.messageId;
     } else {
-      await sendTransactionalEmail({
+      const result = await sendTransactionalEmail({
         to: targetEmail,
         subject: "Your EPK was updated",
         html: `<p>Your EPK was updated.</p><p><a href="${epkUrl}">View EPK</a></p>`,
         text: `Your EPK was updated. View: ${epkUrl}`,
       });
+      messageId = result.messageId;
     }
 
     await userRef.set(
       {
         emailFlags: {
           epkUpdatedLastSentAt: admin.firestore.FieldValue.serverTimestamp(),
+          epkUpdatedMessageId: messageId || null,
         },
       },
       { merge: true }
