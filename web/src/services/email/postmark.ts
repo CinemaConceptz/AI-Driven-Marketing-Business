@@ -14,6 +14,19 @@ function getClient() {
   return client;
 }
 
+function getFromAddress() {
+  const fromEmail = process.env.POSTMARK_FROM_EMAIL;
+  const fromName = process.env.POSTMARK_FROM_NAME || "Verified Sound A&R";
+  if (!fromEmail) {
+    throw new Error("Missing POSTMARK_FROM_EMAIL");
+  }
+  return `${fromName} <${fromEmail}>`;
+}
+
+function getMessageStream(value?: string) {
+  return value || process.env.POSTMARK_MESSAGE_STREAM || "outbound";
+}
+
 export async function sendTransactionalEmail(args: {
   to: string;
   subject: string;
@@ -21,22 +34,33 @@ export async function sendTransactionalEmail(args: {
   text?: string;
   messageStream?: string;
 }): Promise<{ messageId?: string }> {
-  const fromEmail = process.env.POSTMARK_FROM_EMAIL;
   const replyTo = process.env.POSTMARK_REPLY_TO;
-
-  if (!fromEmail) {
-    throw new Error("Missing POSTMARK_FROM_EMAIL");
-  }
-
-  const messageStream = args.messageStream || "outbound";
-
   const response = await getClient().sendEmail({
-    From: fromEmail,
+    From: getFromAddress(),
     To: args.to,
     Subject: args.subject,
     HtmlBody: args.html,
     TextBody: args.text,
-    MessageStream: messageStream,
+    MessageStream: getMessageStream(args.messageStream),
+    ReplyTo: replyTo || undefined,
+  });
+
+  return { messageId: response.MessageID };
+}
+
+export async function sendWithTemplate(args: {
+  to: string;
+  templateId: string;
+  model: Record<string, unknown>;
+  messageStream?: string;
+}): Promise<{ messageId?: string }> {
+  const replyTo = process.env.POSTMARK_REPLY_TO;
+  const response = await getClient().sendEmailWithTemplate({
+    From: getFromAddress(),
+    To: args.to,
+    TemplateId: Number(args.templateId),
+    TemplateModel: args.model,
+    MessageStream: getMessageStream(args.messageStream),
     ReplyTo: replyTo || undefined,
   });
 
