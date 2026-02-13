@@ -12,6 +12,17 @@
 - **Zone Type:** Public / Private → `___________________________`
 - **Record Count:** `___________________________`
 - **Name Servers:**
+
+## Observed Records (provided)
+- **SOA:**
+  - verifiedsoundar.com. SOA 21600
+  - ns-cloud-b1.googledomains.com. cloud-dns-hostmaster.google.com. 1 21600 3600 259200 300
+- **NS:**
+  - verifiedsoundar.com. NS 21600
+  - ns-cloud-b1.googledomains.com.
+
+> Note: This NS entry conflicts with the previously provided `ns-cloud-a*` set. Please confirm the authoritative nameserver set in Cloud DNS.
+
   - ns-cloud-a1.googledomains.com ✅
   - ns-cloud-a2.googledomains.com ✅
   - ns-cloud-a3.googledomains.com ✅
