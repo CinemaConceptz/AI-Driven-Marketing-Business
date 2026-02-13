@@ -81,37 +81,35 @@ export default function ApplyPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!user) {
-      setStatus("error");
-      setErrorMessage("Please sign in to submit your intake.");
-      router.push("/login?next=/apply");
-      return;
-    }
+    if (!user) return;
 
-    setStatus("loading");
+    setStatus("submitting");
     setErrorMessage(null);
 
     try {
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(
-        userRef,
-        {
-          ...formState,
-          applicationStatus: "new",
-          applicationReviewNotes: null,
-          applicationSubmittedAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
+      const token = await user.getIdToken();
+      const response = await fetch("/api/email/admin-new-application", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        { merge: true }
-      );
+        body: JSON.stringify(formState),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to submit application.");
+      }
+
       setStatus("success");
-      setFormState(initialState);
+      setFormState(initialFormState);
     } catch (error) {
       setStatus("error");
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Unable to submit. Please try again."
+          : "Unable to submit application."
       );
     }
   };
