@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
 
-type FormState = {
+type ApplicationFormState = {
   name: string;
   email: string;
   genre: string;
@@ -14,7 +14,7 @@ type FormState = {
   goals: string;
 };
 
-const initialState: FormState = {
+const initialFormState: ApplicationFormState = {
   name: "",
   email: "",
   genre: "",
