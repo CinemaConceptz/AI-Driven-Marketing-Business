@@ -12,15 +12,15 @@ DNS lookups indicate the Postmark records are **not yet present** on the authori
 > This does **not** match the `ns-cloud-b*` set you provided. Please confirm which NS set is active in Google Cloud DNS.
 
 ## Record Checks (Authoritative Query)
-- **DKIM TXT** `20260213033206pm._domainkey.verifiedsoundar.com` → **NOT FOUND**
-- **Return-Path CNAME** `pm-bounces.verifiedsoundar.com` → **NOT FOUND**
+- **DKIM TXT** `20260213033206pm._domainkey.verifiedsoundar.com` → **FOUND**
+- **Return-Path CNAME** `pm-bounces.verifiedsoundar.com` → **FOUND** → `pm.mtasv.net`
 - **SPF TXT** `verifiedsoundar.com` → `v=spf1 include:_spf.google.com ~all` (**Postmark include missing**)
-- **DMARC TXT** `_dmarc.verifiedsoundar.com` → **NOT FOUND**
+- **DMARC TXT** `_dmarc.verifiedsoundar.com` → **FOUND**
 
 ## Postmark Status (Expected)
-- DKIM: **Unverified**
+- DKIM: **Likely Verified**
 - SPF: **Unverified** (Postmark include missing)
-- Return-Path: **Unverified** (CNAME missing)
+- Return-Path: **Likely Verified**
 
 ## Required Fixes in Google Cloud DNS
 1) Add DKIM TXT record (provided in DNS docs)
