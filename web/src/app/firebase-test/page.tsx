@@ -26,13 +26,14 @@ export default function FirebaseTestPage() {
     setMessage(null);
 
     try {
-      await addDoc(collection(db, "users", user.uid, "media"), {
-        name: "test-metadata",
-        url: "",
-        storagePath: `users/${user.uid}/media/test-metadata`,
-        createdAt: serverTimestamp(),
-        isTest: true,
-      });
+      const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+      await setDoc(
+        mediaRef,
+        {
+          testMetadataAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
       setDocStatus("pass");
     } catch (error) {
       setDocStatus("fail");
