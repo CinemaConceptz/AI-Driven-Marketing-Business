@@ -64,10 +64,6 @@ export default function ApplyPage() {
     };
   }, [loading, user]);
 
-  const canSubmit = useMemo(
-    () =>
-      formState.name &&
-      formState.email &&
   const handleCheckout = async () => {
     if (!user) return;
     setPaymentError(null);
@@ -99,6 +95,10 @@ export default function ApplyPage() {
     }
   };
 
+  const canSubmit = useMemo(
+    () =>
+      formState.name &&
+      formState.email &&
       formState.genre &&
       formState.links &&
       formState.goals,
