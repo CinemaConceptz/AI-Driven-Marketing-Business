@@ -19,7 +19,7 @@ DNS lookups show **DKIM, Return-Path, SPF, and DMARC are present**. DMARC appear
 
 ## Postmark Status (Expected)
 - DKIM: **Likely Verified**
-- SPF: **Unverified** (Postmark include missing)
+- SPF: **Likely Verified**
 - Return-Path: **Likely Verified**
 
 ## Required Fixes in Google Cloud DNS
