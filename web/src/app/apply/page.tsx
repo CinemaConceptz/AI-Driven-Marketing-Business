@@ -23,20 +23,60 @@ const initialFormState: ApplicationFormState = {
 };
 
 export default function ApplyPage() {
-  const { user } = useAuth();
   const router = useRouter();
-  const isAuthenticated = Boolean(user);
-  const [formState, setFormState] = useState<FormState>(initialState);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+  const { user, loading } = useAuth();
+  const [formState, setFormState] = useState<ApplicationFormState>(initialFormState);
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">(
     "idle"
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"loading" | "paid" | "unpaid">(
+    "loading"
+  );
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login?next=/apply");
+    }
+  }, [loading, router, user]);
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    let active = true;
+    const loadPayment = async () => {
+      try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        const data = userSnap.data();
+        const paid = data?.paymentStatus === "paid";
+        if (active) {
+          setPaymentStatus(paid ? "paid" : "unpaid");
+        }
+      } catch {
+        if (active) {
+          setPaymentStatus("unpaid");
+        }
+      }
+    };
+
+    loadPayment();
+    return () => {
+      active = false;
+    };
+  }, [loading, user]);
+
+  const canSubmit = useMemo(
+    () =>
+      formState.name &&
+      formState.email &&
+      formState.genre &&
+      formState.links &&
+      formState.goals,
+    [formState]
+  );
+
+  const handleChange = (key: keyof ApplicationFormState, value: string) => {
+    setFormState((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
