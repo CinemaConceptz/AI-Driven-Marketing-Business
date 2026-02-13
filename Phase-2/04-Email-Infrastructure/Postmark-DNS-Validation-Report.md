@@ -14,8 +14,8 @@ DNS lookups show **DKIM, Return-Path, and DMARC are present**. **SPF is still mi
 ## Record Checks (Authoritative Query)
 - **DKIM TXT** `20260213033206pm._domainkey.verifiedsoundar.com` → **FOUND**
 - **Return-Path CNAME** `pm-bounces.verifiedsoundar.com` → **FOUND** → `pm.mtasv.net`
-- **SPF TXT** `verifiedsoundar.com` → `v=spf1 include:_spf.google.com ~all` (**Postmark include missing**)
-- **DMARC TXT** `_dmarc.verifiedsoundar.com` → **FOUND**
+- **SPF TXT** `verifiedsoundar.com` → `v=spf1 include:_spf.google.com include:spf.mtasv.net ~all` ✅
+- **DMARC TXT** `_dmarc.verifiedsoundar.com` → **FOUND** (value appears truncated in DNS lookup)
 
 ## Postmark Status (Expected)
 - DKIM: **Likely Verified**
