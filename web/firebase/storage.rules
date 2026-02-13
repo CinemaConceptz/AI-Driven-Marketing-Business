@@ -1,28 +1,17 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    function isSignedIn() {
+
+    function signedIn() {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return request.auth != null && request.auth.uid == "hryXqvyqmjdfEy4TG0nvcmDbQxp2";
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
     }
 
-    match /users/{uid}/media/{fileName} {
-      allow read: if fileName.matches('press-image\\.[A-Za-z0-9]+')
-        && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
-      allow write: if fileName.matches('press-image\\.[A-Za-z0-9]+')
-        && isSignedIn()
-        && request.auth.uid == uid
-        && request.resource.contentType.matches('image/.*')
-        && request.resource.size < 10 * 1024 * 1024;
-      allow delete: if fileName.matches('press-image\\.[A-Za-z0-9]+')
-        && ((isSignedIn() && request.auth.uid == uid) || isAdmin());
-    }
-
-    match /{allPaths=**} {
-      allow read, write: if false;
+    match /users/{uid}/{allPaths=**} {
+      allow read, write: if isOwner(uid);
     }
   }
 }
