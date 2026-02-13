@@ -56,6 +56,16 @@ export default function NavBar() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/media"
+                data-testid="nav-media-link"
+                className={`transition hover:text-white ${
+                  pathname === "/media" ? "text-white" : "text-slate-200"
+                }`}
+              >
+                Media
+              </Link>
+
               <button
                 onClick={handleSignOut}
                 className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/60"
