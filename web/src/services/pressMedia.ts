@@ -103,6 +103,7 @@ export async function uploadPressImage(
     tags: [],
     sortOrder: 0,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
     width,
     height,
     storagePath,
