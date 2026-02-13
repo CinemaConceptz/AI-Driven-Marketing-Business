@@ -30,6 +30,33 @@ TXT
 k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCTcUP9shBjkVJy+Aj5OM3rcB1PdaFmGLJ+OOeUXhCVUh0MiFTPzDolcNrRr2/p1gAotXgjFoCKKQmicZ27/WMN509N2zhLv9EIfyMgjRxvigfS7vVA/I+ROPIDZCG/d8k/IhhPUtbnaOu7VEgnT8K/cZlL4s7QF43ak0ud6fFWPQIDAQAB
 ```
 
+
+## SECTION B — Return-Path CNAME
+**DNS Name:**
+```
+pm-bounces
+```
+
+**Resource Record Type:**
+```
+CNAME
+```
+
+**TTL:**
+```
+3600
+```
+
+**Data:**
+```
+pm.mtasv.net
+```
+
+Click **Save**.
+
+---
+
+
 Click **Save**.
 
 ---
