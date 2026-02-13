@@ -185,7 +185,7 @@ export default function DashboardPage() {
       },
       async () => {
         const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+        const mediaRef = doc(db, "users", user.uid, "media", "press");
         await setDoc(
           mediaRef,
           {
