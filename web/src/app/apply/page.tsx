@@ -151,29 +151,18 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
       <section className="glass-panel rounded-3xl px-8 py-10">
-        <p
-          className="text-sm uppercase tracking-[0.2em] text-slate-400"
-          data-testid="apply-kicker"
+        <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Apply</p>
+        <h1
+          className="mt-3 text-3xl font-semibold text-white"
+          data-testid="apply-title"
         >
-          Artist intake
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold text-white" data-testid="apply-title">
-          Submit your representation request
-        {!isAuthenticated && (
-          <div
-            className="rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
-            data-testid="apply-auth-alert"
-          >
-            Please sign in before submitting your intake.
-          </div>
-        )}
-
+          Artist intake form
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-200" data-testid="apply-subtitle">
-          Share your details, release focus, and goals. We review every intake
-          with a placement-first lens.
+        <p className="mt-3 text-sm text-slate-200" data-testid="apply-subtitle">
+          Tell us about your music, goals, and campaign readiness. We focus on
+          House, EDM, Disco, Afro, Soulful, and Trance releases.
         </p>
       </section>
 
