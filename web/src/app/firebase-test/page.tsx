@@ -1,50 +1,124 @@
 "use client";
 
-import { useState } from "react";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from "@/providers/AuthProvider";
 import { db, storage } from "@/lib/firebase";
 
 type StatusState = "idle" | "working" | "pass" | "fail";
 
+type MediaDoc = {
+  id: string;
+  name?: string;
+  url?: string;
+  storagePath?: string;
+};
+
 export default function FirebaseTestPage() {
-  const { user } = useAuth();
-  const [docStatus, setDocStatus] = useState<StatusState>("idle");
+  const { user, loading } = useAuth();
+  const [userDocStatus, setUserDocStatus] = useState<StatusState>("idle");
+  const [mediaDocStatus, setMediaDocStatus] = useState<StatusState>("idle");
+  const [listenerStatus, setListenerStatus] = useState<StatusState>("idle");
   const [uploadStatus, setUploadStatus] = useState<StatusState>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [mediaDocs, setMediaDocs] = useState<MediaDoc[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleCreateDoc = async () => {
-    if (!user) {
-      setDocStatus("fail");
-      setMessage("Sign in to run the Firestore test.");
+  useEffect(() => {
+    if (loading || !user) {
+      setMediaDocs([]);
+      setListenerStatus("idle");
       return;
     }
 
-    setDocStatus("working");
+    const mediaCollection = collection(db, "users", user.uid, "media");
+    const unsubscribe = onSnapshot(
+      mediaCollection,
+      (snapshot) => {
+        const docs = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...(docSnap.data() as Omit<MediaDoc, "id">),
+        }));
+        setMediaDocs(docs);
+        setListenerStatus("pass");
+      },
+      (error) => {
+        setListenerStatus("fail");
+        setMessage(error?.message ?? String(error));
+      }
+    );
+
+    return () => unsubscribe();
+  }, [loading, user]);
+
+  const handleEnsureUserDoc = async () => {
+    if (!user) {
+      setUserDocStatus("fail");
+      setMessage("Not logged in — cannot test private Firestore paths.");
+      return;
+    }
+
+    setUserDocStatus("working");
     setMessage(null);
 
     try {
-      const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+      const userRef = doc(db, "users", user.uid);
+      const snapshot = await getDoc(userRef);
+      if (!snapshot.exists()) {
+        await setDoc(
+          userRef,
+          {
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+      setUserDocStatus("pass");
+    } catch (error) {
+      setUserDocStatus("fail");
+      setMessage(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const handleCreateMediaDoc = async () => {
+    if (!user) {
+      setMediaDocStatus("fail");
+      setMessage("Not logged in — cannot test private Firestore paths.");
+      return;
+    }
+
+    setMediaDocStatus("working");
+    setMessage(null);
+
+    try {
+      const mediaRef = doc(db, "users", user.uid, "media", "press");
       await setDoc(
         mediaRef,
         {
-          testMetadataAt: serverTimestamp(),
+          name: "press",
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
-      setDocStatus("pass");
+      setMediaDocStatus("pass");
     } catch (error) {
-      setDocStatus("fail");
-      setMessage(error instanceof Error ? error.message : "Firestore test failed.");
+      setMediaDocStatus("fail");
+      setMessage(error instanceof Error ? error.message : String(error));
     }
   };
 
   const handleUpload = async () => {
     if (!user) {
       setUploadStatus("fail");
-      setMessage("Sign in to run the Storage test.");
+      setMessage("Not logged in — cannot test private Firestore paths.");
       return;
     }
 
@@ -77,21 +151,21 @@ export default function FirebaseTestPage() {
       });
 
       const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      const mediaRef = doc(db, "users", user.uid, "media", "press-image");
+      const mediaRef = doc(db, "users", user.uid, "media", "press");
       await setDoc(
         mediaRef,
         {
           name: "press-image.png",
           url: downloadUrl,
           storagePath,
-          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
       setUploadStatus("pass");
     } catch (error) {
       setUploadStatus("fail");
-      setMessage(error instanceof Error ? error.message : "Storage test failed.");
+      setMessage(error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -121,7 +195,11 @@ export default function FirebaseTestPage() {
           className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
           data-testid="firebase-test-auth-status"
         >
-          {user ? `Signed in as ${user.email}` : "Not signed in"}
+          {loading
+            ? "Checking auth status..."
+            : user
+            ? `Signed in as ${user.email}`
+            : "Not logged in — cannot test private Firestore paths"}
         </div>
       </section>
 
@@ -129,22 +207,42 @@ export default function FirebaseTestPage() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-white">Firestore test</h2>
-              <p className="text-sm text-slate-200">Create a metadata document.</p>
+              <h2 className="text-xl font-semibold text-white">User doc test</h2>
+              <p className="text-sm text-slate-200">Ensure users/{`{uid}`} exists.</p>
             </div>
             <button
-              onClick={handleCreateDoc}
+              onClick={handleEnsureUserDoc}
               className="rounded-full bg-[#6ee7ff] px-5 py-3 text-sm font-semibold text-[#021024]"
-              data-testid="firebase-test-firestore-button"
+              data-testid="firebase-test-userdoc-button"
             >
               Run test
             </button>
           </div>
-          <div
-            className="text-sm text-slate-200"
-            data-testid="firebase-test-firestore-status"
-          >
-            Status: {statusLabel(docStatus)}
+          <div className="text-sm text-slate-200" data-testid="firebase-test-userdoc-status">
+            Status: {statusLabel(userDocStatus)}
+          </div>
+        </div>
+      </section>
+
+      <section className="glass-panel rounded-3xl px-8 py-10">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-white">Media doc test</h2>
+              <p className="text-sm text-slate-200">
+                Write users/{`{uid}`}/media/press.
+              </p>
+            </div>
+            <button
+              onClick={handleCreateMediaDoc}
+              className="rounded-full bg-[#6ee7ff] px-5 py-3 text-sm font-semibold text-[#021024]"
+              data-testid="firebase-test-media-button"
+            >
+              Run test
+            </button>
+          </div>
+          <div className="text-sm text-slate-200" data-testid="firebase-test-media-status">
+            Status: {statusLabel(mediaDocStatus)}
           </div>
         </div>
       </section>
@@ -155,7 +253,7 @@ export default function FirebaseTestPage() {
             <div>
               <h2 className="text-xl font-semibold text-white">Storage test</h2>
               <p className="text-sm text-slate-200">
-                Upload a 1x1 PNG and write metadata.
+                Upload press-image.png and store metadata.
               </p>
             </div>
             <button
@@ -166,10 +264,7 @@ export default function FirebaseTestPage() {
               Run test
             </button>
           </div>
-          <div
-            className="text-sm text-slate-200"
-            data-testid="firebase-test-storage-status"
-          >
+          <div className="text-sm text-slate-200" data-testid="firebase-test-storage-status">
             Status: {statusLabel(uploadStatus)}
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
@@ -179,6 +274,30 @@ export default function FirebaseTestPage() {
               data-testid="firebase-test-storage-progress"
             />
           </div>
+        </div>
+      </section>
+
+      <section className="glass-panel rounded-3xl px-8 py-10">
+        <h2 className="text-xl font-semibold text-white">Media listener output</h2>
+        <p className="mt-2 text-sm text-slate-200" data-testid="firebase-test-listener-status">
+          Listener status: {statusLabel(listenerStatus)}
+        </p>
+        <div className="mt-4 space-y-2 text-sm text-slate-200">
+          {mediaDocs.length === 0 ? (
+            <p data-testid="firebase-test-media-empty">No media docs found.</p>
+          ) : (
+            mediaDocs.map((docItem) => (
+              <div
+                key={docItem.id}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                data-testid={`firebase-test-media-${docItem.id}`}
+              >
+                <p>ID: {docItem.id}</p>
+                <p>Name: {docItem.name || "—"}</p>
+                <p>Storage: {docItem.storagePath || "—"}</p>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
