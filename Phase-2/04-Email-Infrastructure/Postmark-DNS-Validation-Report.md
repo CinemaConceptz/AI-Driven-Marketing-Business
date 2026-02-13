@@ -23,9 +23,9 @@ DNS lookups show **DKIM, Return-Path, SPF, and DMARC are present**. DMARC appear
 - Return-Path: **Likely Verified**
 
 ## Required Fixes in Google Cloud DNS
-1) Update SPF to: `v=spf1 include:_spf.google.com include:spf.mtasv.net ~all`
-
-> DKIM, Return-Path, and DMARC are already present based on authoritative DNS lookup.
+- No required fixes detected for DKIM/Return-Path/SPF.
+- **Verify DMARC value** in Google Cloud DNS to ensure it fully matches:
+  `v=DMARC1; p=none; rua=mailto:dmarc@verifiedsoundar.com;`
 
 After updates:
 - Wait 5–15 minutes
