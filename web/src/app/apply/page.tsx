@@ -34,11 +34,7 @@ export default function ApplyPage() {
     "loading"
   );
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login?next=/apply");
-    }
-  }, [loading, router, user]);
+
 
   useEffect(() => {
     if (loading || !user) return;
