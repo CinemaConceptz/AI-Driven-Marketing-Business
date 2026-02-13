@@ -105,7 +105,7 @@ export default function EpkPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-4xl flex flex-col gap-6">
       <EpkLayout profile={profile} pressMedia={pressMedia} uid={uid} />
     </div>
   );
