@@ -1,12 +1,14 @@
 "use client";
 
+import { ReactNode } from "react";
+
 export default function DataTable({
   headers,
   rows,
   emptyMessage = "No results.",
 }: {
   headers: string[];
-  rows: (string | JSX.Element)[][];
+  rows: (string | ReactNode)[][];
   emptyMessage?: string;
 }) {
   return (
