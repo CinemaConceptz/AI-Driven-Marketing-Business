@@ -63,6 +63,8 @@ export async function POST(req: Request) {
           caption: pressData.caption || "",
           downloadUrl: pressData.downloadURL || "",
         },
+        uid,
+        emailType: "epk_updated",
       });
       messageId = result.messageId;
     } else {
@@ -71,6 +73,8 @@ export async function POST(req: Request) {
         subject: "Your EPK was updated",
         html: `<p>Your EPK was updated.</p><p><a href="${epkUrl}">View EPK</a></p>`,
         text: `Your EPK was updated. View: ${epkUrl}`,
+        uid,
+        emailType: "epk_updated",
       });
       messageId = result.messageId;
     }

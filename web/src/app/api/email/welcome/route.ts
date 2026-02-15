@@ -43,6 +43,8 @@ export async function POST(req: Request) {
           mediaUrl,
           name: userData.artistName || userData.displayName || "",
         },
+        uid,
+        emailType: "welcome",
       });
       messageId = result.messageId;
     } else {
@@ -51,6 +53,8 @@ export async function POST(req: Request) {
         subject: "Welcome to Verified Sound A&R",
         html: `<p>Welcome to Verified Sound A&R.</p><p>Start here: <a href="${dashboardUrl}">Dashboard</a> or upload media in <a href="${mediaUrl}">Media</a>.</p>`,
         text: `Welcome to Verified Sound A&R. Dashboard: ${dashboardUrl} Media: ${mediaUrl}`,
+        uid,
+        emailType: "welcome",
       });
       messageId = result.messageId;
     }

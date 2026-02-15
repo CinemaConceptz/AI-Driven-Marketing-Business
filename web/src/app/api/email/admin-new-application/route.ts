@@ -80,6 +80,9 @@ export async function POST(req: Request) {
           submissionId: submissionRef.id,
           submittedAt: new Date().toISOString(),
         },
+        uid,
+        emailType: "admin_new_application",
+        meta: { submissionId: submissionRef.id },
       });
       messageId = result.messageId;
     } else {
@@ -88,6 +91,9 @@ export async function POST(req: Request) {
         subject: "New Verified Sound A&R Application",
         html: `<p>New application received.</p><p>Name: ${name}</p><p>Email: ${email || ""}</p><p>UID: ${uid}</p><p>Submission: ${submissionRef.id}</p>`,
         text: `New application received. Name: ${name}. Email: ${email || ""}. UID: ${uid}. Submission: ${submissionRef.id}.`,
+        uid,
+        emailType: "admin_new_application",
+        meta: { submissionId: submissionRef.id },
       });
       messageId = result.messageId;
     }
