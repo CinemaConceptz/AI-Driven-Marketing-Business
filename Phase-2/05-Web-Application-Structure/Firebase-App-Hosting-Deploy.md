@@ -6,7 +6,7 @@ Before deploying, ensure you have:
 - [ ] Firebase CLI installed (`npm install -g firebase-tools`)
 - [ ] Logged into Firebase (`firebase login`)
 - [ ] Access to the Firebase project `verifiedsound-aec78`
-- [ ] All environment variables ready (see section below)
+- [ ] Google Cloud CLI installed (for Secret Manager)
 
 ---
 
@@ -16,8 +16,8 @@ From the `/web` directory:
 
 ```bash
 cd /path/to/web
-npm ci          # Clean install dependencies
-npm run build   # Verify production build works
+yarn install --frozen-lockfile
+yarn build   # Uses --webpack flag to avoid Turbopack issues
 ```
 
 ---
@@ -40,74 +40,70 @@ firebase use verifiedsound-aec78
 
 ---
 
-## Step 3: Deploy Firestore Rules First
+## Step 3: Set Up Secrets in Google Secret Manager
+
+App Hosting uses **Secret Manager** for sensitive environment variables. Run these commands:
+
+```bash
+# Enable Secret Manager API (if not already)
+gcloud services enable secretmanager.googleapis.com
+
+# Create secrets (you'll be prompted to enter each value)
+echo -n "YOUR_OPENAI_KEY" | gcloud secrets create OPENAI_API_KEY --data-file=-
+echo -n "YOUR_POSTMARK_TOKEN" | gcloud secrets create POSTMARK_SERVER_TOKEN --data-file=-
+echo -n "YOUR_STRIPE_SECRET" | gcloud secrets create STRIPE_SECRET_KEY --data-file=-
+echo -n "YOUR_STRIPE_WEBHOOK_SECRET" | gcloud secrets create STRIPE_WEBHOOK_SECRET --data-file=-
+echo -n "YOUR_STRIPE_PRICE_ID" | gcloud secrets create STRIPE_PRICE_ID --data-file=-
+```
+
+Or use the Google Cloud Console:
+1. Go to: https://console.cloud.google.com/security/secret-manager
+2. Select project `verifiedsound-aec78`
+3. Click "Create Secret" for each:
+   - `OPENAI_API_KEY`
+   - `POSTMARK_SERVER_TOKEN`
+   - `STRIPE_SECRET_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+   - `STRIPE_PRICE_ID`
+
+---
+
+## Step 4: Deploy Firestore Rules First
 
 ```bash
 firebase deploy --only firestore:rules
 ```
 
-This deploys the updated security rules with:
-- `isAdmin()` function for admin access
-- Rules for: `admins`, `submissions`, `payments`, `emailLogs`, `intakeChats`, `intakeProfiles`
-
 ---
 
-## Step 4: Deploy to Firebase App Hosting
+## Step 5: Deploy to Firebase App Hosting
 
 ```bash
 firebase deploy --only hosting
 ```
 
-If that fails, try full deploy:
-
+If that fails, try:
 ```bash
 firebase deploy
 ```
 
 ---
 
-## Step 5: Set Production Environment Variables
+## Step 6: Update apphosting.yaml Values
 
-In **Firebase Console → Hosting → Settings → Environment Variables**, add:
+Edit `/web/apphosting.yaml` to update non-secret values:
+- `POSTMARK_FROM_EMAIL` - Your verified sender email
+- `ADMIN_NOTIFY_EMAIL` - Admin notification email
+- `APP_BASE_URL` - Your production URL
 
-### Required Variables
-
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | Your OpenAI API key for GPT-5.2 |
-| `OPENAI_MODEL` | `gpt-5.2` (or your preferred model) |
-| `POSTMARK_SERVER_TOKEN` | Postmark server API token |
-| `POSTMARK_FROM_EMAIL` | Verified sender email |
-| `POSTMARK_FROM_NAME` | "Verified Sound A&R" |
-| `POSTMARK_MESSAGE_STREAM` | Your Postmark stream ID |
-| `ADMIN_NOTIFY_EMAIL` | Admin email for notifications |
-| `STRIPE_SECRET_KEY` | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `STRIPE_PRICE_ID` | Your Stripe price ID |
-| `STRIPE_SUCCESS_URL` | `https://verifiedsoundar.com/apply/success` |
-| `STRIPE_CANCEL_URL` | `https://verifiedsoundar.com/apply` |
-| `APP_BASE_URL` | `https://verifiedsoundar.com` |
-| `FIREBASE_PROJECT_ID` | `verifiedsound-aec78` |
-
-### Client-side Variables (NEXT_PUBLIC_*)
-
-These should already be in your `.env.local` and bundled at build time:
-- `NEXT_PUBLIC_FIREBASE_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `NEXT_PUBLIC_FIREBASE_APP_ID`
-
-After setting env vars, redeploy:
-
+Then redeploy:
 ```bash
 firebase deploy --only hosting
 ```
 
 ---
 
-## Step 6: Connect Custom Domain
+## Step 7: Connect Custom Domain
 
 ### In Firebase Console:
 
@@ -128,119 +124,52 @@ Add the DNS records Firebase provides. Typically:
 | AAAA | @ | (Firebase IPv6 2) |
 | CNAME | www | verifiedsound-aec78.web.app |
 
-Wait for DNS propagation (can take up to 48 hours, usually faster).
-
-Firebase will automatically provision SSL certificate once verified.
-
 ---
 
-## Step 7: Create Admin User
+## Step 8: Create Admin User
 
 Add yourself as an admin in Firestore:
 
 1. Go to **Firebase Console → Firestore Database**
 2. Create collection: `admins`
 3. Add document with ID = your Firebase UID
-4. Fields:
-   ```json
-   {
-     "role": "admin",
-     "createdAt": (timestamp),
-     "note": "DeJohne"
-   }
-   ```
-
-To find your UID:
-- Go to **Authentication → Users**
-- Find your email and copy the UID
+4. Fields: `{ "role": "admin" }`
 
 ---
 
-## Step 8: Final Validation Checklist
+## Step 9: Final Validation Checklist
 
 Test each flow on the live site:
 
-### Authentication
-- [ ] `/login` - Sign up new user
-- [ ] `/login` - Sign in existing user
-- [ ] Redirect to `/dashboard` after login
-
-### Payment Flow
-- [ ] `/pricing` - View pricing
-- [ ] `/apply` - See payment required message
-- [ ] Stripe checkout completes
-- [ ] `/apply/success` - Payment confirmed
-- [ ] `payments/*` document created in Firestore
-
-### AI Intake Chat
-- [ ] `/apply` - AI chatbox appears (after payment)
-- [ ] Chat responds with GPT-5.2
-- [ ] Form fields auto-fill from extracted data
-- [ ] `intakeChats/{uid}/messages/*` populated
-- [ ] `intakeProfiles/{uid}` updated
-
-### Admin Dashboard
-- [ ] Non-admin redirected away from `/admin`
-- [ ] Admin can access `/admin`
-- [ ] `/admin` - Overview stats load
-- [ ] `/admin/submissions` - List shows
-- [ ] `/admin/submissions` - "View Chat" opens transcript
-- [ ] `/admin/payments` - Payments list shows
-- [ ] `/admin/emails` - Email logs show
-- [ ] `/admin/users` - Users list shows
-
-### Emails
-- [ ] Welcome email sent on signup
-- [ ] Admin notification on application submit
-- [ ] `emailLogs/*` documents created
+- [ ] `/login` - Sign up/in works
+- [ ] `/apply` - AI chatbox appears and responds
+- [ ] `/admin` - Admin access works with allowlist
+- [ ] Stripe checkout creates payment
+- [ ] Emails logged in `/admin/emails`
 
 ---
 
 ## Troubleshooting
 
-### Build Fails
-```bash
-# Clear cache and rebuild
-rm -rf .next node_modules
-npm ci
-npm run build
-```
+### Turbopack Symlink Error
+The build script now uses `--webpack` flag to avoid this.
 
-### Env Vars Not Working
-- Server-side vars must be set in Firebase Console, not `.env.local`
-- Client-side `NEXT_PUBLIC_*` vars are bundled at build time
-- Redeploy after changing env vars
+### CVE Block
+Next.js 16.1.6 includes the security patches for CVE-2025-55184.
 
-### Admin Access Denied
-- Verify your UID in `admins/{uid}` document
-- Check Firestore security rules are deployed
-- Ensure you're signed in with the correct account
+### Secrets Not Found
+Ensure secrets are created in the same GCP project (`verifiedsound-aec78`).
 
-### OpenAI Not Working
-- Verify `OPENAI_API_KEY` is set correctly
-- Check rate limits on your OpenAI account
-- Look at server logs in Firebase Console
+### Build Fails on Firebase
+Check Cloud Build logs in GCP Console for detailed errors.
 
 ---
 
-## Quick Commands Reference
+## Key Files
 
-```bash
-# Deploy everything
-firebase deploy
-
-# Deploy only hosting
-firebase deploy --only hosting
-
-# Deploy only Firestore rules
-firebase deploy --only firestore:rules
-
-# Deploy only Storage rules  
-firebase deploy --only storage
-
-# View deployment logs
-firebase hosting:channel:deploy preview
-
-# Open Firebase Console
-firebase open hosting
-```
+| File | Purpose |
+|------|---------|
+| `apphosting.yaml` | Environment variables and secrets config |
+| `firebase.json` | Firebase services config |
+| `firebase/firestore.rules` | Database security rules |
+| `package.json` | Build script with `--webpack` flag |
