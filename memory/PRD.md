@@ -127,8 +127,10 @@ APP_BASE_URL=
 ### P0 (Critical)
 - [x] Admin Dashboard
 - [x] AI Intake Chatbox
-- [ ] Deployment to Firebase App Hosting
-- [ ] Custom domain setup (verifiedsoundar.com)
+- [x] Build fixes (Suspense boundaries for useSearchParams)
+- [x] Firebase.json App Hosting configuration
+- [ ] Deploy to Firebase App Hosting (user action required)
+- [ ] Custom domain setup (verifiedsoundar.com) (user action required)
 
 ### P1 (High Priority)
 - [ ] Admin ability to update submission status
