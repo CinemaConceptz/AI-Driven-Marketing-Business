@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/providers/AuthProvider";
 
-export default function ApplySuccessPage() {
+function ApplySuccessContent() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const [status, setStatus] = useState<"checking" | "paid" | "pending">("checking");
@@ -60,5 +60,13 @@ export default function ApplySuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ApplySuccessPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto w-full max-w-3xl text-slate-400">Loading...</div>}>
+      <ApplySuccessContent />
+    </Suspense>
   );
 }
