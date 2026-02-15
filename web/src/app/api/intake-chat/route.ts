@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     
     // Rate limiting
     const ip = getRequestIp(req);
-    const limit = rateLimit(`intake-chat:${uid}:${ip}`, 30, 60000); // 30 requests per minute
+    const limit = rateLimit(`intake-chat:${uid}:${ip}`);
     if (!limit.allowed) {
       return NextResponse.json(
         { ok: false, error: "Rate limit exceeded. Please slow down." },
