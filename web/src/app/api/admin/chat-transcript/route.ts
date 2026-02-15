@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     const adminRef = adminDb.collection("admins").doc(uid);
     const adminSnap = await adminRef.get();
     
-    if (!adminSnap.exists()) {
+    if (!adminSnap.exists) {
       return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
     }
 
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
     // Fetch intake profile
     const profileRef = adminDb.collection("intakeProfiles").doc(userId);
     const profileSnap = await profileRef.get();
-    const profile = profileSnap.exists() ? profileSnap.data() : null;
+    const profile = profileSnap.exists ? profileSnap.data() : null;
 
     return NextResponse.json({
       ok: true,
