@@ -1,5 +1,6 @@
 import "server-only";
 import { ServerClient } from "postmark";
+import { writeEmailLog } from "@/lib/firestore/writeEmailLog";
 
 let client: ServerClient | null = null;
 
@@ -37,19 +38,51 @@ export async function sendTransactionalEmail(args: {
   html: string;
   text?: string;
   messageStream?: string;
-}): Promise<{ messageId?: string }> {
+  uid?: string;
+  emailType?: string;
+  meta?: Record<string, unknown>;
+}): Promise<{ messageId?: string; logId?: string }> {
   const replyTo = process.env.POSTMARK_REPLY_TO;
-  const response = await getClient().sendEmail({
-    From: getFromAddress(),
-    To: args.to,
-    Subject: args.subject,
-    HtmlBody: args.html,
-    TextBody: args.text,
-    MessageStream: getMessageStream(args.messageStream),
-    ReplyTo: replyTo || undefined,
-  });
+  let messageId: string | undefined;
+  let logId: string | undefined;
+  let error: string | undefined;
 
-  return { messageId: response.MessageID };
+  try {
+    const response = await getClient().sendEmail({
+      From: getFromAddress(),
+      To: args.to,
+      Subject: args.subject,
+      HtmlBody: args.html,
+      TextBody: args.text,
+      MessageStream: getMessageStream(args.messageStream),
+      ReplyTo: replyTo || undefined,
+    });
+    messageId = response.MessageID;
+
+    // Log successful send
+    logId = await writeEmailLog({
+      uid: args.uid || null,
+      type: args.emailType || "transactional",
+      to: args.to,
+      status: "sent",
+      postmarkMessageId: messageId,
+      meta: args.meta,
+    });
+  } catch (err: any) {
+    error = err?.message || "Unknown error";
+    // Log failed send
+    logId = await writeEmailLog({
+      uid: args.uid || null,
+      type: args.emailType || "transactional",
+      to: args.to,
+      status: "failed",
+      error,
+      meta: args.meta,
+    });
+    throw err;
+  }
+
+  return { messageId, logId };
 }
 
 export async function sendWithTemplate(args: {
@@ -57,16 +90,50 @@ export async function sendWithTemplate(args: {
   templateId: string;
   model: Record<string, unknown>;
   messageStream?: string;
-}): Promise<{ messageId?: string }> {
+  uid?: string;
+  emailType?: string;
+  meta?: Record<string, unknown>;
+}): Promise<{ messageId?: string; logId?: string }> {
   const replyTo = process.env.POSTMARK_REPLY_TO;
-  const response = await getClient().sendEmailWithTemplate({
-    From: getFromAddress(),
-    To: args.to,
-    TemplateId: Number(args.templateId),
-    TemplateModel: args.model,
-    MessageStream: getMessageStream(args.messageStream),
-    ReplyTo: replyTo || undefined,
-  });
+  let messageId: string | undefined;
+  let logId: string | undefined;
+  let error: string | undefined;
 
-  return { messageId: response.MessageID };
+  try {
+    const response = await getClient().sendEmailWithTemplate({
+      From: getFromAddress(),
+      To: args.to,
+      TemplateId: Number(args.templateId),
+      TemplateModel: args.model,
+      MessageStream: getMessageStream(args.messageStream),
+      ReplyTo: replyTo || undefined,
+    });
+    messageId = response.MessageID;
+
+    // Log successful send
+    logId = await writeEmailLog({
+      uid: args.uid || null,
+      type: args.emailType || "template",
+      to: args.to,
+      templateId: Number(args.templateId),
+      status: "sent",
+      postmarkMessageId: messageId,
+      meta: args.meta,
+    });
+  } catch (err: any) {
+    error = err?.message || "Unknown error";
+    // Log failed send
+    logId = await writeEmailLog({
+      uid: args.uid || null,
+      type: args.emailType || "template",
+      to: args.to,
+      templateId: Number(args.templateId),
+      status: "failed",
+      error,
+      meta: args.meta,
+    });
+    throw err;
+  }
+
+  return { messageId, logId };
 }
