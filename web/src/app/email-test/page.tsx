@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 
-export default function EmailTestPage() {
+function EmailTestContent() {
   const { user, loading } = useAuth();
   const searchParams = useSearchParams();
   const [to, setTo] = useState("");
@@ -20,7 +20,7 @@ export default function EmailTestPage() {
 
   async function send() {
     if (!key) {
-      setStatus("❌ Missing test key.");
+      setStatus("Missing test key.");
       return;
     }
 
@@ -41,9 +41,9 @@ export default function EmailTestPage() {
         : { ok: false, error: await res.text() };
 
       if (!data.ok) throw new Error(data.error || "Failed");
-      setStatus(`✅ Sent. MessageId: ${data.messageId || "(none)"}`);
+      setStatus(`Sent. MessageId: ${data.messageId || "(none)"}`);
     } catch (e: any) {
-      setStatus(`❌ ${e.message}`);
+      setStatus(`Error: ${e.message}`);
     }
   }
 
@@ -112,5 +112,13 @@ export default function EmailTestPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function EmailTestPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto w-full max-w-2xl text-slate-400">Loading...</div>}>
+      <EmailTestContent />
+    </Suspense>
   );
 }
