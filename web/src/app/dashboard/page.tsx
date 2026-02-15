@@ -110,6 +110,31 @@ export default function DashboardPage() {
     };
   }, [loading, user]);
 
+  // Send welcome email on first dashboard visit
+  useEffect(() => {
+    if (!user || !profile) return;
+    if (typeof window === "undefined") return;
+
+    const localKey = `welcome-email:${user.uid}`;
+    if (localStorage.getItem(localKey)) return;
+
+    if (!profile.emailFlags?.welcomeSentAt) {
+      (async () => {
+        try {
+          const token = await user.getIdToken();
+          await fetch("/api/email/welcome", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err) {
+          console.error("Welcome email trigger failed", err);
+        } finally {
+          localStorage.setItem(localKey, "1");
+        }
+      })();
+    }
+  }, [profile, user]);
+
   const statusLabel = useMemo(() => {
     const rawStatus = profile?.subscriptionStatus ?? profile?.status;
     if (!rawStatus) return "Inactive";
