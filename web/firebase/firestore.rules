@@ -47,5 +47,22 @@ service cloud.firestore {
       allow read: if signedIn() && isAdmin();
       allow write: if false;
     }
+
+    // Intake chats - users can read their own, admins can read all
+    match /intakeChats/{uid} {
+      allow read: if isOwner(uid) || (signedIn() && isAdmin());
+      allow write: if false; // server only
+
+      match /messages/{messageId} {
+        allow read: if isOwner(uid) || (signedIn() && isAdmin());
+        allow write: if false; // server only
+      }
+    }
+
+    // Intake profiles - users can read their own, admins can read all
+    match /intakeProfiles/{uid} {
+      allow read: if isOwner(uid) || (signedIn() && isAdmin());
+      allow write: if false; // server only
+    }
   }
 }
