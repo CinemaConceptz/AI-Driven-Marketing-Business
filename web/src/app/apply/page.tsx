@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
+import IntakeChatbox from "@/components/intake/IntakeChatbox";
 
 type ApplicationFormState = {
   name: string;
@@ -22,6 +23,16 @@ const initialFormState: ApplicationFormState = {
   goals: "",
 };
 
+type ExtractedData = {
+  artistName?: string | null;
+  email?: string | null;
+  genre?: string | null;
+  location?: string | null;
+  goals?: string | null;
+  links?: string[] | null;
+  notes?: string | null;
+};
+
 export default function ApplyPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -35,6 +46,19 @@ export default function ApplyPage() {
   );
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [intakeComplete, setIntakeComplete] = useState(false);
+
+  // Handle extracted data from chatbot
+  const handleExtractedData = (data: ExtractedData, complete: boolean) => {
+    setFormState((prev) => ({
+      name: data.artistName || prev.name,
+      email: data.email || prev.email,
+      genre: data.genre || prev.genre,
+      links: data.links?.join("\n") || prev.links,
+      goals: data.goals || prev.goals,
+    }));
+    setIntakeComplete(complete);
+  };
 
 
 
@@ -206,107 +230,120 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Apply</p>
-        <h1
-          className="mt-3 text-3xl font-semibold text-white"
-          data-testid="apply-title"
-        >
-          Artist intake form
-        </h1>
-        <p className="mt-3 text-sm text-slate-200" data-testid="apply-subtitle">
-          Tell us about your music, goals, and campaign readiness. We focus on
-          House, EDM, Disco, Afro, Soulful, and Trance releases.
-        </p>
-      </section>
-
-      <form
-        onSubmit={handleSubmit}
-        className="glass-panel space-y-6 rounded-3xl px-8 py-10"
-        data-testid="apply-form"
-      >
-        {status === "success" && (
-          <div
-            className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
-            data-testid="apply-success"
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 lg:flex-row lg:gap-8">
+      {/* Left column: Form */}
+      <div className="flex-1 flex flex-col gap-10">
+        <section className="glass-panel rounded-3xl px-8 py-10">
+          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Apply</p>
+          <h1
+            className="mt-3 text-3xl font-semibold text-white"
+            data-testid="apply-title"
           >
-            Intake submitted. Our team will follow up with next steps.
-          </div>
-        )}
-        {status === "error" && (
-          <div
-            className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-            data-testid="apply-error"
-          >
-            {errorMessage}
-          </div>
-        )}
+            Artist intake form
+          </h1>
+          <p className="mt-3 text-sm text-slate-200" data-testid="apply-subtitle">
+            Tell us about your music, goals, and campaign readiness. We focus on
+            House, EDM, Disco, Afro, Soulful, and Trance releases.
+          </p>
+          {intakeComplete && (
+            <div className="mt-4 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+              The assistant has collected all required info. Review below and submit!
+            </div>
+          )}
+        </section>
 
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Name
-          <input
-            type="text"
-            value={formState.name}
-            onChange={(event) => handleChange("name", event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-name-input"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Email
-          <input
-            type="email"
-            value={formState.email}
-            onChange={(event) => handleChange("email", event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-email-input"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Primary genre
-          <input
-            type="text"
-            value={formState.genre}
-            onChange={(event) => handleChange("genre", event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-genre-input"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Links (Spotify, SoundCloud, socials)
-          <textarea
-            value={formState.links}
-            onChange={(event) => handleChange("links", event.target.value)}
-            rows={3}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-links-input"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm text-slate-200">
-          Goals
-          <textarea
-            value={formState.goals}
-            onChange={(event) => handleChange("goals", event.target.value)}
-            rows={4}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
-            data-testid="apply-goals-input"
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024] disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={!canSubmit || status === "submitting"}
-          data-testid="apply-submit-button"
+        <form
+          onSubmit={handleSubmit}
+          className="glass-panel space-y-6 rounded-3xl px-8 py-10"
+          data-testid="apply-form"
         >
-          {status === "submitting" ? "Submitting..." : "Submit intake"}
-        </button>
-      </form>
+          {status === "success" && (
+            <div
+              className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+              data-testid="apply-success"
+            >
+              Intake submitted. Our team will follow up with next steps.
+            </div>
+          )}
+          {status === "error" && (
+            <div
+              className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+              data-testid="apply-error"
+            >
+              {errorMessage}
+            </div>
+          )}
+
+          <label className="flex flex-col gap-2 text-sm text-slate-200">
+            Name
+            <input
+              type="text"
+              value={formState.name}
+              onChange={(event) => handleChange("name", event.target.value)}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              data-testid="apply-name-input"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-slate-200">
+            Email
+            <input
+              type="email"
+              value={formState.email}
+              onChange={(event) => handleChange("email", event.target.value)}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              data-testid="apply-email-input"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-slate-200">
+            Primary genre
+            <input
+              type="text"
+              value={formState.genre}
+              onChange={(event) => handleChange("genre", event.target.value)}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              data-testid="apply-genre-input"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-slate-200">
+            Links (Spotify, SoundCloud, socials)
+            <textarea
+              value={formState.links}
+              onChange={(event) => handleChange("links", event.target.value)}
+              rows={3}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              data-testid="apply-links-input"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-slate-200">
+            Goals
+            <textarea
+              value={formState.goals}
+              onChange={(event) => handleChange("goals", event.target.value)}
+              rows={4}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              data-testid="apply-goals-input"
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={!canSubmit || status === "submitting"}
+            data-testid="apply-submit-button"
+          >
+            {status === "submitting" ? "Submitting..." : "Submit intake"}
+          </button>
+        </form>
+      </div>
+
+      {/* Right column: AI Chatbox */}
+      <div className="w-full lg:w-[400px] lg:sticky lg:top-6 lg:self-start">
+        <IntakeChatbox user={user} onExtractedData={handleExtractedData} />
+      </div>
     </div>
   );
 }
