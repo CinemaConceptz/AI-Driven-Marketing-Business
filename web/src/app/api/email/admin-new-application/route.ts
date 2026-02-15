@@ -51,6 +51,7 @@ export async function POST(req: Request) {
         goals,
         submittedAt: admin.firestore.FieldValue.serverTimestamp(),
         paymentStatus: "paid",
+        status: "submitted",
       },
       { merge: true }
     );
