@@ -10,12 +10,42 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // User documents
     match /users/{uid} {
       allow read, write: if isOwner(uid);
+      allow read: if signedIn() && isAdmin();
 
       match /media/{mediaId} {
         allow read, write: if isOwner(uid);
       }
+    }
+
+    // Admin allowlist - users can only read their own admin status
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Submissions - users can read/write their own, admins can read all
+    match /submissions/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
+      allow write: if signedIn() && (isAdmin() || request.resource.data.uid == request.auth.uid);
+    }
+
+    // Payments - users can read their own, admins can read all, only server writes
+    match /payments/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
+      allow write: if false;
+    }
+
+    // Email logs - admin only reads, server only writes
+    match /emailLogs/{id} {
+      allow read: if signedIn() && isAdmin();
+      allow write: if false;
     }
   }
 }
