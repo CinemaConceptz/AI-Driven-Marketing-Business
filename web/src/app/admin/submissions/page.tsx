@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { listRecentSubmissions, listPendingSubmissions } from "@/lib/admin/queries";
 import DataTable from "@/components/admin/DataTable";
 import StatusPill from "@/components/admin/StatusPill";
+import ChatTranscriptViewer from "@/components/admin/ChatTranscriptViewer";
 import type { Submission } from "@/lib/admin/types";
 
 function formatDate(timestamp: any): string {
@@ -23,6 +26,15 @@ export default function AdminSubmissionsPage() {
   const [rows, setRows] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -38,7 +50,7 @@ export default function AdminSubmissionsPage() {
       .finally(() => setLoading(false));
   }, [mode]);
 
-  const tableHeaders = ["ID", "Artist", "Email", "Genre", "Status", "Submitted"];
+  const tableHeaders = ["ID", "Artist", "Email", "Genre", "Status", "Submitted", "Actions"];
   const tableRows = rows.map((sub) => [
     <span key="id" className="font-mono text-xs text-neutral-400">{sub.id.slice(0, 8)}...</span>,
     sub.name || sub.artistName || "—",
@@ -46,6 +58,14 @@ export default function AdminSubmissionsPage() {
     sub.genre || "—",
     <StatusPill key="status" value={sub.status || "submitted"} />,
     formatDate(sub.submittedAt || sub.createdAt),
+    <button
+      key="action"
+      onClick={() => setSelectedUserId(sub.uid)}
+      className="rounded-lg border border-neutral-600 bg-neutral-800 px-2 py-1 text-xs text-neutral-200 hover:border-neutral-500 transition-colors"
+      data-testid={`view-chat-${sub.id}`}
+    >
+      View Chat
+    </button>,
   ]);
 
   return (
@@ -91,6 +111,15 @@ export default function AdminSubmissionsPage() {
           headers={tableHeaders}
           rows={tableRows}
           emptyMessage="No submissions found."
+        />
+      )}
+
+      {/* Chat Transcript Modal */}
+      {selectedUserId && currentUser && (
+        <ChatTranscriptViewer
+          userId={selectedUserId}
+          user={currentUser}
+          onClose={() => setSelectedUserId(null)}
         />
       )}
     </div>
