@@ -1,46 +1,62 @@
-# Firebase App Hosting Configuration
-# https://firebase.google.com/docs/app-hosting/configure
+# Firebase App Hosting runtime config for backend: verifiedsoundar
+# NOTE: Secrets must exist in Google Secret Manager (same GCP project).
+#
+# Create secrets:
+#   firebase apphosting:secrets:set OPENAI_API_KEY
+#   firebase apphosting:secrets:set POSTMARK_SERVER_TOKEN
+#   firebase apphosting:secrets:set STRIPE_SECRET_KEY
+#   firebase apphosting:secrets:set STRIPE_WEBHOOK_SECRET
 
 runConfig:
   minInstances: 0
-  maxInstances: 10
-  concurrency: 80
-  cpu: 1
-  memoryMiB: 512
 
 env:
-  # OpenAI Configuration
+  # ===== APP CONFIG =====
+  - variable: NEXT_PUBLIC_APP_URL
+    value: "https://verifiedsoundar.com"
+  - variable: APP_BASE_URL
+    value: "https://verifiedsoundar.com"
+  - variable: FIREBASE_PROJECT_ID
+    value: "verifiedsound-aec78"
+
+  # ===== OPENAI =====
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: OPENAI_MODEL
-    value: gpt-5.2
+    value: "gpt-5.2"
 
-  # Postmark Email Configuration
+  # ===== POSTMARK EMAIL =====
   - variable: POSTMARK_SERVER_TOKEN
     secret: POSTMARK_SERVER_TOKEN
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: POSTMARK_FROM_EMAIL
-    value: noreply@verifiedsoundar.com
+    value: "noreply@verifiedsoundar.com"
   - variable: POSTMARK_FROM_NAME
-    value: Verified Sound A&R
+    value: "Verified Sound A&R"
   - variable: POSTMARK_MESSAGE_STREAM
-    value: outbound
+    value: "outbound"
+  - variable: ADMIN_NOTIFY_EMAIL
+    value: "admin@verifiedsoundar.com"
 
-  # Stripe Payment Configuration
+  # ===== STRIPE =====
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: STRIPE_WEBHOOK_SECRET
     secret: STRIPE_WEBHOOK_SECRET
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: STRIPE_PRICE_ID
-    value: price_REPLACE_WITH_YOUR_PRICE_ID
+    value: "price_REPLACE_ME"
   - variable: STRIPE_SUCCESS_URL
-    value: https://verifiedsoundar.com/apply/success
+    value: "https://verifiedsoundar.com/apply/success"
   - variable: STRIPE_CANCEL_URL
-    value: https://verifiedsoundar.com/apply
-
-  # App Configuration
-  - variable: APP_BASE_URL
-    value: https://verifiedsoundar.com
-  - variable: ADMIN_NOTIFY_EMAIL
-    value: admin@verifiedsoundar.com
-  - variable: FIREBASE_PROJECT_ID
-    value: verifiedsound-aec78
+    value: "https://verifiedsoundar.com/apply"
