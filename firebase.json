@@ -1,10 +1,4 @@
 {
-  "hosting": {
-    "source": "./web",
-    "frameworksBackend": {
-      "region": "us-central1"
-    }
-  },
   "firestore": {
     "rules": "web/firebase/firestore.rules"
   },
