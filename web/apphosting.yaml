@@ -31,7 +31,7 @@ env:
   - variable: STRIPE_WEBHOOK_SECRET
     secret: STRIPE_WEBHOOK_SECRET
   - variable: STRIPE_PRICE_ID
-    secret: STRIPE_PRICE_ID
+    value: price_REPLACE_WITH_YOUR_PRICE_ID
   - variable: STRIPE_SUCCESS_URL
     value: https://verifiedsoundar.com/apply/success
   - variable: STRIPE_CANCEL_URL
