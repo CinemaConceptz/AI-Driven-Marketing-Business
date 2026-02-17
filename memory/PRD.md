@@ -12,11 +12,13 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ### Pages
 - `/` - Home/Landing
-- `/pricing` - Pricing information
+- `/pricing` - Tiered subscription pricing (Tier I/II/III)
 - `/apply` - Artist intake form with AI Chatbox
 - `/login` - User authentication
-- `/dashboard` - Protected user dashboard (subscription status, press images)
-- `/epk` - Electronic Press Kit
+- `/dashboard` - Protected user dashboard (subscription status, press images, EPK settings)
+- `/settings` - Profile management and EPK configuration
+- `/epk` - User's own EPK preview
+- `/epk/[slug]` - Public shareable EPK page
 - `/media` - Press image manager
 - `/billing/success` & `/billing/cancel` - Stripe payment flow
 - `/privacy` & `/terms` - Legal pages
