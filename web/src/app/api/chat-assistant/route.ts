@@ -22,10 +22,10 @@ const GENERAL_ASSISTANT_PROMPT = `You are the Verified Sound assistant. You help
 - Campaign strategy and positioning
 - Direct connections with A&R professionals at major and independent labels
 
-## Pricing (Monthly Subscriptions):
-- **Starter Tier** ($29/month or $290/year): Basic EPK hosting, limited submissions
-- **Pro Tier** ($79/month or $790/year): Full EPK features, priority review, monthly strategy calls
-- **Premium Tier** ($199/month or $1,990/year): White-glove service, dedicated A&R contact, unlimited submissions, quarterly label showcases
+## Pricing (Subscription Tiers):
+- **Tier I** ($39/month or $390/year): Professional EPK hosting, up to 3 press images, basic A&R review, email support
+- **Tier II** ($89/month or $890/year): Everything in Tier I plus priority A&R review, monthly strategy call, direct A&R feedback, analytics dashboard
+- **Tier III** ($139/month or $1,390/year): Everything in Tier II plus dedicated A&R contact, quarterly label showcases, custom campaign strategy, priority label matching, 24/7 support
 
 ## Submission Process:
 1. Create an account and choose a subscription tier
