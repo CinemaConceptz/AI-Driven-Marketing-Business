@@ -178,6 +178,30 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+### Session: February 17, 2025 - EPK Settings & Profile Management
+
+#### EPK Publish Toggle & Custom Slug
+- Created `/app/web/src/components/EpkSettingsPanel.tsx`:
+  - Toggle to publish/unpublish EPK
+  - Custom URL slug input with validation
+  - Copy link button
+  - View EPK button
+  - Updates `epkPublished` and `epkSlug` fields in user document
+
+#### Settings Page Enhancement
+- Updated `/app/web/src/app/settings/page.tsx`:
+  - Full profile editor (artist name, contact email, bio, genre, location)
+  - Social links section (Spotify, SoundCloud, Instagram, YouTube, Website)
+  - Save profile functionality
+  - Integrated EpkSettingsPanel
+
+#### Dashboard Update
+- Updated `/app/web/src/app/dashboard/page.tsx`:
+  - Added EpkSettingsPanel below press images
+  - Updated press images description for 3 images
+
+---
+
 ### Session: February 15, 2025
 
 #### Admin Dashboard (NEW)
