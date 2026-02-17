@@ -129,15 +129,22 @@ APP_BASE_URL=
 - [x] AI Intake Chatbox
 - [x] Build fixes (Suspense boundaries for useSearchParams)
 - [x] Firebase.json App Hosting configuration
-- [ ] Deploy to Firebase App Hosting (user action required)
+- [x] Deploy to Firebase App Hosting (completed)
 - [ ] Custom domain setup (verifiedsoundar.com) (user action required)
 
-### P1 (High Priority)
+### P1 (High Priority) - Phase 3 Security Hardening
+- [x] A1: Security Access Matrix documentation (docs/SECURITY_ACCESS_MATRIX.md)
+- [x] A2: Enhanced Firestore security rules (helper functions, catch-all deny)
+- [x] A3: Enhanced Storage rules (file type/size validation)
+- [x] A4: Security headers middleware (CSP, HSTS, X-Frame-Options, etc.)
+- [ ] A5: Firebase App Check integration (awaiting reCAPTCHA v3 keys from user)
 - [ ] Admin ability to update submission status
 - [ ] User notifications for status changes
-- [ ] Production environment variable configuration
 
-### P2 (Nice to Have)
+### P2 (Nice to Have) - Phase 3 Continued
+- [ ] Phase 3 Step B: Media System Finalization (upload limits, reordering)
+- [ ] Phase 3 Step C: Public EPK Polish (server-rendered /epk/[slug] with OG tags)
+- [ ] Phase 3 Step D: Email Infrastructure review
 - [ ] Admin user management (add/remove admins)
 - [ ] Bulk email sending
 - [ ] Analytics dashboard
