@@ -42,6 +42,44 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ## What's Been Implemented
 
+### Session: February 17, 2025 - Security Hardening
+
+#### Phase 3, Step A - Security Hardening (Completed A1-A4)
+
+**A1: Security Access Matrix**
+- Created comprehensive `/app/web/docs/SECURITY_ACCESS_MATRIX.md` documenting:
+  - Role definitions (Anonymous, Owner, Admin, System)
+  - Read/write permissions for all Firestore collections
+  - Storage path permissions and constraints
+  - API route security requirements
+  - Security header specifications
+
+**A2: Enhanced Firestore Rules** (`/app/web/firebase/firestore.rules`)
+- Added `isValidString()` and `isValidEmail()` helper functions for future validation
+- Separated create/update/delete permissions for fine-grained control
+- Added catch-all deny rule to prevent accidental exposure of new collections
+- Improved documentation and organization of rules
+
+**A3: Enhanced Storage Rules** (`/app/web/firebase/storage.rules`)
+- Added `isAllowedImageType()` validation (jpeg, png, webp only)
+- Added `isUnderSizeLimit()` validation (10 MB max)
+- Separated read/write/delete permissions
+- Added catch-all deny rule for undefined paths
+
+**A4: Security Headers Middleware** (`/app/web/src/middleware.ts`)
+- `Strict-Transport-Security`: 1 year HSTS with preload
+- `X-Content-Type-Options`: nosniff
+- `X-Frame-Options`: DENY (prevents clickjacking)
+- `X-XSS-Protection`: 1; mode=block
+- `Referrer-Policy`: strict-origin-when-cross-origin
+- `Permissions-Policy`: Disabled camera, microphone, geolocation
+- `Content-Security-Policy`: Configured for Firebase, Stripe, Google
+
+**A5: Firebase App Check** (Pending)
+- Awaiting reCAPTCHA v3 site key from user
+
+---
+
 ### Session: February 15, 2025
 
 #### Admin Dashboard (NEW)
