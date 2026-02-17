@@ -182,7 +182,7 @@ APP_BASE_URL=
 - [ ] User notifications for status changes
 
 ### P2 (Nice to Have) - Phase 3 Continued
-- [ ] Phase 3 Step B: Media System Finalization (upload limits, reordering)
+- [x] Phase 3 Step B: Media System Finalization (multiple images, reordering)
 - [ ] Phase 3 Step C: Public EPK Polish (server-rendered /epk/[slug] with OG tags)
 - [ ] Phase 3 Step D: Email Infrastructure review
 - [ ] Admin user management (add/remove admins)
