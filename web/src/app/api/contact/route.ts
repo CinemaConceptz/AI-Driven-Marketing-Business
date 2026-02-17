@@ -16,6 +16,41 @@ function sanitizeInput(input: string, maxLength: number = 1000): string {
     .replace(/<[^>]*>/g, ""); // Strip HTML tags
 }
 
+// Spam detection patterns
+const SPAM_PATTERNS = [
+  /\b(viagra|cialis|casino|lottery|winner|prize|click here|buy now)\b/i,
+  /https?:\/\/[^\s]+/g, // Count URLs
+  /\[url=/i, // BBCode spam
+  /\{.*\}/g, // Template spam
+];
+
+function detectSpam(message: string, name: string): { isSpam: boolean; reason?: string } {
+  // Check for spam keywords
+  for (const pattern of SPAM_PATTERNS.slice(0, 1)) {
+    if (pattern.test(message) || pattern.test(name)) {
+      return { isSpam: true, reason: "Spam content detected" };
+    }
+  }
+
+  // Check for excessive URLs (more than 2)
+  const urlMatches = message.match(/https?:\/\/[^\s]+/g);
+  if (urlMatches && urlMatches.length > 2) {
+    return { isSpam: true, reason: "Too many links" };
+  }
+
+  // Check for very short name with long message (bot pattern)
+  if (name.length < 3 && message.length > 500) {
+    return { isSpam: true, reason: "Suspicious pattern" };
+  }
+
+  // Check for repeated characters (spam pattern)
+  if (/(.)\1{10,}/.test(message)) {
+    return { isSpam: true, reason: "Repeated characters" };
+  }
+
+  return { isSpam: false };
+}
+
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
   
