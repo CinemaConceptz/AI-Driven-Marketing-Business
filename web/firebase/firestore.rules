@@ -2,6 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ========== HELPER FUNCTIONS ==========
+    
     function signedIn() {
       return request.auth != null;
     }
@@ -11,58 +13,108 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // User documents
+    // Validate that a string field is not empty and under max length
+    function isValidString(field, maxLen) {
+      return field is string && field.size() > 0 && field.size() <= maxLen;
+    }
+
+    // Validate email format (basic check)
+    function isValidEmail(email) {
+      return email is string && email.matches('^[^@]+@[^@]+\\.[^@]+$');
+    }
+
+    // ========== USER DOCUMENTS ==========
+    
     match /users/{uid} {
+      // Owner can read and write their own profile
       allow read, write: if isOwner(uid);
+      // Admins can read any user profile (for admin dashboard)
       allow read: if signedIn() && isAdmin();
 
+      // User media subcollection (press images metadata)
       match /media/{mediaId} {
         allow read, write: if isOwner(uid);
       }
     }
 
-    // Admin allowlist - users can only read their own admin status
+    // ========== ADMIN ALLOWLIST ==========
+    
+    // Users can only check their own admin status
+    // Write operations are server-only (Firebase Console or Admin SDK)
     match /admins/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
       allow write: if false;
     }
 
-    // Submissions - users can read/write their own, admins can read all
+    // ========== SUBMISSIONS ==========
+    
+    // Artist application submissions
+    // - Users can read/write their own submissions
+    // - Admins can read all and update status
     match /submissions/{id} {
       allow read: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
-      allow write: if signedIn() && (isAdmin() || request.resource.data.uid == request.auth.uid);
+      
+      // Create: user can create with their own uid
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      
+      // Update: owner can update their own, admin can update any
+      allow update: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
+      
+      // Delete: server only
+      allow delete: if false;
     }
 
-    // Payments - users can read their own, admins can read all, only server writes
+    // ========== PAYMENTS ==========
+    
+    // Stripe payment records - created by webhook (server only)
+    // - Users can read their own payment records
+    // - Admins can read all payment records
     match /payments/{id} {
       allow read: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
-      allow write: if false;
+      allow write: if false; // Server only via Admin SDK
     }
 
-    // Email logs - admin only reads, server only writes
+    // ========== EMAIL LOGS ==========
+    
+    // Postmark email send logs - created by API routes (server only)
+    // - Only admins can read for monitoring
     match /emailLogs/{id} {
       allow read: if signedIn() && isAdmin();
-      allow write: if false;
+      allow write: if false; // Server only via Admin SDK
     }
 
-    // Intake chats - users can read their own, admins can read all
+    // ========== AI INTAKE SYSTEM ==========
+    
+    // Intake chat conversations - created by API (server only)
+    // - Users can read their own chat history
+    // - Admins can read all for review
     match /intakeChats/{uid} {
       allow read: if isOwner(uid) || (signedIn() && isAdmin());
-      allow write: if false; // server only
+      allow write: if false; // Server only via Admin SDK
 
       match /messages/{messageId} {
         allow read: if isOwner(uid) || (signedIn() && isAdmin());
-        allow write: if false; // server only
+        allow write: if false; // Server only via Admin SDK
       }
     }
 
-    // Intake profiles - users can read their own, admins can read all
+    // Intake profiles - structured data extracted by AI
+    // - Users can read their own profile
+    // - Admins can read all for review
     match /intakeProfiles/{uid} {
       allow read: if isOwner(uid) || (signedIn() && isAdmin());
-      allow write: if false; // server only
+      allow write: if false; // Server only via Admin SDK
+    }
+
+    // ========== CATCH-ALL DENY ==========
+    
+    // Deny access to any collection not explicitly defined above
+    // This prevents accidental data exposure if new collections are added
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
