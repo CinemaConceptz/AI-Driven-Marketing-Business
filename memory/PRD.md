@@ -24,19 +24,20 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ### Database Schema (Firestore)
 - `users/{uid}` - User profiles, payment status, email flags
-- `users/{uid}/media/press` - Press image metadata
+- `users/{uid}/media/{mediaId}` - Press image metadata (supports multiple images)
 - `admins/{uid}` - Admin allowlist
 - `submissions/{submissionId}` - Artist application data
 - `payments/{paymentId}` - Stripe payment records
 - `emailLogs/{logId}` - Postmark email logs
 - `intakeChats/{uid}/messages/{messageId}` - AI chat transcripts
 - `intakeProfiles/{uid}` - Extracted intake data from AI chat
+- `contactInquiries/{inquiryId}` - Contact form submissions
 
 ### 3rd Party Integrations
-- **Firebase**: Auth, Firestore, Storage
-- **Stripe**: One-time submission fee payment
-- **Postmark**: Transactional emails (welcome, EPK updated, admin notifications)
-- **OpenAI GPT-5.2**: AI Intake Chatbox assistant
+- **Firebase**: Auth, Firestore, Storage, App Check
+- **Stripe**: Subscription tiers (Tier I/II/III monthly & annual)
+- **Postmark**: Transactional emails with retry logic
+- **OpenAI GPT-5.2**: AI Assistant (global chatbox + intake)
 
 ---
 
