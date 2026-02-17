@@ -7,7 +7,7 @@ import EpkContact from "@/components/epk/sections/EpkContact";
 
 type Props = {
   profile: EpkProfile | null;
-  pressMedia: PressMediaDoc | null;
+  pressMedia: PressMediaDoc[];
   uid: string;
 };
 
