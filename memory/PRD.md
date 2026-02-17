@@ -234,6 +234,18 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Test Reports
+
+### Iteration 9 - Phase 3 Regression Test (December 2025)
+- **Success Rate:** 90% frontend
+- **Passed:** Homepage, Pricing, Login, Dashboard, Settings, Media, Admin, Security Headers
+- **Known Issues (Local Only):**
+  - Chat assistant needs OPENAI_API_KEY (configured in production via Secret Manager)
+  - Public EPK needs GOOGLE_APPLICATION_CREDENTIALS (configured in production)
+- **CSP Fix Applied:** Added google.com and gstatic.com to connect-src for reCAPTCHA
+
+---
+
 ## Environment Variables Required
 
 ```
