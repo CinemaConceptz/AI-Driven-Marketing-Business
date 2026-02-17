@@ -75,8 +75,10 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 - `Permissions-Policy`: Disabled camera, microphone, geolocation
 - `Content-Security-Policy`: Configured for Firebase, Stripe, Google
 
-**A5: Firebase App Check** (Pending)
-- Awaiting reCAPTCHA v3 site key from user
+**A5: Firebase App Check** (Completed)
+- Integrated reCAPTCHA v3 provider in `/app/web/src/lib/firebase.ts`
+- Added `NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY` to `apphosting.yaml`
+- Auto-refresh tokens enabled for seamless user experience
 
 ---
 
