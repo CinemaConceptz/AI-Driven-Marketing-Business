@@ -2,6 +2,7 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // ========== HELPER FUNCTIONS ==========
     function signedIn() {
       return request.auth != null;
     }
@@ -10,8 +11,35 @@ service firebase.storage {
       return signedIn() && request.auth.uid == uid;
     }
 
-    match /users/{uid}/{allPaths=**} {
-      allow read, write: if isOwner(uid);
+    // Check if file is an allowed image type
+    function isAllowedImageType() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+
+    // Check if file size is under limit (10 MB)
+    function isUnderSizeLimit() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ========== STORAGE RULES ==========
+
+    // User media files - press images
+    match /users/{uid}/media/{allPaths=**} {
+      // Read: owner only
+      allow read: if isOwner(uid);
+      
+      // Write: owner only, with file validation
+      allow write: if isOwner(uid) 
+                   && isAllowedImageType() 
+                   && isUnderSizeLimit();
+      
+      // Delete: owner only (no content validation needed)
+      allow delete: if isOwner(uid);
+    }
+
+    // Catch-all: deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
