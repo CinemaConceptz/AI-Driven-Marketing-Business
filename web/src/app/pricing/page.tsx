@@ -4,20 +4,83 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 
+type BillingPeriod = "monthly" | "yearly";
+
+type PricingTier = {
+  name: string;
+  description: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  features: string[];
+  highlighted?: boolean;
+  ctaText: string;
+};
+
+const tiers: PricingTier[] = [
+  {
+    name: "Starter",
+    description: "For emerging artists ready to build their presence",
+    monthlyPrice: 29,
+    yearlyPrice: 290,
+    features: [
+      "Basic EPK hosting",
+      "Up to 3 press images",
+      "1 submission per month",
+      "Standard review queue",
+      "Email support",
+    ],
+    ctaText: "Get Started",
+  },
+  {
+    name: "Pro",
+    description: "For serious artists seeking label connections",
+    monthlyPrice: 79,
+    yearlyPrice: 790,
+    features: [
+      "Full EPK features",
+      "Unlimited press images",
+      "5 submissions per month",
+      "Priority review queue",
+      "Monthly strategy call",
+      "Direct A&R feedback",
+      "Analytics dashboard",
+    ],
+    highlighted: true,
+    ctaText: "Go Pro",
+  },
+  {
+    name: "Premium",
+    description: "White-glove service for label-ready artists",
+    monthlyPrice: 199,
+    yearlyPrice: 1990,
+    features: [
+      "Everything in Pro",
+      "Unlimited submissions",
+      "Dedicated A&R contact",
+      "Quarterly label showcases",
+      "Custom campaign strategy",
+      "Priority label matching",
+      "24/7 priority support",
+    ],
+    ctaText: "Go Premium",
+  },
+];
+
 export default function PricingPage() {
-  const [loading, setLoading] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+  const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useAuth();
 
-  const handleCheckout = async () => {
+  const handleSelectTier = async (tierName: string) => {
     setError(null);
     if (!user) {
-      router.push("/login?next=/pricing");
+      router.push(`/login?next=/pricing&tier=${tierName.toLowerCase()}`);
       return;
     }
 
-    setLoading(true);
+    setLoading(tierName);
     try {
       const token = await user.getIdToken();
       const response = await fetch("/api/stripe/checkout", {
@@ -26,6 +89,10 @@ export default function PricingPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          tier: tierName.toLowerCase(),
+          billingPeriod,
+        }),
       });
 
       const data = await response.json();
@@ -41,37 +108,80 @@ export default function PricingPage() {
           : "Something went wrong. Please try again.";
       setError(message);
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
   };
 
+  const getPrice = (tier: PricingTier) => {
+    return billingPeriod === "monthly" ? tier.monthlyPrice : tier.yearlyPrice;
+  };
+
+  const getSavings = (tier: PricingTier) => {
+    const monthlyCost = tier.monthlyPrice * 12;
+    const yearlyCost = tier.yearlyPrice;
+    const savings = monthlyCost - yearlyCost;
+    return savings > 0 ? savings : 0;
+  };
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
-      <section className="glass-panel rounded-3xl px-8 py-12">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+      {/* Header */}
+      <section className="text-center">
         <p
           className="text-sm uppercase tracking-[0.2em] text-slate-400"
           data-testid="pricing-kicker"
         >
-          Submission fee
+          Pricing
         </p>
         <h1 className="mt-3 text-4xl font-semibold text-white" data-testid="pricing-title">
-          Paid submission for Verified Sound A&R
+          Choose Your Path to Label Success
         </h1>
-        <p className="mt-4 max-w-2xl text-sm text-slate-200">
-          Complete your paid submission to unlock the full intake and EPK review
-          process.
+        <p className="mx-auto mt-4 max-w-2xl text-slate-200">
+          Select the plan that fits your career stage. All plans include access to our
+          A&R network and professional EPK tools.
         </p>
+
+        {/* Billing Toggle */}
+        <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 p-1">
+          <button
+            onClick={() => setBillingPeriod("monthly")}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+              billingPeriod === "monthly"
+                ? "bg-white text-[#021024]"
+                : "text-slate-300 hover:text-white"
+            }`}
+            data-testid="pricing-monthly-toggle"
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingPeriod("yearly")}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+              billingPeriod === "yearly"
+                ? "bg-white text-[#021024]"
+                : "text-slate-300 hover:text-white"
+            }`}
+            data-testid="pricing-yearly-toggle"
+          >
+            Yearly
+            <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">
+              Save up to 17%
+            </span>
+          </button>
+        </div>
+
         {!user && (
           <div
-            className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
+            className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
             data-testid="pricing-auth-alert"
           >
-            Sign in to continue to checkout.
+            Sign in to subscribe and start your journey.
           </div>
         )}
+
         {error && (
           <div
-            className="mt-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            className="mx-auto mt-4 max-w-md rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
             data-testid="pricing-error-alert"
           >
             {error}
@@ -79,34 +189,92 @@ export default function PricingPage() {
         )}
       </section>
 
-      <section className="glass-panel rounded-3xl px-8 py-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Submission</p>
-        <h2 className="mt-3 text-3xl font-semibold text-white">Submission Fee</h2>
-        <p className="mt-3 text-sm text-slate-200">
-          One-time payment to start your A&R-led intake and campaign review.
+      {/* Pricing Cards */}
+      <section className="grid gap-6 md:grid-cols-3">
+        {tiers.map((tier) => (
+          <div
+            key={tier.name}
+            className={`relative flex flex-col rounded-3xl border px-6 py-8 transition-all ${
+              tier.highlighted
+                ? "border-emerald-500/50 bg-gradient-to-b from-emerald-500/10 to-transparent scale-105 shadow-xl shadow-emerald-500/10"
+                : "border-white/10 bg-white/5 hover:border-white/20"
+            }`}
+            data-testid={`pricing-tier-${tier.name.toLowerCase()}`}
+          >
+            {tier.highlighted && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
+                Most Popular
+              </div>
+            )}
+
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white">{tier.name}</h3>
+              <p className="mt-1 text-sm text-slate-400">{tier.description}</p>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-bold text-white">${getPrice(tier)}</span>
+                <span className="text-slate-400">
+                  /{billingPeriod === "monthly" ? "mo" : "yr"}
+                </span>
+              </div>
+              {billingPeriod === "yearly" && getSavings(tier) > 0 && (
+                <p className="mt-1 text-sm text-emerald-400">
+                  Save ${getSavings(tier)}/year
+                </p>
+              )}
+            </div>
+
+            <ul className="mb-8 flex-1 space-y-3">
+              {tier.features.map((feature, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-slate-200">
+                  <svg
+                    className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
+                      tier.highlighted ? "text-emerald-400" : "text-[#6ee7ff]"
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => handleSelectTier(tier.name)}
+              disabled={loading === tier.name}
+              className={`w-full rounded-full py-3 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
+                tier.highlighted
+                  ? "bg-emerald-500 text-white hover:bg-emerald-400"
+                  : "bg-white text-[#021024] hover:bg-slate-100"
+              }`}
+              data-testid={`pricing-cta-${tier.name.toLowerCase()}`}
+            >
+              {loading === tier.name ? "Starting checkout..." : tier.ctaText}
+            </button>
+          </div>
+        ))}
+      </section>
+
+      {/* FAQ or additional info */}
+      <section className="glass-panel rounded-3xl px-8 py-10 text-center">
+        <h2 className="text-xl font-semibold text-white">Questions?</h2>
+        <p className="mt-2 text-sm text-slate-200">
+          Not sure which plan is right for you? Use our chat assistant or{" "}
+          <a href="mailto:support@verifiedsoundar.com" className="text-emerald-400 hover:underline">
+            contact our team
+          </a>{" "}
+          for personalized guidance.
         </p>
-        <ul className="mt-6 space-y-3 text-sm text-slate-200">
-          <li className="flex items-start gap-2">
-            <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-[#6ee7ff]" />
-            <span>Priority intake review</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-[#6ee7ff]" />
-            <span>Campaign-readiness audit</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-[#6ee7ff]" />
-            <span>EPK positioning review</span>
-          </li>
-        </ul>
-        <button
-          onClick={handleCheckout}
-          className="mt-8 rounded-full bg-white px-4 py-3 text-xs font-semibold text-[#021024] disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={loading}
-          data-testid="pricing-checkout-button"
-        >
-          {loading ? "Starting checkout..." : "Proceed to checkout"}
-        </button>
       </section>
     </div>
   );
