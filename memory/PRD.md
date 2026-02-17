@@ -91,10 +91,12 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 - Updated `/app/web/src/services/pressMedia.ts`:
   - Support for up to 3 images per user
   - `getAllPressMedia()` - fetch all images ordered by sortOrder
-  - `uploadPressImage()` - upload with count limit check
-  - `deletePressImage()` - delete specific image by ID
+  - `uploadPressImage()` - upload with count limit check and retry logic
+  - `deletePressImage()` - delete specific image by ID with retry
   - `updateSortOrder()` - batch update for reordering
   - `validateFile()` - frontend validation (type + 10MB size limit)
+  - Added `withRetry()` wrapper for network resilience
+  - Upload progress tracking via `uploadBytesResumable`
 
 **Drag-and-Drop Reordering**
 - Updated `/app/web/src/components/PressImageManager.tsx`:
@@ -112,6 +114,65 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
   - Main image display with thumbnails
   - Click to select/preview
   - Primary image indicator
+
+---
+
+### Session: February 17, 2025 - Global Chatbox & Pricing
+
+#### Global AI Assistant Chatbox
+- Created `/app/web/src/components/GlobalChatbox.tsx`:
+  - Floating chat button (bottom-right corner)
+  - Available on all pages for all users
+  - Works for authenticated and unauthenticated users
+- Created `/app/web/src/app/api/chat-assistant/route.ts`:
+  - Separate from intake chat
+  - Rate limited (30 req/min per IP)
+  - In-memory session storage for conversation context
+  - System prompt with correct Tier I/II/III pricing info
+
+#### Pricing Page Update
+- Updated `/app/web/src/app/pricing/page.tsx`:
+  - Tier I: $39/mo or $390/yr
+  - Tier II: $89/mo or $890/yr (Most Popular)
+  - Tier III: $139/mo or $1,390/yr
+  - Monthly/Annual toggle with savings display
+- Updated `/app/web/src/app/api/stripe/checkout/route.ts`:
+  - Maps tier + billing period to correct Stripe price IDs
+  - Mode changed to "subscription" for recurring billing
+
+---
+
+### Session: February 17, 2025 - Phase 3C & 3D
+
+#### Phase 3, Step C - Public EPK Polish (Completed)
+- Created `/app/web/src/app/epk/[slug]/page.tsx`:
+  - Server-rendered public EPK pages
+  - Fetches user by `epkSlug` field or falls back to uid
+  - Checks `epkPublished` flag
+  - Dynamic OG meta tags (title, description, image)
+  - Twitter card support
+- Created `/app/web/src/app/epk/[slug]/PublicEpkView.tsx`:
+  - Artist name, genre, location display
+  - Press images gallery with thumbnails
+  - Bio section
+  - Social links (Spotify, SoundCloud, Instagram, YouTube, Website)
+  - Share button with copy-to-clipboard
+  - Contact CTA with email link
+  - Download image button
+
+#### Phase 3, Step D - Email Infrastructure (Completed)
+- Updated `/app/web/src/services/email/postmark.ts`:
+  - Added `withRetry()` wrapper with exponential backoff
+  - `isRetryableError()` checks for network/server errors
+  - Max 3 retries with increasing delays
+- Created `/app/web/src/app/api/contact/route.ts`:
+  - Contact form API endpoint
+  - Input validation and sanitization
+  - Rate limiting (5 req/min per IP)
+  - Logs inquiries to `contactInquiries` collection
+  - Sends email via Postmark with retry support
+  - Supports artist-specific or admin fallback recipient
+- Updated Firestore rules for `contactInquiries` collection
 
 ---
 
