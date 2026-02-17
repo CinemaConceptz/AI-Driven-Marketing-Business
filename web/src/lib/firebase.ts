@@ -34,6 +34,16 @@ if (missingKeys.length && process.env.NODE_ENV !== "production") {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
+// Initialize Firebase App Check (bot protection)
+// Only initialize in browser environment
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY),
+    // Set to true to allow auto-refresh of App Check tokens
+    isTokenAutoRefreshEnabled: true,
+  });
+}
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
