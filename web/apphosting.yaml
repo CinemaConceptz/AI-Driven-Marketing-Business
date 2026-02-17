@@ -43,6 +43,10 @@ env:
   - variable: ADMIN_NOTIFY_EMAIL
     value: "admin@verifiedsoundar.com"
 
+  # ===== RECAPTCHA / APP CHECK =====
+  - variable: NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY
+    value: "6LfzY24sAAAAACJIbSZQAVOSCD7fpSvKkEPJdzdL"
+
   # ===== STRIPE =====
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
