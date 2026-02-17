@@ -5,7 +5,7 @@ import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
-import { getPressMedia, type PressMediaDoc } from "@/services/pressMedia";
+import { getAllPressMedia, type PressMediaDoc } from "@/services/pressMedia";
 import type { EpkProfile } from "@/components/epk/types";
 import EpkLayout from "@/components/epk/EpkLayout";
 
@@ -15,7 +15,7 @@ export default function EpkPage() {
   const { user, loading } = useAuth();
   const uid = useMemo(() => user?.uid ?? null, [user]);
   const [profile, setProfile] = useState<EpkProfile | null>(null);
-  const [pressMedia, setPressMedia] = useState<PressMediaDoc | null>(null);
+  const [pressMedia, setPressMedia] = useState<PressMediaDoc[]>([]);
   const [status, setStatus] = useState<LoadState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -24,7 +24,7 @@ export default function EpkPage() {
 
     if (!uid) {
       setProfile(null);
-      setPressMedia(null);
+      setPressMedia([]);
       setStatus("ready");
       setErrorMessage(null);
       return;
@@ -36,15 +36,15 @@ export default function EpkPage() {
       setStatus("loading");
       setErrorMessage(null);
       try {
-        const [profileSnap, mediaDoc] = await Promise.all([
+        const [profileSnap, mediaDocs] = await Promise.all([
           getDoc(doc(db, "users", uid)),
-          getPressMedia(uid),
+          getAllPressMedia(uid),
         ]);
 
         if (!alive) return;
 
         setProfile(profileSnap.exists() ? (profileSnap.data() as EpkProfile) : null);
-        setPressMedia(mediaDoc);
+        setPressMedia(mediaDocs);
         setStatus("ready");
       } catch (error: any) {
         if (!alive) return;
