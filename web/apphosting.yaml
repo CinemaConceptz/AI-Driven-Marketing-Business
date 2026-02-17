@@ -11,15 +11,24 @@ runConfig:
   minInstances: 0
 
 env:
-  # ===== APP CONFIG =====
   - variable: NEXT_PUBLIC_APP_URL
     value: "https://verifiedsoundar.com"
   - variable: APP_BASE_URL
     value: "https://verifiedsoundar.com"
   - variable: FIREBASE_PROJECT_ID
     value: "verifiedsound-aec78"
-
-  # ===== OPENAI =====
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyByIWtR2JXfFy7EK7_50wJeYiprrZHvep8"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "verifiedsound-aec78.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "verifiedsound-aec78"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "verifiedsound-aec78.firebasestorage.app"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "178394993390"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:178394993390:web:f24aa08bad628ed59d19ff"
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
     availability:
@@ -27,27 +36,21 @@ env:
       - RUNTIME
   - variable: OPENAI_MODEL
     value: "gpt-5.2"
-
-  # ===== POSTMARK EMAIL =====
   - variable: POSTMARK_SERVER_TOKEN
     secret: POSTMARK_SERVER_TOKEN
     availability:
       - BUILD
       - RUNTIME
   - variable: POSTMARK_FROM_EMAIL
-    value: "noreply@verifiedsoundar.com"
+    value: "info@verifiedsoundar.com"
   - variable: POSTMARK_FROM_NAME
     value: "Verified Sound A&R"
   - variable: POSTMARK_MESSAGE_STREAM
     value: "outbound"
   - variable: ADMIN_NOTIFY_EMAIL
-    value: "admin@verifiedsoundar.com"
-
-  # ===== RECAPTCHA / APP CHECK =====
+    value: "info@verifiedsoundar.com"
   - variable: NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY
     value: "6LfzY24sAAAAACJIbSZQAVOSCD7fpSvKkEPJdzdL"
-
-  # ===== STRIPE =====
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
     availability:
@@ -59,7 +62,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: STRIPE_PRICE_ID
-    value: "price_REPLACE_ME"
+    value: "price_1SzkYq3zToN8UgmiKlRDmqFj"
   - variable: STRIPE_SUCCESS_URL
     value: "https://verifiedsoundar.com/apply/success"
   - variable: STRIPE_CANCEL_URL
