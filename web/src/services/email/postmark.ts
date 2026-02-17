@@ -168,14 +168,16 @@ export async function sendWithTemplate(args: {
   let error: string | undefined;
 
   try {
-    const response = await getClient().sendEmailWithTemplate({
-      From: getFromAddress(),
-      To: args.to,
-      TemplateId: Number(args.templateId),
-      TemplateModel: args.model,
-      MessageStream: getMessageStream(args.messageStream),
-      ReplyTo: replyTo || undefined,
-    });
+    const response = await withRetry(() =>
+      getClient().sendEmailWithTemplate({
+        From: getFromAddress(),
+        To: args.to,
+        TemplateId: Number(args.templateId),
+        TemplateModel: args.model,
+        MessageStream: getMessageStream(args.messageStream),
+        ReplyTo: replyTo || undefined,
+      })
+    );
     messageId = response.MessageID;
 
     // Log successful send
