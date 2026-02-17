@@ -252,13 +252,20 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-semibold text-white">Press images</h2>
           <p className="text-sm text-slate-200">
-            Upload a single press image (JPG/PNG/WEBP, max 1000×1000).
+            Upload up to 3 press images (JPG/PNG/WEBP, max 1000×1000, max 10MB each).
           </p>
         </div>
         <div className="mt-6">
           <PressImageManager user={user} />
         </div>
       </section>
+
+      {/* EPK Settings */}
+      {user && (
+        <section data-testid="dashboard-epk-settings-section">
+          <EpkSettingsPanel user={user} />
+        </section>
+      )}
 
       <section className="glass-panel rounded-3xl px-8 py-10">
         <h2
