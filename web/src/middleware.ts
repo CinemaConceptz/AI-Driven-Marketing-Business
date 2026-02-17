@@ -44,8 +44,8 @@ export function middleware(request: NextRequest) {
     "img-src 'self' data: blob: https://*.googleapis.com https://*.googleusercontent.com https://firebasestorage.googleapis.com",
     // Fonts: self, Google Fonts
     "font-src 'self' https://fonts.gstatic.com",
-    // Connect: APIs, Firebase, Stripe, OpenAI (proxied)
-    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://api.stripe.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
+    // Connect: APIs, Firebase, Stripe, reCAPTCHA, OpenAI (proxied)
+    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://api.stripe.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.google.com https://www.gstatic.com",
     // Frames: Stripe checkout, reCAPTCHA
     "frame-src 'self' https://js.stripe.com https://www.google.com https://recaptcha.google.com",
     // Form actions: self only
