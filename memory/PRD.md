@@ -177,7 +177,7 @@ APP_BASE_URL=
 - [x] A2: Enhanced Firestore security rules (helper functions, catch-all deny)
 - [x] A3: Enhanced Storage rules (file type/size validation)
 - [x] A4: Security headers middleware (CSP, HSTS, X-Frame-Options, etc.)
-- [ ] A5: Firebase App Check integration (awaiting reCAPTCHA v3 keys from user)
+- [x] A5: Firebase App Check integration (reCAPTCHA v3)
 - [ ] Admin ability to update submission status
 - [ ] User notifications for status changes
 
