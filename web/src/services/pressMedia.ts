@@ -14,6 +14,7 @@ import {
   getDownloadURL,
   ref,
   uploadBytes,
+  uploadBytesResumable,
 } from "firebase/storage";
 import type { User } from "firebase/auth";
 
@@ -32,11 +33,19 @@ export type PressMediaDoc = {
   sizeBytes: number;
 };
 
+export type UploadProgress = {
+  bytesTransferred: number;
+  totalBytes: number;
+  percent: number;
+};
+
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_W = 1000;
 const MAX_H = 1000;
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_IMAGES = 3;
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
 
 function getExtFromMime(mime: string): string {
   switch (mime) {
@@ -85,6 +94,47 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
 }
 
 /**
+ * Sleep utility for retry delays
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry wrapper for network operations
+ */
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = MAX_RETRIES,
+  delayMs: number = RETRY_DELAY_MS
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on certain errors
+      if (
+        error?.code === "storage/unauthorized" ||
+        error?.code === "storage/canceled" ||
+        error?.code === "permission-denied"
+      ) {
+        throw error;
+      }
+      
+      if (attempt < maxRetries) {
+        await sleep(delayMs * attempt); // Exponential backoff
+      }
+    }
+  }
+  
+  throw lastError || new Error("Operation failed after retries");
+}
+
+/**
  * Get all press media for a user, ordered by sortOrder
  */
 export async function getAllPressMedia(uid: string): Promise<PressMediaDoc[]> {
@@ -95,12 +145,13 @@ export async function getAllPressMedia(uid: string): Promise<PressMediaDoc[]> {
 }
 
 /**
- * Upload a new press image
+ * Upload a new press image with retry support
  */
 export async function uploadPressImage(
   file: File,
   user: User,
-  existingCount: number
+  existingCount: number,
+  onProgress?: (progress: UploadProgress) => void
 ): Promise<PressMediaDoc> {
   if (!user?.uid) throw new Error("Not authenticated");
   
@@ -126,14 +177,35 @@ export async function uploadPressImage(
   const storagePath = `users/${uid}/media/${imageId}.${ext}`;
 
   const storageRef = ref(storage, storagePath);
-  const uploadRes = await uploadBytes(storageRef, file, {
-    contentType: file.type,
+  
+  // Upload with progress tracking and retry
+  const uploadResult = await withRetry(async () => {
+    return new Promise<{ size: number }>((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, file, {
+        contentType: file.type,
+      });
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          if (onProgress) {
+            onProgress({
+              bytesTransferred: snapshot.bytesTransferred,
+              totalBytes: snapshot.totalBytes,
+              percent: Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100),
+            });
+          }
+        },
+        (error) => reject(error),
+        () => resolve({ size: uploadTask.snapshot.totalBytes })
+      );
+    });
   });
 
-  const downloadURL = await getDownloadURL(storageRef);
+  const downloadURL = await withRetry(() => getDownloadURL(storageRef));
 
   const pressDoc: Omit<PressMediaDoc, "id"> = {
-    sortOrder: existingCount, // Add at the end
+    sortOrder: existingCount,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     width,
@@ -141,17 +213,17 @@ export async function uploadPressImage(
     storagePath,
     downloadURL,
     contentType: file.type,
-    sizeBytes: uploadRes.metadata.size ?? file.size,
+    sizeBytes: uploadResult.size ?? file.size,
   };
 
   const docRef = doc(db, "users", uid, "media", imageId);
-  await setDoc(docRef, pressDoc);
+  await withRetry(() => setDoc(docRef, pressDoc));
 
   return { id: imageId, ...pressDoc };
 }
 
 /**
- * Delete a specific press image
+ * Delete a specific press image with retry
  */
 export async function deletePressImage(uid: string, imageId: string): Promise<void> {
   if (!uid) throw new Error("Missing uid");
@@ -168,17 +240,17 @@ export async function deletePressImage(uid: string, imageId: string): Promise<vo
     const data = targetDoc.data() as Partial<PressMediaDoc>;
     const storagePath = data.storagePath;
 
-    // Delete from storage
+    // Delete from storage with retry
     if (storagePath) {
       try {
-        await deleteObject(ref(storage, storagePath));
+        await withRetry(() => deleteObject(ref(storage, storagePath)));
       } catch (error: any) {
         if (error?.code !== "storage/object-not-found") throw error;
       }
     }
 
-    // Delete document
-    await deleteDoc(docRef);
+    // Delete document with retry
+    await withRetry(() => deleteDoc(docRef));
   }
 }
 
@@ -191,17 +263,19 @@ export async function updateSortOrder(
 ): Promise<void> {
   if (!uid) throw new Error("Missing uid");
   
-  const batch = writeBatch(db);
-  
-  orderedIds.forEach((id, index) => {
-    const docRef = doc(db, "users", uid, "media", id);
-    batch.update(docRef, { 
-      sortOrder: index,
-      updatedAt: serverTimestamp()
+  await withRetry(async () => {
+    const batch = writeBatch(db);
+    
+    orderedIds.forEach((id, index) => {
+      const docRef = doc(db, "users", uid, "media", id);
+      batch.update(docRef, { 
+        sortOrder: index,
+        updatedAt: serverTimestamp()
+      });
     });
+    
+    await batch.commit();
   });
-  
-  await batch.commit();
 }
 
 // Legacy function for backward compatibility
