@@ -109,6 +109,16 @@ service cloud.firestore {
       allow write: if false; // Server only via Admin SDK
     }
 
+    // ========== CONTACT INQUIRIES ==========
+    
+    // Contact form submissions - created by API (server only)
+    // - Admins can read all inquiries
+    // - No client writes allowed
+    match /contactInquiries/{id} {
+      allow read: if signedIn() && isAdmin();
+      allow write: if false; // Server only via Admin SDK
+    }
+
     // ========== CATCH-ALL DENY ==========
     
     // Deny access to any collection not explicitly defined above
