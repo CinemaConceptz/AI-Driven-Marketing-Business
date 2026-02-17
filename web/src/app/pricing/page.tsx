@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 
-type BillingPeriod = "monthly" | "yearly";
+type BillingPeriod = "monthly" | "annual";
 
 type PricingTier = {
+  id: string;
   name: string;
   description: string;
   monthlyPrice: number;
-  yearlyPrice: number;
+  annualPrice: number;
   features: string[];
   highlighted?: boolean;
   ctaText: string;
@@ -18,51 +19,53 @@ type PricingTier = {
 
 const tiers: PricingTier[] = [
   {
-    name: "Starter",
+    id: "tier1",
+    name: "Tier I",
     description: "For emerging artists ready to build their presence",
-    monthlyPrice: 29,
-    yearlyPrice: 290,
+    monthlyPrice: 39,
+    annualPrice: 390,
     features: [
-      "Basic EPK hosting",
+      "Professional EPK hosting",
       "Up to 3 press images",
-      "1 submission per month",
-      "Standard review queue",
+      "Basic A&R review",
       "Email support",
+      "Standard submission queue",
     ],
     ctaText: "Get Started",
   },
   {
-    name: "Pro",
+    id: "tier2",
+    name: "Tier II",
     description: "For serious artists seeking label connections",
-    monthlyPrice: 79,
-    yearlyPrice: 790,
+    monthlyPrice: 89,
+    annualPrice: 890,
     features: [
-      "Full EPK features",
-      "Unlimited press images",
-      "5 submissions per month",
-      "Priority review queue",
+      "Everything in Tier I",
+      "Priority A&R review",
       "Monthly strategy call",
       "Direct A&R feedback",
       "Analytics dashboard",
+      "Faster response time",
     ],
     highlighted: true,
-    ctaText: "Go Pro",
+    ctaText: "Go Tier II",
   },
   {
-    name: "Premium",
+    id: "tier3",
+    name: "Tier III",
     description: "White-glove service for label-ready artists",
-    monthlyPrice: 199,
-    yearlyPrice: 1990,
+    monthlyPrice: 139,
+    annualPrice: 1390,
     features: [
-      "Everything in Pro",
-      "Unlimited submissions",
+      "Everything in Tier II",
       "Dedicated A&R contact",
       "Quarterly label showcases",
       "Custom campaign strategy",
       "Priority label matching",
       "24/7 priority support",
+      "Unlimited revisions",
     ],
-    ctaText: "Go Premium",
+    ctaText: "Go Tier III",
   },
 ];
 
@@ -73,14 +76,14 @@ export default function PricingPage() {
   const router = useRouter();
   const { user } = useAuth();
 
-  const handleSelectTier = async (tierName: string) => {
+  const handleSelectTier = async (tierId: string) => {
     setError(null);
     if (!user) {
-      router.push(`/login?next=/pricing&tier=${tierName.toLowerCase()}`);
+      router.push(`/login?next=/pricing&tier=${tierId}`);
       return;
     }
 
-    setLoading(tierName);
+    setLoading(tierId);
     try {
       const token = await user.getIdToken();
       const response = await fetch("/api/stripe/checkout", {
@@ -90,7 +93,7 @@ export default function PricingPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          tier: tierName.toLowerCase(),
+          tier: tierId,
           billingPeriod,
         }),
       });
@@ -113,13 +116,13 @@ export default function PricingPage() {
   };
 
   const getPrice = (tier: PricingTier) => {
-    return billingPeriod === "monthly" ? tier.monthlyPrice : tier.yearlyPrice;
+    return billingPeriod === "monthly" ? tier.monthlyPrice : tier.annualPrice;
   };
 
   const getSavings = (tier: PricingTier) => {
     const monthlyCost = tier.monthlyPrice * 12;
-    const yearlyCost = tier.yearlyPrice;
-    const savings = monthlyCost - yearlyCost;
+    const annualCost = tier.annualPrice;
+    const savings = monthlyCost - annualCost;
     return savings > 0 ? savings : 0;
   };
 
@@ -155,17 +158,17 @@ export default function PricingPage() {
             Monthly
           </button>
           <button
-            onClick={() => setBillingPeriod("yearly")}
+            onClick={() => setBillingPeriod("annual")}
             className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
-              billingPeriod === "yearly"
+              billingPeriod === "annual"
                 ? "bg-white text-[#021024]"
                 : "text-slate-300 hover:text-white"
             }`}
             data-testid="pricing-yearly-toggle"
           >
-            Yearly
+            Annual
             <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">
-              Save up to 17%
+              Save 17%
             </span>
           </button>
         </div>
@@ -193,13 +196,13 @@ export default function PricingPage() {
       <section className="grid gap-6 md:grid-cols-3">
         {tiers.map((tier) => (
           <div
-            key={tier.name}
+            key={tier.id}
             className={`relative flex flex-col rounded-3xl border px-6 py-8 transition-all ${
               tier.highlighted
                 ? "border-emerald-500/50 bg-gradient-to-b from-emerald-500/10 to-transparent scale-105 shadow-xl shadow-emerald-500/10"
                 : "border-white/10 bg-white/5 hover:border-white/20"
             }`}
-            data-testid={`pricing-tier-${tier.name.toLowerCase()}`}
+            data-testid={`pricing-tier-${tier.id}`}
           >
             {tier.highlighted && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
@@ -219,7 +222,7 @@ export default function PricingPage() {
                   /{billingPeriod === "monthly" ? "mo" : "yr"}
                 </span>
               </div>
-              {billingPeriod === "yearly" && getSavings(tier) > 0 && (
+              {billingPeriod === "annual" && getSavings(tier) > 0 && (
                 <p className="mt-1 text-sm text-emerald-400">
                   Save ${getSavings(tier)}/year
                 </p>
@@ -250,16 +253,16 @@ export default function PricingPage() {
             </ul>
 
             <button
-              onClick={() => handleSelectTier(tier.name)}
-              disabled={loading === tier.name}
+              onClick={() => handleSelectTier(tier.id)}
+              disabled={loading === tier.id}
               className={`w-full rounded-full py-3 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                 tier.highlighted
                   ? "bg-emerald-500 text-white hover:bg-emerald-400"
                   : "bg-white text-[#021024] hover:bg-slate-100"
               }`}
-              data-testid={`pricing-cta-${tier.name.toLowerCase()}`}
+              data-testid={`pricing-cta-${tier.id}`}
             >
-              {loading === tier.name ? "Starting checkout..." : tier.ctaText}
+              {loading === tier.id ? "Starting checkout..." : tier.ctaText}
             </button>
           </div>
         ))}
