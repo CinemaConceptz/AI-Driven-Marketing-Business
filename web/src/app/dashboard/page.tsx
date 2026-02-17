@@ -6,6 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
 import PressImageManager from "@/components/PressImageManager";
+import EpkSettingsPanel from "@/components/EpkSettingsPanel";
 
 type UserProfile = {
   tier?: string;
