@@ -1,9 +1,13 @@
 import {
+  collection,
   deleteDoc,
   doc,
-  getDoc,
+  getDocs,
+  orderBy,
+  query,
   serverTimestamp,
   setDoc,
+  writeBatch,
 } from "firebase/firestore";
 import {
   deleteObject,
@@ -16,9 +20,7 @@ import type { User } from "firebase/auth";
 import { db, storage } from "@/lib/firebase";
 
 export type PressMediaDoc = {
-  title: string;
-  caption: string;
-  tags: string[];
+  id: string;
   sortOrder: number;
   createdAt: any;
   updatedAt?: any;
@@ -33,6 +35,8 @@ export type PressMediaDoc = {
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_W = 1000;
 const MAX_H = 1000;
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_IMAGES = 3;
 
 function getExtFromMime(mime: string): string {
   switch (mime) {
@@ -66,19 +70,49 @@ async function getImageDimensions(
   }
 }
 
-export async function getPressMedia(uid: string): Promise<PressMediaDoc | null> {
-  const pressRef = doc(db, "users", uid, "media", "press");
-  const snap = await getDoc(pressRef);
-  return snap.exists() ? (snap.data() as PressMediaDoc) : null;
+/**
+ * Validate file before upload
+ */
+export function validateFile(file: File): { valid: boolean; error?: string } {
+  if (!ALLOWED_TYPES.has(file.type)) {
+    return { valid: false, error: "Invalid file type. Only JPG, PNG, or WEBP allowed." };
+  }
+  if (file.size > MAX_SIZE_BYTES) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    return { valid: false, error: `File too large (${sizeMB}MB). Maximum size is 10MB.` };
+  }
+  return { valid: true };
 }
 
+/**
+ * Get all press media for a user, ordered by sortOrder
+ */
+export async function getAllPressMedia(uid: string): Promise<PressMediaDoc[]> {
+  const mediaRef = collection(db, "users", uid, "media");
+  const q = query(mediaRef, orderBy("sortOrder", "asc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as PressMediaDoc));
+}
+
+/**
+ * Upload a new press image
+ */
 export async function uploadPressImage(
   file: File,
-  user: User
+  user: User,
+  existingCount: number
 ): Promise<PressMediaDoc> {
   if (!user?.uid) throw new Error("Not authenticated");
-  if (!ALLOWED_TYPES.has(file.type)) {
-    throw new Error("Invalid file type. Only JPG, PNG, or WEBP allowed.");
+  
+  // Check max images limit
+  if (existingCount >= MAX_IMAGES) {
+    throw new Error(`Maximum ${MAX_IMAGES} images allowed. Delete one to upload more.`);
+  }
+
+  // Validate file
+  const validation = validateFile(file);
+  if (!validation.valid) {
+    throw new Error(validation.error);
   }
 
   const { width, height } = await getImageDimensions(file);
@@ -87,8 +121,9 @@ export async function uploadPressImage(
   }
 
   const uid = user.uid;
+  const imageId = `press-${Date.now()}`;
   const ext = getExtFromMime(file.type);
-  const storagePath = `users/${uid}/media/press-image.${ext}`;
+  const storagePath = `users/${uid}/media/${imageId}.${ext}`;
 
   const storageRef = ref(storage, storagePath);
   const uploadRes = await uploadBytes(storageRef, file, {
@@ -97,11 +132,8 @@ export async function uploadPressImage(
 
   const downloadURL = await getDownloadURL(storageRef);
 
-  const pressDoc: PressMediaDoc = {
-    title: "Press Image",
-    caption: "",
-    tags: [],
-    sortOrder: 0,
+  const pressDoc: Omit<PressMediaDoc, "id"> = {
+    sortOrder: existingCount, // Add at the end
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     width,
@@ -112,23 +144,31 @@ export async function uploadPressImage(
     sizeBytes: uploadRes.metadata.size ?? file.size,
   };
 
-  const pressRef = doc(db, "users", uid, "media", "press");
-  await setDoc(pressRef, pressDoc, { merge: true });
+  const docRef = doc(db, "users", uid, "media", imageId);
+  await setDoc(docRef, pressDoc);
 
-  const snap = await getDoc(pressRef);
-  return snap.data() as PressMediaDoc;
+  return { id: imageId, ...pressDoc };
 }
 
-export async function deletePressImage(uid: string): Promise<void> {
+/**
+ * Delete a specific press image
+ */
+export async function deletePressImage(uid: string, imageId: string): Promise<void> {
   if (!uid) throw new Error("Missing uid");
+  if (!imageId) throw new Error("Missing imageId");
 
-  const pressRef = doc(db, "users", uid, "media", "press");
-  const snap = await getDoc(pressRef);
-
-  if (snap.exists()) {
-    const data = snap.data() as Partial<PressMediaDoc>;
+  const docRef = doc(db, "users", uid, "media", imageId);
+  const mediaRef = collection(db, "users", uid, "media");
+  
+  // Get the document to find storage path
+  const snap = await getDocs(query(mediaRef));
+  const targetDoc = snap.docs.find((d) => d.id === imageId);
+  
+  if (targetDoc) {
+    const data = targetDoc.data() as Partial<PressMediaDoc>;
     const storagePath = data.storagePath;
 
+    // Delete from storage
     if (storagePath) {
       try {
         await deleteObject(ref(storage, storagePath));
@@ -137,6 +177,37 @@ export async function deletePressImage(uid: string): Promise<void> {
       }
     }
 
-    await deleteDoc(pressRef);
+    // Delete document
+    await deleteDoc(docRef);
   }
 }
+
+/**
+ * Update sort order for all images (after drag-and-drop)
+ */
+export async function updateSortOrder(
+  uid: string,
+  orderedIds: string[]
+): Promise<void> {
+  if (!uid) throw new Error("Missing uid");
+  
+  const batch = writeBatch(db);
+  
+  orderedIds.forEach((id, index) => {
+    const docRef = doc(db, "users", uid, "media", id);
+    batch.update(docRef, { 
+      sortOrder: index,
+      updatedAt: serverTimestamp()
+    });
+  });
+  
+  await batch.commit();
+}
+
+// Legacy function for backward compatibility
+export async function getPressMedia(uid: string): Promise<PressMediaDoc | null> {
+  const all = await getAllPressMedia(uid);
+  return all.length > 0 ? all[0] : null;
+}
+
+export { MAX_IMAGES, MAX_SIZE_BYTES, MAX_W, MAX_H };
