@@ -96,6 +96,17 @@ export async function POST(req: Request) {
     const sanitizedSubject = sanitizeInput(subject || "EPK Inquiry", 200);
     const sanitizedMessage = sanitizeInput(message, 5000);
 
+    // Check for spam
+    const spamCheck = detectSpam(sanitizedMessage, sanitizedName);
+    if (spamCheck.isSpam) {
+      // Log spam attempt but return generic error
+      console.warn(`[contact] Spam blocked from ${ip}: ${spamCheck.reason}`);
+      return NextResponse.json(
+        { ok: false, error: "Message could not be sent. Please try again." },
+        { status: 400 }
+      );
+    }
+
     // Determine recipient
     let recipientEmail = process.env.ADMIN_NOTIFY_EMAIL;
     let artistName = "Verified Sound";
