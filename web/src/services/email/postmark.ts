@@ -114,15 +114,17 @@ export async function sendTransactionalEmail(args: {
   let error: string | undefined;
 
   try {
-    const response = await getClient().sendEmail({
-      From: getFromAddress(),
-      To: args.to,
-      Subject: args.subject,
-      HtmlBody: args.html,
-      TextBody: args.text,
-      MessageStream: getMessageStream(args.messageStream),
-      ReplyTo: replyTo || undefined,
-    });
+    const response = await withRetry(() => 
+      getClient().sendEmail({
+        From: getFromAddress(),
+        To: args.to,
+        Subject: args.subject,
+        HtmlBody: args.html,
+        TextBody: args.text,
+        MessageStream: getMessageStream(args.messageStream),
+        ReplyTo: replyTo || undefined,
+      })
+    );
     messageId = response.MessageID;
 
     // Log successful send
