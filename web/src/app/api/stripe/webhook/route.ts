@@ -167,7 +167,8 @@ export async function POST(req: Request) {
     // Handle payment failures
     if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as Stripe.Invoice;
-      const subscriptionId = invoice.subscription as string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const subscriptionId = (invoice as any).subscription as string;
       
       // Try to get uid from subscription metadata
       let uid: string | null = null;
