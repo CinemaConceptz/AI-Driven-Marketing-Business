@@ -173,18 +173,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+
+      {/* Subscription Status Banner */}
+      <SubscriptionBanner status={rawStatus} />
+
+      {/* Header */}
       <section className="glass-panel rounded-3xl px-8 py-10">
-        <p
-          className="text-sm uppercase tracking-[0.2em] text-slate-400"
-          data-testid="dashboard-kicker"
-        >
+        <p className="text-sm uppercase tracking-[0.2em] text-slate-400" data-testid="dashboard-kicker">
           Subscription overview
         </p>
-        <h1
-          className="mt-3 text-3xl font-semibold text-white"
-          data-testid="dashboard-title"
-        >
+        <h1 className="mt-3 text-3xl font-semibold text-white" data-testid="dashboard-title">
           Representation dashboard
         </h1>
         <p className="mt-3 text-sm text-slate-200" data-testid="dashboard-subtitle">
@@ -192,81 +191,67 @@ export default function DashboardPage() {
         </p>
       </section>
 
+      {/* Stats */}
       <section className="grid gap-6 lg:grid-cols-4">
         {[
-          {
-            label: "Tier",
-            value: tierLabel,
-            testId: "dashboard-tier-value",
-          },
-          {
-            label: "Status",
-            value: statusLabel,
-            testId: "dashboard-status-value",
-          },
-          {
-            label: "Current period end",
-            value: periodEndLabel,
-            testId: "dashboard-period-end-value",
-          },
-          {
-            label: "Monthly cap",
-            value: monthlyCapLabel,
-            testId: "dashboard-cap-value",
-          },
+          { label: "Tier", value: tierLabel, testId: "dashboard-tier-value" },
+          { label: "Status", value: rawStatus ?? "Inactive", testId: "dashboard-status-value" },
+          { label: "Renews", value: periodEndLabel, testId: "dashboard-period-end-value" },
+          { label: "Monthly cap", value: String(monthlyCapLabel), testId: "dashboard-cap-value" },
         ].map((item) => (
-          <div
-            key={item.label}
-            className="glass-panel rounded-2xl px-6 py-6"
-            data-testid={item.testId}
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-              {item.label}
-            </p>
-            <p className="mt-3 text-lg font-semibold text-white">
-              {item.value}
-            </p>
+          <div key={item.label} className="glass-panel rounded-2xl px-6 py-6" data-testid={item.testId}>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
+            <p className="mt-3 text-lg font-semibold text-white capitalize">{item.value}</p>
           </div>
         ))}
       </section>
 
+      {/* Feature Access Grid */}
+      <section className="glass-panel rounded-3xl px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-white">Your plan features</h2>
+          {!isActive && (
+            <a href="/pricing" className="text-xs text-emerald-400 hover:underline">Upgrade →</a>
+          )}
+        </div>
+        <FeatureAccessGrid rawTier={rawTier} status={rawStatus} />
+      </section>
+
+      {/* Application status */}
       <section className="glass-panel rounded-3xl px-8 py-10">
-        <h2
-          className="text-2xl font-semibold text-white"
-          data-testid="dashboard-application-status-title"
-        >
+        <h2 className="text-2xl font-semibold text-white" data-testid="dashboard-application-status-title">
           Application status
         </h2>
         <div className="mt-4" data-testid="dashboard-application-status">
-          <p className="text-lg font-semibold text-white">
-            {applicationCopy.title}
-          </p>
+          <p className="text-lg font-semibold text-white">{applicationCopy.title}</p>
           <p className="mt-2 text-sm text-slate-200" data-testid="dashboard-application-message">
             {applicationCopy.description}
           </p>
           {profile?.applicationReviewNotes && (
-            <p
-              className="mt-3 text-sm text-slate-200"
-              data-testid="dashboard-application-review-notes"
-            >
+            <p className="mt-3 text-sm text-slate-200" data-testid="dashboard-application-review-notes">
               Notes: {profile.applicationReviewNotes}
             </p>
           )}
         </div>
       </section>
 
-      <section
-        className="glass-panel rounded-3xl px-8 py-10"
-        data-testid="dashboard-press-images-section"
-      >
-        <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-semibold text-white">Press images</h2>
-          <p className="text-sm text-slate-200">
-            Upload up to 3 press images (JPG/PNG/WEBP, max 1000×1000, max 10MB each).
-          </p>
+      {/* Press Images — tier-aware limit */}
+      <section className="glass-panel rounded-3xl px-8 py-10" data-testid="dashboard-press-images-section">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Press images</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              {effectiveTier === "tier1"
+                ? "Upload up to 3 press images. Upgrade to Tier II for up to 10."
+                : `Upload up to ${maxImages} press images (JPG/PNG/WEBP, max 10MB).`}
+            </p>
+          </div>
+          <span className="text-xs text-slate-500 bg-white/5 rounded-full px-3 py-1">
+            Max {maxImages}
+          </span>
         </div>
         <div className="mt-6">
-          <PressImageManager user={user} />
+          <PressImageManager user={user} maxImages={maxImages} />
         </div>
       </section>
 
@@ -277,41 +262,46 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {/* PDF Download */}
+      {/* PDF Download — all tiers, quality varies */}
       {user && (
         <section className="glass-panel rounded-2xl px-6 py-6" data-testid="dashboard-pdf-section">
-          <DownloadEpkButton user={user} tier={profile?.subscriptionTier || profile?.tier || "tier1"} />
+          <DownloadEpkButton user={user} tier={effectiveTier} />
         </section>
       )}
 
+      {/* Analytics — Tier II+ */}
+      <TierGate feature="analytics" rawTier={rawTier} status={rawStatus}>
+        <section className="glass-panel rounded-3xl px-8 py-10">
+          <h2 className="text-xl font-semibold text-white mb-4">Analytics dashboard</h2>
+          <p className="text-sm text-slate-400">EPK views and campaign analytics coming soon.</p>
+        </section>
+      </TierGate>
+
+      {/* Dedicated A&R — Tier III only */}
+      <TierGate feature="dedicated_ar" rawTier={rawTier} status={rawStatus}>
+        <section className="glass-panel rounded-3xl px-8 py-10">
+          <h2 className="text-xl font-semibold text-white mb-2">Dedicated A&R contact</h2>
+          <p className="text-sm text-slate-400">Your dedicated A&R rep will reach out within 24 hours.</p>
+        </section>
+      </TierGate>
+
+      {/* Next steps */}
       <section className="glass-panel rounded-3xl px-8 py-10">
-        <h2
-          className="text-2xl font-semibold text-white"
-          data-testid="dashboard-next-steps-title"
-        >
+        <h2 className="text-2xl font-semibold text-white" data-testid="dashboard-next-steps-title">
           Next steps
         </h2>
-        <ul
-          className="mt-4 space-y-3 text-sm text-slate-200"
-          data-testid="dashboard-next-steps-list"
-        >
+        <ul className="mt-4 space-y-3 text-sm text-slate-200" data-testid="dashboard-next-steps-list">
           <li>Share updated releases and campaign timelines.</li>
           <li>Confirm your positioning deck review call.</li>
           <li>Monitor outreach updates in weekly reporting.</li>
         </ul>
         {status === "error" && (
-          <div
-            className="mt-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-            data-testid="dashboard-error-alert"
-          >
+          <div className="mt-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200" data-testid="dashboard-error-alert">
             {errorMessage}
           </div>
         )}
         {status === "ready" && !profile && (
-          <div
-            className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200"
-            data-testid="dashboard-empty-alert"
-          >
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200" data-testid="dashboard-empty-alert">
             No profile found yet. Submit your intake to get started.
           </div>
         )}
