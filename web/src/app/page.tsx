@@ -66,8 +66,8 @@ export default function Home() {
         <div className="flex flex-1 flex-col items-center gap-6">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
             <Image
-              src="https://customer-assets.emergentagent.com/job_vsound-portal/artifacts/jzmkt0fz_icon.png"
-              alt="Verified Sound logo"
+              src="/logo.png"
+              alt="Verified Sound A&R"
               width={220}
               height={220}
               className="h-auto w-[180px]"
