@@ -14,7 +14,7 @@
     "clsx": "^2.1.1",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
-    "next": "15.3.3",
+    "next": "15.3.6",
     "openai": "^6.22.0",
     "postmark": "^4.0.5",
     "qrcode": "^1.5.4",
@@ -30,7 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.3.3",
+    "eslint-config-next": "15.3.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
