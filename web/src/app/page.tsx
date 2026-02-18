@@ -63,13 +63,14 @@ export default function Home() {
           </div>
         </div>
         <div className="flex flex-1 flex-col items-center gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <Image
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/logo.png"
               alt="Verified Sound A&R"
-              width={220}
-              height={220}
-              className="h-auto w-[180px]"
+              width={180}
+              height={180}
+              style={{ width: "180px", height: "auto" }}
               data-testid="hero-logo"
             />
           </div>
