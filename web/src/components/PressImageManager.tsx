@@ -14,6 +14,7 @@ import {
 
 type Props = {
   user: User | null;
+  maxImages?: number; // Tier-aware override (default: MAX_IMAGES = 3)
 };
 
 export default function PressImageManager({ user }: Props) {
