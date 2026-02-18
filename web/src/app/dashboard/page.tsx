@@ -7,6 +7,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
 import PressImageManager from "@/components/PressImageManager";
 import EpkSettingsPanel from "@/components/EpkSettingsPanel";
+import DownloadEpkButton from "@/components/DownloadEpkButton";
 
 type UserProfile = {
   tier?: string;
