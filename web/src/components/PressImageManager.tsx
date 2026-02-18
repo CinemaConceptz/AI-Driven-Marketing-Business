@@ -166,11 +166,11 @@ export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Prop
         <div>
           <p className="font-semibold text-white">Press Images</p>
           <p className="text-sm text-slate-200">
-            JPG/PNG/WEBP only • Max 1000×1000px • Max 10MB • Up to {MAX_IMAGES} images
+            JPG/PNG/WEBP only • Max 1000×1000px • Max 10MB • Up to {maxImages} images
           </p>
         </div>
         <span className="text-xs text-slate-400">
-          {media.length}/{MAX_IMAGES}
+          {media.length}/{maxImages}
         </span>
       </div>
 
