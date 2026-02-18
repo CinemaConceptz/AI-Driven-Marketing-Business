@@ -8,6 +8,16 @@ import { db } from "@/lib/firebase";
 import PressImageManager from "@/components/PressImageManager";
 import EpkSettingsPanel from "@/components/EpkSettingsPanel";
 import DownloadEpkButton from "@/components/DownloadEpkButton";
+import SubscriptionBanner from "@/components/SubscriptionBanner";
+import FeatureAccessGrid from "@/components/FeatureAccessGrid";
+import TierGate from "@/components/TierGate";
+import {
+  getMaxPressImages,
+  getEffectiveTier,
+  TIER_LABELS,
+  normalizeTier,
+  isSubscriptionActive,
+} from "@/lib/subscription";
 
 type UserProfile = {
   tier?: string;
