@@ -293,7 +293,7 @@ export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Prop
         </div>
       ) : (
         <p className="text-sm text-amber-300" data-testid="press-image-manager-full">
-          Maximum {MAX_IMAGES} images reached. Delete one to upload more.
+          Maximum {maxImages} images reached. Delete one to upload more.
         </p>
       )}
 
