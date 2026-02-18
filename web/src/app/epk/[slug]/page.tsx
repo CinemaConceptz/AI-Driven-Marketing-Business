@@ -46,8 +46,8 @@ async function getEpkData(slug: string) {
 
     const media = mediaSnap.docs.map((doc) => ({
       id: doc.id,
-      ...(doc.data() as Record<string, unknown>),
-    })) as Array<{ id: string; downloadURL?: string; [key: string]: unknown }>;
+      ...(doc.data() as { downloadURL: string; width: number; height: number; contentType: string; sizeBytes: number }),
+    }));
 
     return { uid, userData, published: true, media };
   } catch (error) {
