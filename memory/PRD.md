@@ -248,23 +248,45 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ## Phase 4 Progress
 
-### Phase 4C - PDF EPK Generator (COMPLETE)
+### Phase 4C - PDF EPK Generator (ENHANCED)
 - **Template:** `/app/web/src/lib/pdf/EpkPdfTemplate.tsx`
-  - Cover page with artist name, genre, hero image
-  - Bio page with achievements and quote
-  - Stats & links page with streaming/social links
-  - Press images grid page
+  
+  **Tier I (Basic) - $39/mo:**
+  - 3-4 pages (Cover, Bio, Music, Images)
+  - Clean black/white minimalist theme
+  - "Powered by Verified Sound" watermark
+  - Max 3 tracks, 4 images
+  - On-demand generation only
+  
+  **Tier II (Professional) - $89/mo:**
+  - 5 pages with enhanced styling
+  - Dark theme with emerald accent
+  - NO watermark
+  - Stats & social links page
+  - QR codes for tracks
+  - Cached PDFs (1-hour cache)
+  - Regenerate button
+  
+  **Tier III (Advanced) - $139/mo:**
+  - 6-7 pages with full branding
+  - Custom accent color & background
+  - Custom logo placement
+  - Press quotes section
+  - Highlights section (venues, awards)
+  - Cached + versioned PDFs
+  - Full analytics tracking
+
 - **API:** `/app/web/src/app/api/pdf/epk/route.tsx`
-  - Server-side generation only
-  - Rate limited (5 PDFs/hour per user)
-  - Logs to `pdfDownloads` collection
+  - GET: Generate/download PDF (checks tier, caches for II/III)
+  - POST: Clear cache and regenerate
+  - Rate limited: 10/hour per user
+  - Logs to `pdfDownloads` collection with analytics
+
 - **UI:** `/app/web/src/components/DownloadEpkButton.tsx`
-  - Added to dashboard
-  - Shows tier-specific features
-- **Tier Features:**
-  - Tier I: Basic layout with watermark
-  - Tier II: Clean layout, no watermark
-  - Tier III: Branded with custom colors and logo
+  - Tier-specific feature badges
+  - Download + Regenerate buttons (II/III)
+  - Cache status indicator
+  - Generation time display
 
 ---
 
