@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type Feature, type SubscriptionTier, hasFeature, TIER_LABELS, TIER_PRICES, normalizeTier, FEATURE_MIN_TIER, isSubscriptionActive } from "@/lib/subscription";
+import { type Feature, type SubscriptionTier, hasFeature, TIER_LABELS, TIER_PRICES, normalizeTier, isSubscriptionActive } from "@/lib/subscription";
 
 type Props = {
   feature: Feature;
