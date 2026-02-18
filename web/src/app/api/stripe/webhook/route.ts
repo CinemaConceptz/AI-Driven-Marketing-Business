@@ -204,7 +204,8 @@ export async function POST(req: Request) {
     // Handle successful invoice payment (subscription renewal)
     if (event.type === "invoice.payment_succeeded") {
       const invoice = event.data.object as Stripe.Invoice;
-      const subscriptionId = invoice.subscription as string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const subscriptionId = (invoice as any).subscription as string;
       
       // Skip if this is the first payment (handled by checkout.session.completed)
       if (invoice.billing_reason === "subscription_create") {
