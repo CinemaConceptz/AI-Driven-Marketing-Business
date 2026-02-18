@@ -204,8 +204,9 @@ export async function GET(req: Request) {
     };
 
     // Generate PDF
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pdfBuffer = await renderToBuffer(
-      React.createElement(EpkPdfDocument, { data: pdfData })
+      React.createElement(EpkPdfDocument, { data: pdfData }) as any
     );
     
     const generationTime = Date.now() - startTime;
