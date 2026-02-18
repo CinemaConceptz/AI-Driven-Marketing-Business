@@ -111,11 +111,14 @@ export async function POST(req: Request) {
       const status = mapSubscriptionStatus(subscription.status);
 
       if (uid) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sub = subscription as any;
+        const periodEnd = sub.current_period_end ?? sub.items?.data?.[0]?.current_period_end;
         await adminDb.collection("users").doc(uid).set({
           subscriptionStatus: status,
           subscriptionTier: tier,
-          subscriptionCurrentPeriodEnd: subscription.current_period_end 
-            ? new Date(subscription.current_period_end * 1000) 
+          subscriptionCurrentPeriodEnd: periodEnd
+            ? new Date(periodEnd * 1000) 
             : null,
           subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
           subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
