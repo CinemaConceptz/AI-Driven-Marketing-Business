@@ -17,7 +17,7 @@ type Props = {
   maxImages?: number; // Tier-aware override (default: MAX_IMAGES = 3)
 };
 
-export default function PressImageManager({ user }: Props) {
+export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Props) {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [media, setMedia] = useState<PressMediaDoc[]>([]);
@@ -25,7 +25,7 @@ export default function PressImageManager({ user }: Props) {
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
   const uid = useMemo(() => user?.uid ?? null, [user]);
-  const canUploadMore = media.length < MAX_IMAGES;
+  const canUploadMore = media.length < maxImages;
 
   const refresh = useCallback(async () => {
     if (!uid) return;
