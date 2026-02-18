@@ -147,13 +147,12 @@ export default function DashboardPage() {
     }
   }, [profile, user]);
 
-  const statusLabel = useMemo(() => {
-    const rawStatus = profile?.subscriptionStatus ?? profile?.status;
-    if (!rawStatus) return "Inactive";
-    return rawStatus;
-  }, [profile]);
-
-  const tierLabel = profile?.subscriptionTier ?? profile?.tier ?? "—";
+  const rawTier = profile?.subscriptionTier ?? profile?.tier;
+  const rawStatus = profile?.subscriptionStatus ?? profile?.status;
+  const effectiveTier = getEffectiveTier(rawTier, rawStatus);
+  const tierLabel = TIER_LABELS[normalizeTier(rawTier)];
+  const maxImages = getMaxPressImages(rawTier, rawStatus);
+  const isActive = isSubscriptionActive(rawStatus);
   const monthlyCapLabel = profile?.subscriptionMonthlyCap ?? profile?.monthlyCap ?? "—";
   const periodEndLabel = formatDate(
     profile?.subscriptionCurrentPeriodEnd ?? profile?.currentPeriodEnd
