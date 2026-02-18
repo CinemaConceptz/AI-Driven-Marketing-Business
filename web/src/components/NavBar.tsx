@@ -28,10 +28,11 @@ export default function NavBar() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
         <Link
           href="/"
-          className="text-lg font-semibold text-white"
+          className="flex items-center gap-2"
           data-testid="nav-logo"
         >
-          Verified Sound A&R
+          <Image src="/logo.png" alt="Verified Sound A&R" width={36} height={36} className="h-9 w-9 object-contain" />
+          <span className="text-lg font-semibold text-white">Verified Sound A&R</span>
         </Link>
         <nav className="flex items-center gap-6 text-sm text-slate-200">
           {links.map((link) => (
