@@ -2,16 +2,19 @@ import "server-only";
 import admin from "firebase-admin";
 
 const projectId = process.env.FIREBASE_PROJECT_ID;
+const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
     projectId: projectId,
+    storageBucket: storageBucket,
   });
 }
 
 export const adminAuth = admin.auth();
 export const adminDb = admin.firestore();
+export const adminStorage = admin.storage();
 
 export async function verifyAuth(req: Request): Promise<{ uid: string; email?: string }> {
   const authHeader = req.headers.get("authorization") || "";
