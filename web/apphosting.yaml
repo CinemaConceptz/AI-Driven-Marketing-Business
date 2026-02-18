@@ -8,7 +8,7 @@
 #   firebase apphosting:secrets:set STRIPE_WEBHOOK_SECRET
 
 runConfig:
-  minInstances: 0
+  minInstances: 1
 
 env:
   - variable: NEXT_PUBLIC_APP_URL
