@@ -246,6 +246,28 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Phase 4 Progress
+
+### Phase 4C - PDF EPK Generator (COMPLETE)
+- **Template:** `/app/web/src/lib/pdf/EpkPdfTemplate.tsx`
+  - Cover page with artist name, genre, hero image
+  - Bio page with achievements and quote
+  - Stats & links page with streaming/social links
+  - Press images grid page
+- **API:** `/app/web/src/app/api/pdf/epk/route.tsx`
+  - Server-side generation only
+  - Rate limited (5 PDFs/hour per user)
+  - Logs to `pdfDownloads` collection
+- **UI:** `/app/web/src/components/DownloadEpkButton.tsx`
+  - Added to dashboard
+  - Shows tier-specific features
+- **Tier Features:**
+  - Tier I: Basic layout with watermark
+  - Tier II: Clean layout, no watermark
+  - Tier III: Branded with custom colors and logo
+
+---
+
 ## Environment Variables Required
 
 ```
