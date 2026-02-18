@@ -126,6 +126,8 @@ export async function POST(req: Request) {
       }
 
       // Log subscription change
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const subAny = subscription as any;
       await adminDb.collection("payments").add({
         uid: uid || null,
         type: "subscription_update",
@@ -133,7 +135,7 @@ export async function POST(req: Request) {
         status,
         tier,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
-        currentPeriodEnd: subscription.current_period_end,
+        currentPeriodEnd: subAny.current_period_end ?? null,
         stripeEventId: event.id,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
