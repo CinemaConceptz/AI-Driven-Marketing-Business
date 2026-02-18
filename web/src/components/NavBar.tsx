@@ -26,12 +26,9 @@ export default function NavBar() {
   return (
     <header className="border-b border-white/10 bg-[#050913]/80 px-6 py-4 backdrop-blur sm:px-10 lg:px-16">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2"
-          data-testid="nav-logo"
-        >
-          <Image src="/logo.png" alt="Verified Sound A&R" width={36} height={36} className="h-9 w-9 object-contain" />
+        <Link href="/" className="flex items-center gap-2" data-testid="nav-logo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="VS" width={36} height={36} style={{ width: "36px", height: "36px", objectFit: "contain" }} />
           <span className="text-lg font-semibold text-white">Verified Sound A&R</span>
         </Link>
         <nav className="flex items-center gap-6 text-sm text-slate-200">
