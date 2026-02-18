@@ -119,6 +119,17 @@ service cloud.firestore {
       allow write: if false; // Server only via Admin SDK
     }
 
+    // ========== PDF DOWNLOADS ==========
+    
+    // PDF generation logs - created by API (server only)
+    // - Users can read their own download history
+    // - Admins can read all
+    // - No client writes allowed
+    match /pdfDownloads/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
+      allow write: if false; // Server only via Admin SDK
+    }
+
     // ========== CATCH-ALL DENY ==========
     
     // Deny access to any collection not explicitly defined above
