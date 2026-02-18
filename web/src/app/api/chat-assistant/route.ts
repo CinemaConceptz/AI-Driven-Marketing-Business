@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getRequestIp, rateLimit } from "@/lib/rateLimit";
-import { getOpenAIClient, getOpenAIModel } from "@/lib/openai";
 
 type ChatMessage = {
-  role: "user" | "assistant" | "system";
-  content: string;
+  role: "user" | "model";
+  parts: { text: string }[];
 };
 
-// System prompt for general assistant (not intake-specific)
-const GENERAL_ASSISTANT_PROMPT = `You are the Verified Sound assistant. You help visitors learn about Verified Sound A&R services and answer their questions.
+// System prompt for general assistant
+const SYSTEM_PROMPT = `You are the Verified Sound assistant. You help visitors learn about Verified Sound A&R services and answer their questions.
 
 ## About Verified Sound A&R:
 - Verified Sound is a premium representation platform for label-ready electronic music artists
@@ -38,13 +38,22 @@ const GENERAL_ASSISTANT_PROMPT = `You are the Verified Sound assistant. You help
 - Be helpful, professional, and friendly
 - Answer questions about pricing, services, the submission process
 - If someone seems ready to apply, direct them to /apply or /pricing
-- Keep responses concise but informative
+- Keep responses concise but informative (2-3 paragraphs max)
 - If you don't know something specific, suggest they contact support
 
 Respond naturally in plain text. Be conversational and helpful.`;
 
-// Simple in-memory session storage (for non-authenticated users)
-const sessionMessages = new Map<string, ChatMessage[]>();
+// Simple in-memory session storage
+const sessionHistory = new Map<string, ChatMessage[]>();
+
+// Initialize Gemini client
+function getGeminiClient() {
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GOOGLE_AI_API_KEY");
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
@@ -78,47 +87,46 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get or create session history (limited to last 10 messages for memory efficiency)
-    let history = sessionMessages.get(sessionId) || [];
+    // Get or create session history
+    let history = sessionHistory.get(sessionId) || [];
     
-    // Add user message to history
-    history.push({ role: "user", content: userMessage });
-    
-    // Keep only last 10 messages
-    if (history.length > 10) {
-      history = history.slice(-10);
-    }
-
-    // Build messages array for OpenAI
-    const messages: ChatMessage[] = [
-      { role: "system", content: GENERAL_ASSISTANT_PROMPT },
-      ...history,
-    ];
-
-    // Call OpenAI
-    const openai = getOpenAIClient();
-    const model = getOpenAIModel();
-
-    const completion = await openai.chat.completions.create({
-      model,
-      messages,
-      temperature: 0.7,
-      max_tokens: 500,
+    // Initialize Gemini
+    const genAI = getGeminiClient();
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
     });
 
-    const assistantReply = completion.choices[0]?.message?.content || 
-      "I'm sorry, I couldn't process that. Please try again.";
+    // Start chat with history
+    const chat = model.startChat({
+      history: history,
+      generationConfig: {
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      },
+    });
 
-    // Add assistant reply to history
-    history.push({ role: "assistant", content: assistantReply });
+    // Send message and get response
+    const result = await chat.sendMessage(userMessage);
+    const response = result.response;
+    const assistantReply = response.text() || "I'm sorry, I couldn't process that. Please try again.";
+
+    // Update history
+    history.push({ role: "user", parts: [{ text: userMessage }] });
+    history.push({ role: "model", parts: [{ text: assistantReply }] });
+    
+    // Keep only last 10 exchanges (20 messages)
+    if (history.length > 20) {
+      history = history.slice(-20);
+    }
     
     // Save updated history
-    sessionMessages.set(sessionId, history);
+    sessionHistory.set(sessionId, history);
 
     // Clean up old sessions (basic memory management)
-    if (sessionMessages.size > 1000) {
-      const oldestKey = sessionMessages.keys().next().value;
-      if (oldestKey) sessionMessages.delete(oldestKey);
+    if (sessionHistory.size > 1000) {
+      const oldestKey = sessionHistory.keys().next().value;
+      if (oldestKey) sessionHistory.delete(oldestKey);
     }
 
     return NextResponse.json({
@@ -128,8 +136,13 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error(`[chat-assistant] requestId=${requestId}`, error?.message || error);
 
+    // Return user-friendly error
+    const errorMessage = error?.message?.includes("API_KEY") 
+      ? "Chat service is temporarily unavailable."
+      : "Failed to process message. Please try again.";
+
     return NextResponse.json(
-      { ok: false, error: "Failed to process message. Please try again." },
+      { ok: false, error: errorMessage },
       { status: 500 }
     );
   }
