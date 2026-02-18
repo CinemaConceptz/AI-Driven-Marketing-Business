@@ -268,6 +268,13 @@ export default function DashboardPage() {
         </section>
       )}
 
+      {/* PDF Download */}
+      {user && (
+        <section className="glass-panel rounded-2xl px-6 py-6" data-testid="dashboard-pdf-section">
+          <DownloadEpkButton user={user} tier={profile?.subscriptionTier || profile?.tier || "tier1"} />
+        </section>
+      )}
+
       <section className="glass-panel rounded-3xl px-8 py-10">
         <h2
           className="text-2xl font-semibold text-white"
