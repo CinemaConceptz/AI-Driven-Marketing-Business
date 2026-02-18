@@ -132,7 +132,7 @@ export async function GET(req: Request) {
         });
         
         const filename = `${(userData.artistName || "Artist").replace(/[^a-zA-Z0-9]/g, "_")}_EPK.pdf`;
-        return new NextResponse(cached, {
+        return new NextResponse(new Uint8Array(cached), {
           status: 200,
           headers: {
             "Content-Type": "application/pdf",
