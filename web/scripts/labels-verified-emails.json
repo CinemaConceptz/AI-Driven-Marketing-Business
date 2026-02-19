@@ -1,0 +1,454 @@
+{
+  "labels": [
+    {
+      "name": "Defected Records",
+      "genres": ["House", "Deep House", "Soulful House"],
+      "country": "UK",
+      "website": "https://defected.com",
+      "submissionUrl": "https://defected.com/demos",
+      "submissionEmail": "demos@defected.com",
+      "notes": "Also accepts via LabelRadar. Sub-labels: D4Dance, Glitterbox"
+    },
+    {
+      "name": "Toolroom Records",
+      "genres": ["House", "Tech House"],
+      "country": "UK",
+      "website": "https://toolroomrecords.com",
+      "submissionUrl": "https://toolroomrecords.com/demos",
+      "submissionEmail": "demos@toolroomrecords.com",
+      "notes": "Primary submission via VIRPP platform"
+    },
+    {
+      "name": "Spinnin' Records",
+      "genres": ["EDM", "House", "Dance"],
+      "country": "Netherlands",
+      "website": "https://spinninrecords.com",
+      "submissionUrl": "https://spinninrecords.com/contact",
+      "submissionEmail": "demo@spinninrecords.nl",
+      "notes": "Also has Talent Pool upload system"
+    },
+    {
+      "name": "Armada Music",
+      "genres": ["Trance", "House", "Progressive"],
+      "country": "Netherlands",
+      "website": "https://armadamusic.com",
+      "submissionUrl": "https://demodrop.armadamusic.com",
+      "submissionEmail": "",
+      "notes": "Use Drop Your Demo button on site. Do NOT email attachments"
+    },
+    {
+      "name": "Anjunabeats",
+      "genres": ["Trance", "Progressive Trance"],
+      "country": "UK",
+      "website": "https://anjunabeats.com",
+      "submissionUrl": "https://anjunabeats.com/contact",
+      "submissionEmail": "demos@anjunabeats.com",
+      "notes": "Also available via LabelRadar"
+    },
+    {
+      "name": "Anjunadeep",
+      "genres": ["Deep House", "Progressive House", "Melodic House"],
+      "country": "UK",
+      "website": "https://anjunadeep.com",
+      "submissionUrl": "https://anjunadeep.com/contact",
+      "submissionEmail": "demos@anjunadeep.com",
+      "notes": "Sister label to Anjunabeats"
+    },
+    {
+      "name": "Hospital Records",
+      "genres": ["Drum and Bass", "Liquid DnB"],
+      "country": "UK",
+      "website": "https://hospitalrecords.com",
+      "submissionUrl": "https://hospitalrecords.com/demos",
+      "submissionEmail": "",
+      "notes": "Demo portal only, no email submissions"
+    },
+    {
+      "name": "Innervisions",
+      "genres": ["Melodic Techno", "Deep House", "Melodic House"],
+      "country": "Germany",
+      "website": "https://innervisions.com",
+      "submissionUrl": "",
+      "submissionEmail": "demo@innervisions.net",
+      "notes": "Founded by Dixon and Âme"
+    },
+    {
+      "name": "Afterlife Records",
+      "genres": ["Melodic Techno", "Deep House", "Progressive House"],
+      "country": "Germany",
+      "website": "https://afterlifeofc.com",
+      "submissionUrl": "",
+      "submissionEmail": "demo@after.life",
+      "notes": "Founded by Tale of Us"
+    },
+    {
+      "name": "Night Bass Records",
+      "genres": ["Bass House", "House"],
+      "country": "USA",
+      "website": "https://nightbassrecords.com",
+      "submissionUrl": "https://nightbassrecords.com",
+      "submissionEmail": "info@nightbassrecords.com",
+      "notes": "Run by AC Slater"
+    },
+    {
+      "name": "House Call Records",
+      "genres": ["House", "Bass House"],
+      "country": "USA",
+      "website": "",
+      "submissionUrl": "",
+      "submissionEmail": "housecalldemos@gmail.com",
+      "notes": "Associated with Dr. Fresch"
+    },
+    {
+      "name": "DeepClass Records",
+      "genres": ["Deep House", "Chill-out", "Tech House"],
+      "country": "Spain",
+      "website": "https://deepclassrecords.com",
+      "submissionUrl": "https://deepclassrecords.com/submit-your-demo/",
+      "submissionEmail": "",
+      "notes": "Provides feedback on all submissions. No EDM"
+    },
+    {
+      "name": "MK837",
+      "genres": ["House", "Deep House"],
+      "country": "USA",
+      "website": "https://mk837.com",
+      "submissionUrl": "https://mk837.com/demo-submission",
+      "submissionEmail": "",
+      "notes": "Accepts demos from both experienced and emerging artists"
+    },
+    {
+      "name": "Amapiano Groove Records",
+      "genres": ["Amapiano", "Afro House", "Deep House"],
+      "country": "South Africa",
+      "website": "https://amapianogrooverecords.com",
+      "submissionUrl": "https://amapianogrooverecords.com",
+      "submissionEmail": "",
+      "notes": "Responds within 7 business days"
+    },
+    {
+      "name": "MoBlack Records",
+      "genres": ["Afro House", "Afro Tech"],
+      "country": "Italy",
+      "website": "https://moblackrecords.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@moblackrecords.com",
+      "notes": "Top Afro House label on Beatport"
+    },
+    {
+      "name": "Red Bull Records",
+      "genres": ["Hip-Hop", "Pop", "Electronic"],
+      "country": "USA",
+      "website": "https://redbullrecords.com",
+      "submissionUrl": "https://redbullrecords.com/demo-submissions/",
+      "submissionEmail": "",
+      "notes": "Never requests payment for submissions"
+    },
+    {
+      "name": "Stones Throw",
+      "genres": ["Hip-Hop", "Experimental Hip-Hop", "Soul"],
+      "country": "USA",
+      "website": "https://stonesthrow.com",
+      "submissionUrl": "",
+      "submissionEmail": "losangeles@stonesthrow.com",
+      "notes": "Notable artists: J Dilla, Madlib"
+    },
+    {
+      "name": "10K Projects",
+      "genres": ["Hip-Hop", "Rap"],
+      "country": "USA",
+      "website": "https://10kprojects.com",
+      "submissionUrl": "https://10kprojects.com",
+      "submissionEmail": "",
+      "notes": "LA-based, innovative hip-hop"
+    },
+    {
+      "name": "Glassnote Records",
+      "genres": ["Indie", "R&B", "Soul", "Pop"],
+      "country": "USA",
+      "website": "https://glassnotemusic.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@glassnotemusic.com",
+      "notes": "770 Lexington Ave, 16th Fl, New York, NY 10065"
+    },
+    {
+      "name": "Digital Empire Records",
+      "genres": ["EDM", "House", "Trance", "Techno"],
+      "country": "USA",
+      "website": "https://digitalempire-records.com",
+      "submissionUrl": "https://digitalempire-records.com/demo-submission",
+      "submissionEmail": "",
+      "notes": "Responds in 7-14 days"
+    },
+    {
+      "name": "NexGen Music",
+      "genres": ["EDM", "House", "Techno"],
+      "country": "USA",
+      "website": "https://nexgen.music",
+      "submissionUrl": "https://nexgen.music/demos",
+      "submissionEmail": "",
+      "notes": "Requires download links, not streaming"
+    },
+    {
+      "name": "Rexius Records",
+      "genres": ["Hip-Hop", "Electronic"],
+      "country": "International",
+      "website": "https://rexiusrecords.com",
+      "submissionUrl": "https://rexiusrecords.com/submit-demo/",
+      "submissionEmail": "",
+      "notes": "Reviews all submissions worldwide"
+    },
+    {
+      "name": "A&R Factory",
+      "genres": ["Hip-Hop", "Electronic", "Indie"],
+      "country": "UK",
+      "website": "https://anrfactory.com",
+      "submissionUrl": "https://anrfactory.com/submit-demo/",
+      "submissionEmail": "",
+      "notes": "Multiple genre categories available"
+    },
+    {
+      "name": "Find Your Harmony",
+      "genres": ["Trance", "Progressive Trance"],
+      "country": "USA",
+      "website": "https://findyourharmony.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@findyourharmony.com",
+      "notes": "Andrew Rayel's label"
+    },
+    {
+      "name": "Catch & Release Records",
+      "genres": ["Tech House", "House"],
+      "country": "Australia",
+      "website": "",
+      "submissionUrl": "",
+      "submissionEmail": "demos@catchandrelease.co",
+      "notes": "FISHER's imprint"
+    },
+    {
+      "name": "Space Yacht",
+      "genres": ["Tech House", "House", "Bass House"],
+      "country": "USA",
+      "website": "https://spaceyacht.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@spaceyacht.com",
+      "notes": "Reviews demos on Twitch multiple times per week"
+    },
+    {
+      "name": "Three Six Zero",
+      "genres": ["House", "Dance"],
+      "country": "UK",
+      "website": "https://threesixzero.com",
+      "submissionUrl": "https://threesixzero.com",
+      "submissionEmail": "",
+      "notes": "Online portal for submissions"
+    },
+    {
+      "name": "Shogun Audio",
+      "genres": ["Drum and Bass"],
+      "country": "UK",
+      "website": "https://shogunaudio.co.uk",
+      "submissionUrl": "",
+      "submissionEmail": "demos@shogunaudio.co.uk",
+      "notes": "Founded by Friction"
+    },
+    {
+      "name": "Critical Music",
+      "genres": ["Drum and Bass"],
+      "country": "UK",
+      "website": "https://criticalmusic.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@criticalmusic.com",
+      "notes": "Founded by Kasra"
+    },
+    {
+      "name": "Dirtybird Records",
+      "genres": ["Tech House", "House"],
+      "country": "USA",
+      "website": "https://dirtybirdrecords.com",
+      "submissionUrl": "https://dirtybirdrecords.com/demos",
+      "submissionEmail": "",
+      "notes": "Founded by Claude VonStroke"
+    },
+    {
+      "name": "Drumcode",
+      "genres": ["Techno", "Hard Techno"],
+      "country": "Sweden",
+      "website": "https://drumcode.se",
+      "submissionUrl": "",
+      "submissionEmail": "demos@drumcode.se",
+      "notes": "Adam Beyer's label"
+    },
+    {
+      "name": "Suara",
+      "genres": ["Techno", "Tech House"],
+      "country": "Spain",
+      "website": "https://suara.es",
+      "submissionUrl": "",
+      "submissionEmail": "demos@suara.es",
+      "notes": "Coyu's label"
+    },
+    {
+      "name": "Noir Music",
+      "genres": ["Techno", "Tech House"],
+      "country": "Denmark",
+      "website": "https://noirmusic.dk",
+      "submissionUrl": "",
+      "submissionEmail": "demos@noirmusic.dk",
+      "notes": "Founded by Noir"
+    },
+    {
+      "name": "Confession",
+      "genres": ["House", "Bass House"],
+      "country": "USA",
+      "website": "https://confessionrecords.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@confessionrecords.com",
+      "notes": "Tchami's label"
+    },
+    {
+      "name": "Heldeep Records",
+      "genres": ["House", "Future House"],
+      "country": "Netherlands",
+      "website": "https://heldeeprecords.com",
+      "submissionUrl": "https://heldeeprecords.com/demo",
+      "submissionEmail": "",
+      "notes": "Oliver Heldens' label"
+    },
+    {
+      "name": "Musical Freedom",
+      "genres": ["House", "Progressive House"],
+      "country": "Netherlands",
+      "website": "https://musicalfreedom.com",
+      "submissionUrl": "https://musicalfreedom.com/demo",
+      "submissionEmail": "",
+      "notes": "Tiësto's label"
+    },
+    {
+      "name": "Protocol Recordings",
+      "genres": ["Progressive House", "EDM"],
+      "country": "Netherlands",
+      "website": "https://protocol-recordings.com",
+      "submissionUrl": "https://protocol-recordings.com/demos",
+      "submissionEmail": "",
+      "notes": "Nicky Romero's label"
+    },
+    {
+      "name": "Revealed Recordings",
+      "genres": ["EDM", "Big Room", "Progressive House"],
+      "country": "Netherlands",
+      "website": "https://revealedrecordings.com",
+      "submissionUrl": "https://revealedrecordings.com/demos",
+      "submissionEmail": "",
+      "notes": "Hardwell's label"
+    },
+    {
+      "name": "Insomniac Records",
+      "genres": ["EDM", "House", "Techno"],
+      "country": "USA",
+      "website": "https://insomniac.com",
+      "submissionUrl": "https://insomniac.com/music/demo-submissions/",
+      "submissionEmail": "",
+      "notes": "Connected to EDC festivals"
+    },
+    {
+      "name": "Ultra Records",
+      "genres": ["EDM", "House", "Dance"],
+      "country": "USA",
+      "website": "https://ultrarecords.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@ultrarecords.com",
+      "notes": "Major dance music label"
+    },
+    {
+      "name": "Mad Decent",
+      "genres": ["Electronic", "Hip-Hop", "Trap"],
+      "country": "USA",
+      "website": "https://maddecent.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@maddecent.com",
+      "notes": "Diplo's label"
+    },
+    {
+      "name": "OWSLA",
+      "genres": ["Electronic", "Bass Music", "Dubstep"],
+      "country": "USA",
+      "website": "https://owsla.com",
+      "submissionUrl": "",
+      "submissionEmail": "demos@owsla.com",
+      "notes": "Skrillex's label"
+    },
+    {
+      "name": "Monstercat",
+      "genres": ["EDM", "Electronic", "House", "Dubstep"],
+      "country": "Canada",
+      "website": "https://monstercat.com",
+      "submissionUrl": "https://monstercat.com/artists",
+      "submissionEmail": "",
+      "notes": "Artist-friendly, transparent label"
+    },
+    {
+      "name": "NCS (NoCopyrightSounds)",
+      "genres": ["EDM", "Electronic", "House"],
+      "country": "UK",
+      "website": "https://ncs.io",
+      "submissionUrl": "https://ncs.io/submit",
+      "submissionEmail": "",
+      "notes": "Royalty-free releases, huge YouTube presence"
+    },
+    {
+      "name": "Proximity",
+      "genres": ["EDM", "Future Bass", "Trap"],
+      "country": "USA",
+      "website": "https://proximity.net",
+      "submissionUrl": "https://proximity.net/submit",
+      "submissionEmail": "",
+      "notes": "Major YouTube music promotion channel"
+    },
+    {
+      "name": "Trap Nation",
+      "genres": ["Trap", "EDM", "Future Bass"],
+      "country": "USA",
+      "website": "https://trapnation.com",
+      "submissionUrl": "https://trapnation.com/submit",
+      "submissionEmail": "",
+      "notes": "YouTube promo channel accepting submissions"
+    },
+    {
+      "name": "MrSuicideSheep",
+      "genres": ["Chillout", "Electronic", "Indie"],
+      "country": "UK",
+      "website": "https://mrsuicidesheep.com",
+      "submissionUrl": "https://mrsuicidesheep.com/submit",
+      "submissionEmail": "",
+      "notes": "YouTube channel, over 15M subscribers"
+    },
+    {
+      "name": "Selected",
+      "genres": ["Deep House", "Chill House"],
+      "country": "UK",
+      "website": "https://selected.com",
+      "submissionUrl": "https://selected.com/submit",
+      "submissionEmail": "",
+      "notes": "YouTube promo channel for deep house"
+    },
+    {
+      "name": "Tribal Trap",
+      "genres": ["Trap", "World Music", "Electronic"],
+      "country": "USA",
+      "website": "https://tribaltrap.com",
+      "submissionUrl": "https://tribaltrap.com/submit",
+      "submissionEmail": "",
+      "notes": "YouTube channel for global bass music"
+    },
+    {
+      "name": "Lowly",
+      "genres": ["Lo-Fi", "Chillhop", "Electronic"],
+      "country": "USA",
+      "website": "https://lowly.com",
+      "submissionUrl": "https://lowly.com/submit",
+      "submissionEmail": "",
+      "notes": "Lo-fi and chill beats"
+    }
+  ]
+}
