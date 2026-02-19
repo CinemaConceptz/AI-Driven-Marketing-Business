@@ -254,6 +254,11 @@ export default function AdminAnalyticsPage() {
           <div className="pt-6 border-t border-white/10">
             <ExperimentsDashboard />
           </div>
+
+          {/* Email Retention Section */}
+          <div className="pt-6 border-t border-white/10">
+            <EmailRetentionDashboard />
+          </div>
         </>
       )}
     </div>
