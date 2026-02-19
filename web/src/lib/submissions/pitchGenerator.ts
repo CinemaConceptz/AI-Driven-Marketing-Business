@@ -202,7 +202,7 @@ export async function customizePitchForLabel(
 ): Promise<GeneratedPitch> {
   const genAI = getGeminiClient();
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     systemInstruction: PITCH_SYSTEM_PROMPT,
   });
 
