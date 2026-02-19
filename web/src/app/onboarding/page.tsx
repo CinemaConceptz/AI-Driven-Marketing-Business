@@ -123,12 +123,13 @@ export default function OnboardingPage() {
       {/* Progress */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-400" data-testid="onboarding-step-indicator">
             Step {step} of {TOTAL_STEPS}
           </p>
           <button
             onClick={skipToEnd}
             className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            data-testid="onboarding-skip-button"
           >
             Skip setup →
           </button>
@@ -161,6 +162,7 @@ export default function OnboardingPage() {
           <button
             onClick={() => setStep(2)}
             className="w-full rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
+            data-testid="onboarding-get-started-button"
           >
             Get started →
           </button>
@@ -186,6 +188,7 @@ export default function OnboardingPage() {
                 onChange={(e) => setArtistName(e.target.value)}
                 placeholder="e.g. DJ Nova, Luna Waves"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                data-testid="onboarding-artist-name-input"
               />
             </label>
 
