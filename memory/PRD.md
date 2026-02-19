@@ -511,14 +511,40 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
   - 3-tab interface: Submit, History, Add Label
   - Pitch preview and regeneration
   - Label selection with match scores
-  - Bulk submission (up to tier limit)
   - Submission history with status
 
-### Future: Mode A (Assisted Webform)
-- Browser automation for form pre-fill
-- Human checkpoint for CAPTCHA/submit
-- Screenshot proof of submission
-- *Deferred until needed*
+### 9E — Mode A: Webform Guidance (COMPLETED - February 2025)
+- **File:** `/app/web/src/app/api/submissions/log-webform/route.ts`
+
+- **How It Works:**
+  1. User clicks on a webform label
+  2. Modal opens with copyable pitch content:
+     - Subject line
+     - Short pitch (100 words)
+     - Full pitch (300 words)
+     - Track URL
+     - EPK URL
+  3. "Open Submission Form" button opens label's form
+  4. User pastes content and completes CAPTCHA
+  5. "Mark as Submitted" logs to history
+
+- **Benefits:**
+  - Works with ALL labels (no email required)
+  - User maintains control
+  - Professional, consistent pitches
+  - Full submission tracking
+
+### Label Database Import
+- **Script:** `/app/web/scripts/import-labels.ts`
+- **Data File:** `/app/web/scripts/labels-to-import.json`
+- **Labels Extracted:** 167 unique labels
+- **Genres:** House, Hip-Hop, Electronic, Indie, Afro, Gospel, Pop
+- **Import Endpoint:** `POST /api/labels/import`
+
+### Future: Email Discovery
+- Research actual demo submission emails for top labels
+- Enable Mode C (direct email) for more labels
+- *In progress*
 
 ### Future: Mode B (Fully Automated)
 - Complete automation including CAPTCHA
