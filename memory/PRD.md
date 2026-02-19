@@ -301,6 +301,32 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Phase 7: Launch Operations (February 2025)
+
+### 7A — Release Management (COMPLETED)
+- **Version:** v1.0.0 (set in package.json)
+- **Rollback Documentation:** `/app/web/docs/ROLLBACK.md`
+  - Firebase App Hosting rollback via Console
+  - Git revert/reset procedures
+  - Hotfix lane procedure
+  - Emergency contacts
+
+### 7B — Production Monitoring (COMPLETED)
+- **Sentry Release Tracking:** Added `SENTRY_RELEASE=verifiedsound@1.0.0`
+  - Configured in both `sentry.server.config.ts` and `sentry.edge.config.ts`
+  - Added to `apphosting.yaml`
+- **Alert Configuration:** Set up in Sentry Dashboard (user action)
+
+### 7C — Cost Controls (COMPLETED)
+- **Gemini Chat Rate Limiting:**
+  - Per-user: 30 requests/minute, 100 requests/hour
+  - Daily cap: 5,000 requests/day (cost protection)
+  - Returns 503 when daily limit reached
+- **Email Rate Limits:** Already implemented per endpoint
+- **PDF Rate Limits:** Already implemented via tier gating
+
+---
+
 ## Test Reports
 
 ### Iteration 15 - P3 Emails + Production Setup (February 2025)
