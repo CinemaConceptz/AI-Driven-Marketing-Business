@@ -178,7 +178,7 @@ export async function POST(req: Request) {
     const ip = getRequestIp(req);
 
     // Rate limit: max 2 upgrade emails per day per user
-    const limit = rateLimit(`email:upgrade-limit:${uid}`, { maxRequests: 2, windowMs: 86400000 });
+    const limit = rateLimit(`email:upgrade-limit:${uid}`, 2, 86400000);
     if (!limit.allowed) {
       return NextResponse.json({ ok: true, skipped: true, reason: "rate_limited" });
     }
