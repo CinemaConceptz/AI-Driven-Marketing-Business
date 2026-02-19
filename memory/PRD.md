@@ -258,56 +258,56 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
     - `onboardingCompleted: boolean`
     - `onboardingCompletedAt: Timestamp`
 
-### Phase 6C - Email Drip Sequences (P0 + P1 COMPLETED - February 2025)
+### Phase 6C - Email Drip Sequences (FULLY COMPLETED - February 2025)
 - **Files:**
-  - `/app/web/src/app/api/email/welcome/route.ts` - Enhanced welcome email with professional HTML template
-  - `/app/web/src/app/api/email/upgrade-limit/route.ts` - Upgrade limit email endpoint
-  - `/app/web/src/app/api/email/upgrade-day7/route.ts` - Day 7 upgrade email (manual trigger)
-  - `/app/web/src/app/api/cron/emails/route.ts` - Automated cron endpoint for scheduled emails
+  - `/app/web/src/app/api/email/welcome/route.ts` - Welcome email (P0)
+  - `/app/web/src/app/api/email/upgrade-limit/route.ts` - Upgrade limit email (P0)
+  - `/app/web/src/app/api/email/upgrade-day7/route.ts` - Day 7 upgrade email (P1)
+  - `/app/web/src/app/api/email/profile-reminder/route.ts` - Day 2 profile reminder (P2)
+  - `/app/web/src/app/api/email/epk-guide/route.ts` - Day 5 EPK guide (P2)
+  - `/app/web/src/app/api/email/reengagement/route.ts` - Re-engagement email (P2)
+  - `/app/web/src/app/api/cron/emails/route.ts` - Comprehensive cron endpoint
   - `/app/web/src/components/PressImageManager.tsx` - LimitReachedUpgrade component
-  - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full email content documentation
+  - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full documentation with Cloud Scheduler setup
 
-- **P0 Emails Implemented:**
-  1. **Welcome Email** - Sent after signup/onboarding
-     - Professional executive-tone HTML template
-     - Personalized greeting with artist name
-     - Three clear CTAs: Upload images, Complete EPK, View plans
-     - Subject: "Your A&R Representation Begins Now"
-  
-  2. **Upgrade Limit Email** - Triggered when Tier I limit reached
-     - Auto-sent when user hits 3 press images
-     - Highlights Tier II benefits ($89/mo)
-     - Rate limited: 2 emails per day per user
-     - 24-hour cooldown between sends
+- **All Emails Implemented:**
+  | Priority | Email | Trigger | Rate Limit |
+  |----------|-------|---------|------------|
+  | P0 | Welcome | Signup/Onboarding | Once |
+  | P0 | Upgrade Limit | Hit press image limit | 2/day |
+  | P1 | Day 7 Upgrade | 7 days after signup | 1/week |
+  | P2 | Profile Reminder | Day 2, incomplete profile | 1/3 days |
+  | P2 | EPK Guide | Day 5 | 1/week |
+  | P2 | Re-engagement | 7 days inactive | 1/2 weeks |
 
-- **P1 Emails Implemented:**
-  3. **Day 7 Upgrade Email** - Automated sequence for Tier I users
-     - Sent 7 days after signup via cron job
-     - Stats: 3x review turnaround, 2x opportunities, 47% response rate
-     - Highlights missing Tier I features
-     - Rate limited: 1 email per week per user
-     - Skips users who already upgraded to Tier II/III
-     - Subject: "Tier II Artists Get 3x More A&R Engagement"
+- **Cron Endpoint Features:**
+  - Handles all email types via `?type=day2|day5|day7|reengagement|all`
+  - Dry run mode: `?dryRun=true`
+  - Returns detailed breakdown per email type
+  - Requires `CRON_SECRET` env var for production
 
-- **Cron Setup Required:**
-  - Call `GET /api/cron/emails?type=day7` daily
-  - Requires `CRON_SECRET` env var for production auth
-  - Supports `dryRun=true` for preview mode
+- **Cloud Scheduler Setup:**
+  - See `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` for gcloud CLI commands
+  - Recommended: Single daily job at 9 AM UTC with `type=all`
 
 - **Database Schema Updates:**
-  - `users/{uid}.emailFlags` now includes:
+  - `users/{uid}.emailFlags`:
     - `welcomeSentAt`, `welcomeMessageId`
     - `upgradeLimitSentAt`, `upgradeLimitMessageId`, `upgradeLimitType`
     - `upgrade7DaySentAt`, `upgrade7DayMessageId`
-
-- **Remaining P2 Emails (Drafted, Not Implemented):**
-  - Profile Completion Reminder (Day 2)
-  - EPK Setup Guide (Day 5)
-  - Inactive Re-engagement (7 days)
+    - `profileReminderSentAt`, `profileReminderMessageId`
+    - `epkGuideSentAt`, `epkGuideMessageId`
+    - `reengagementSentAt`, `reengagementMessageId`
+  - `users/{uid}.lastActiveAt` - For re-engagement tracking
 
 ---
 
 ## Test Reports
+
+### Iteration 14 - Phase 6C Complete + Stripe (February 2025)
+- **Success Rate:** 100% backend (31/31 tests)
+- **Features Tested:** All P2 email endpoints, comprehensive cron, Stripe checkout & webhook
+- **Notes:** STRIPE_WEBHOOK_SECRET needs configuration from Stripe dashboard
 
 ### Iteration 13 - Phase 6C Day 7 Email (February 2025)
 - **Success Rate:** 100% backend (17/17 tests)
