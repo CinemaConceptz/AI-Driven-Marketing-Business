@@ -198,6 +198,7 @@ export default function OnboardingPage() {
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 className="rounded-xl border border-white/10 bg-[#0a1628] px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
+                data-testid="onboarding-genre-select"
               >
                 <option value="">Select your genre</option>
                 {GENRES.map((g) => (
@@ -215,6 +216,7 @@ export default function OnboardingPage() {
                 rows={3}
                 maxLength={300}
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+                data-testid="onboarding-bio-textarea"
               />
               <span className="text-xs text-slate-500 text-right">{bio.length}/300</span>
             </label>
@@ -224,12 +226,14 @@ export default function OnboardingPage() {
             <button
               onClick={() => setStep(1)}
               className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
+              data-testid="onboarding-back-button"
             >
               ← Back
             </button>
             <button
               onClick={() => setStep(3)}
               className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
+              data-testid="onboarding-continue-button"
             >
               Continue →
             </button>
