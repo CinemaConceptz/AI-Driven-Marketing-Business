@@ -115,6 +115,12 @@ export default function EpkSettingsPanel({ user }: Props) {
 
   // Save custom slug
   const handleSaveSlug = async () => {
+    // Don't allow changes if locked
+    if (settings.epkSlugLocked) {
+      setError("Your custom URL has been locked and cannot be changed.");
+      return;
+    }
+
     const normalizedSlug = slugInput.toLowerCase().trim();
     
     if (!validateSlug(normalizedSlug)) {
@@ -129,13 +135,23 @@ export default function EpkSettingsPanel({ user }: Props) {
       const userRef = doc(db, "users", user.uid);
       const slugToSave = normalizedSlug || user.uid;
       
+      // Lock the slug after first save (if it's a custom slug, not user ID)
+      const shouldLock = normalizedSlug && normalizedSlug !== user.uid;
+      
       await updateDoc(userRef, {
         epkSlug: slugToSave,
+        epkSlugLocked: shouldLock,
       });
 
-      setSettings((prev) => ({ ...prev, epkSlug: slugToSave }));
+      setSettings((prev) => ({ 
+        ...prev, 
+        epkSlug: slugToSave,
+        epkSlugLocked: shouldLock,
+      }));
       setSlugInput(slugToSave);
-      setSuccess("Slug updated successfully!");
+      setSuccess(shouldLock 
+        ? "Custom URL saved and locked!" 
+        : "Slug updated successfully!");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err?.message || "Failed to update slug");
