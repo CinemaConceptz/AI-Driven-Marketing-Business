@@ -258,9 +258,47 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
     - `onboardingCompleted: boolean`
     - `onboardingCompletedAt: Timestamp`
 
+### Phase 6C - Email Drip Sequences (P0 COMPLETED - February 2025)
+- **Files:**
+  - `/app/web/src/app/api/email/welcome/route.ts` - Enhanced welcome email with professional HTML template
+  - `/app/web/src/app/api/email/upgrade-limit/route.ts` - New upgrade limit email endpoint
+  - `/app/web/src/components/PressImageManager.tsx` - LimitReachedUpgrade component
+  - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full email content documentation
+
+- **P0 Emails Implemented:**
+  1. **Welcome Email** - Sent after signup/onboarding
+     - Professional executive-tone HTML template
+     - Personalized greeting with artist name
+     - Three clear CTAs: Upload images, Complete EPK, View plans
+     - Subject: "Your A&R Representation Begins Now"
+  
+  2. **Upgrade Limit Email** - Triggered when Tier I limit reached
+     - Auto-sent when user hits 3 press images
+     - Highlights Tier II benefits ($89/mo)
+     - Rate limited: 2 emails per day per user
+     - 24-hour cooldown between sends
+
+- **Database Schema Updates:**
+  - `users/{uid}.emailFlags` now includes:
+    - `upgradeLimitSentAt: Timestamp`
+    - `upgradeLimitMessageId: string`
+    - `upgradeLimitType: string`
+
+- **Remaining P1/P2 Emails (Drafted, Not Implemented):**
+  - Profile Completion Reminder (Day 2)
+  - Day 7 Upgrade Prompt
+  - EPK Setup Guide (Day 5)
+  - Inactive Re-engagement (7 days)
+
 ---
 
 ## Test Reports
+
+### Iteration 11 - Phase 6C P0 Emails (February 2025)
+- **Success Rate:** 100% backend, 100% frontend
+- **Passed:** All 14 tests (11 backend + 3 frontend)
+- **Features Tested:** Email API endpoints, auth handling, rate limiting, UI components
+- **Note:** Postmark sending requires valid API token in production
 
 ### Iteration 10 - Phase 6A Onboarding Flow (February 2025)
 - **Success Rate:** 100% frontend
