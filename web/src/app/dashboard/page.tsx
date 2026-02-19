@@ -40,6 +40,9 @@ type UserProfile = {
     welcomeSentAt?: any;
   };
   onboardingCompleted?: boolean;
+  artistName?: string;
+  displayName?: string;
+  epkSlugLocked?: boolean;
 };
 
 function formatDate(
