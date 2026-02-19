@@ -73,6 +73,15 @@ export default function NavBar() {
                 EPK
               </Link>
               <Link
+                href="/submissions"
+                data-testid="nav-submissions-link"
+                className={`transition hover:text-white ${
+                  pathname === "/submissions" ? "text-white" : "text-slate-200"
+                }`}
+              >
+                Submit
+              </Link>
+              <Link
                 href="/settings"
                 data-testid="nav-settings-link"
                 className={`transition hover:text-white ${
