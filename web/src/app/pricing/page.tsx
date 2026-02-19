@@ -77,14 +77,27 @@ export default function PricingPage() {
   const router = useRouter();
   const { user } = useAuth();
 
+  // Track pricing page view
+  useEffect(() => {
+    trackEvent("pricing_page_viewed", user?.uid || null, { source: "direct" });
+  }, [user?.uid]);
+
   const handleSelectTier = async (tierId: string) => {
     setError(null);
+    
+    // Track upgrade click
+    trackUpgradeClick(user?.uid || null, "pricing_page", undefined, tierId);
+    
     if (!user) {
       router.push(`/login?next=/pricing&tier=${tierId}`);
       return;
     }
 
     setLoading(tierId);
+    
+    // Track checkout started
+    trackCheckoutStarted(user.uid, tierId, billingPeriod);
+    
     try {
       const token = await user.getIdToken();
       const response = await fetch("/api/stripe/checkout", {
