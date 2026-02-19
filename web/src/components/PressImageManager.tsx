@@ -108,8 +108,29 @@ export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Prop
     setUploading(true);
     try {
       if (!user) throw new Error("You must be logged in.");
+      const isFirstImage = media.length === 0;
       const newDoc = await uploadPressImage(file, user, media.length);
       setMedia((prev) => [...prev, newDoc]);
+      
+      // Send first image celebration email (only for the very first upload)
+      if (isFirstImage) {
+        try {
+          const token = await user.getIdToken();
+          await fetch("/api/email/first-image", {
+            method: "POST",
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              resolution: `${file.type.includes('image') ? 'High' : 'Standard'} resolution`,
+              format: file.type.split('/')[1]?.toUpperCase() || 'Image'
+            })
+          });
+        } catch (err) {
+          console.error("First image email failed", err);
+        }
+      }
       
       // Send EPK update email
       try {
