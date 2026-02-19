@@ -238,12 +238,16 @@ export default function EpkSettingsPanel({ user }: Props) {
         <label className="block">
           <span className="text-sm font-medium text-white">Custom URL Slug</span>
           <p className="text-xs text-slate-400 mt-1">
-            Leave empty to use your user ID. Only lowercase letters, numbers, and hyphens.
+            {settings.epkSlugLocked 
+              ? "Your custom URL has been set and is now locked."
+              : "Leave empty to use your user ID or add your stage name. ONLY lowercase letters, numbers, and hyphens."}
           </p>
         </label>
         <div className="flex gap-2">
           <div className="flex-1">
-            <div className="flex items-center rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+            <div className={`flex items-center rounded-xl border bg-white/5 overflow-hidden ${
+              settings.epkSlugLocked ? "border-emerald-500/30" : "border-white/10"
+            }`}>
               <span className="px-3 text-sm text-slate-500 bg-white/5 py-2.5 border-r border-white/10">
                 /epk/
               </span>
@@ -251,26 +255,40 @@ export default function EpkSettingsPanel({ user }: Props) {
                 type="text"
                 value={slugInput}
                 onChange={(e) => {
-                  setSlugInput(e.target.value.toLowerCase());
-                  setSlugError(null);
+                  if (!settings.epkSlugLocked) {
+                    setSlugInput(e.target.value.toLowerCase());
+                    setSlugError(null);
+                  }
                 }}
                 placeholder={user.uid.slice(0, 12) + "..."}
-                className="flex-1 bg-transparent px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none"
+                disabled={settings.epkSlugLocked}
+                className={`flex-1 bg-transparent px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none ${
+                  settings.epkSlugLocked ? "cursor-not-allowed opacity-70" : ""
+                }`}
                 data-testid="epk-slug-input"
               />
+              {settings.epkSlugLocked && (
+                <span className="px-3 text-emerald-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
+              )}
             </div>
             {slugError && (
               <p className="mt-1 text-xs text-red-400">{slugError}</p>
             )}
           </div>
-          <button
-            onClick={handleSaveSlug}
-            disabled={saving || slugInput === settings.epkSlug}
-            className="rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#021024] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 transition-colors"
-            data-testid="epk-save-slug-btn"
-          >
-            Save
-          </button>
+          {!settings.epkSlugLocked && (
+            <button
+              onClick={handleSaveSlug}
+              disabled={saving || slugInput === settings.epkSlug}
+              className="rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#021024] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 transition-colors"
+              data-testid="epk-save-slug-btn"
+            >
+              Save
+            </button>
+          )}
         </div>
       </div>
 
