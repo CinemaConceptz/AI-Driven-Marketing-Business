@@ -74,3 +74,7 @@ env:
     value: "https://verifiedsoundar.com/apply"
   - variable: NEXT_PUBLIC_SENTRY_DSN
     value: "https://d0d9825aad1536f76f08dd90b58c103c@o4510909313187840.ingest.us.sentry.io/4510909334224896"
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
+    availability:
+      - RUNTIME
