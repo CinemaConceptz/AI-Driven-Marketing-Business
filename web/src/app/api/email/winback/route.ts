@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { sendTransactionalEmail } from "@/services/email/postmark";
-import { getUnsubscribeUrl, isUserUnsubscribed } from "../unsubscribe/route";
+import { getUnsubscribeUrl, isUserUnsubscribed } from "@/lib/email/unsubscribe";
 
 /**
  * POST /api/email/winback
