@@ -207,6 +207,25 @@ export default function DashboardPage() {
         ))}
       </section>
 
+      {/* Tier I Upgrade Nudge */}
+      {isActive && effectiveTier === "tier1" && (
+        <UpgradeNudge
+          variant="card"
+          title="Unlock more with Tier II — $89/mo"
+          description="You're on Tier I. Here's what you're missing:"
+          ctaLabel="Upgrade to Tier II →"
+          ctaHref="/pricing"
+          features={[
+            "Up to 10 press images (you have 3)",
+            "Watermark-free enhanced PDF EPK",
+            "Priority A&R review",
+            "Monthly strategy call",
+            "Direct A&R feedback & analytics",
+          ]}
+          dismissible={true}
+        />
+      )}
+
       {/* Feature Access Grid */}
       <section className="glass-panel rounded-3xl px-8 py-8">
         <div className="flex items-center justify-between mb-6">
