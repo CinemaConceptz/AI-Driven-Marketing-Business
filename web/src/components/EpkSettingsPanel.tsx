@@ -43,6 +43,7 @@ export default function EpkSettingsPanel({ user }: Props) {
           setSettings({
             epkPublished: data.epkPublished ?? false,
             epkSlug: data.epkSlug ?? "",
+            epkSlugLocked: data.epkSlugLocked ?? false,
           });
           setSlugInput(data.epkSlug ?? "");
         }
