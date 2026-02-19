@@ -80,12 +80,30 @@ export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
   
   try {
-    // Rate limiting by IP
+    // Check daily limit first (cost protection)
+    if (!checkDailyLimit()) {
+      console.warn(`[chat-assistant] Daily limit reached: ${dailyUsage.count}/${dailyUsage.maxDaily}`);
+      return NextResponse.json(
+        { ok: false, error: "Chat service is at capacity. Please try again tomorrow." },
+        { status: 503 }
+      );
+    }
+
+    // Rate limiting by IP (30 requests per minute per user)
     const ip = getRequestIp(req);
-    const limit = rateLimit(`chat-assistant:${ip}`, 30, 60000); // 30 requests per minute
+    const limit = rateLimit(`chat-assistant:${ip}`, 30, 60000);
     if (!limit.allowed) {
       return NextResponse.json(
         { ok: false, error: "Rate limit exceeded. Please slow down." },
+        { status: 429 }
+      );
+    }
+
+    // Additional rate limit: 100 requests per hour per IP
+    const hourlyLimit = rateLimit(`chat-assistant-hourly:${ip}`, 100, 3600000);
+    if (!hourlyLimit.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "Hourly limit exceeded. Please try again later." },
         { status: 429 }
       );
     }
