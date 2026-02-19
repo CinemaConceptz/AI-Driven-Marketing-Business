@@ -258,51 +258,55 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
     - `onboardingCompleted: boolean`
     - `onboardingCompletedAt: Timestamp`
 
-### Phase 6C - Email Drip Sequences (FULLY COMPLETED - February 2025)
+### Phase 6C - Email Drip Sequences (100% COMPLETE - February 2025)
 - **Files:**
   - `/app/web/src/app/api/email/welcome/route.ts` - Welcome email (P0)
   - `/app/web/src/app/api/email/upgrade-limit/route.ts` - Upgrade limit email (P0)
   - `/app/web/src/app/api/email/upgrade-day7/route.ts` - Day 7 upgrade email (P1)
-  - `/app/web/src/app/api/email/profile-reminder/route.ts` - Day 2 profile reminder (P2)
+  - `/app/web/src/app/api/email/profile-reminder/route.ts` - Day 2 profile reminder (P1)
   - `/app/web/src/app/api/email/epk-guide/route.ts` - Day 5 EPK guide (P2)
   - `/app/web/src/app/api/email/reengagement/route.ts` - Re-engagement email (P2)
+  - `/app/web/src/app/api/email/first-image/route.ts` - First image celebration (P3)
+  - `/app/web/src/app/api/email/epk-published/route.ts` - EPK published notification (P3)
   - `/app/web/src/app/api/cron/emails/route.ts` - Comprehensive cron endpoint
-  - `/app/web/src/components/PressImageManager.tsx` - LimitReachedUpgrade component
-  - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full documentation with Cloud Scheduler setup
+  - `/app/web/src/components/PressImageManager.tsx` - Triggers first-image + upgrade emails
+  - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full documentation
+  - `/app/web/docs/PRODUCTION_SETUP.md` - Production secrets & Cloud Scheduler guide
 
-- **All Emails Implemented:**
+- **All 10 Email Endpoints Implemented:**
   | Priority | Email | Trigger | Rate Limit |
   |----------|-------|---------|------------|
   | P0 | Welcome | Signup/Onboarding | Once |
   | P0 | Upgrade Limit | Hit press image limit | 2/day |
-  | P1 | Day 7 Upgrade | 7 days after signup | 1/week |
-  | P2 | Profile Reminder | Day 2, incomplete profile | 1/3 days |
-  | P2 | EPK Guide | Day 5 | 1/week |
-  | P2 | Re-engagement | 7 days inactive | 1/2 weeks |
+  | P1 | Day 7 Upgrade | 7 days after signup (cron) | 1/week |
+  | P1 | Profile Reminder | Day 2, incomplete profile (cron) | 1/3 days |
+  | P2 | EPK Guide | Day 5 (cron) | 1/week |
+  | P2 | Re-engagement | 7 days inactive (cron) | 1/2 weeks |
+  | P3 | First Image | First press image upload | Once/lifetime |
+  | P3 | EPK Published | EPK goes live | 1/day |
 
-- **Cron Endpoint Features:**
-  - Handles all email types via `?type=day2|day5|day7|reengagement|all`
-  - Dry run mode: `?dryRun=true`
-  - Returns detailed breakdown per email type
-  - Requires `CRON_SECRET` env var for production
+- **Cron Endpoint:** `/api/cron/emails`
+  - Types: `day2|day5|day7|reengagement|all`
+  - Dry run: `?dryRun=true`
+  - Requires `CRON_SECRET` in production
 
-- **Cloud Scheduler Setup:**
-  - See `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` for gcloud CLI commands
-  - Recommended: Single daily job at 9 AM UTC with `type=all`
+- **Production Setup:**
+  - See `/app/web/docs/PRODUCTION_SETUP.md` for complete guide
+  - Secrets: CRON_SECRET, STRIPE_WEBHOOK_SECRET, POSTMARK_SERVER_TOKEN
+  - Cloud Scheduler: Daily job at 9 AM UTC
 
-- **Database Schema Updates:**
-  - `users/{uid}.emailFlags`:
-    - `welcomeSentAt`, `welcomeMessageId`
-    - `upgradeLimitSentAt`, `upgradeLimitMessageId`, `upgradeLimitType`
-    - `upgrade7DaySentAt`, `upgrade7DayMessageId`
-    - `profileReminderSentAt`, `profileReminderMessageId`
-    - `epkGuideSentAt`, `epkGuideMessageId`
-    - `reengagementSentAt`, `reengagementMessageId`
-  - `users/{uid}.lastActiveAt` - For re-engagement tracking
+- **Database Schema:**
+  - `users/{uid}.emailFlags`: All 8 email types tracked with sentAt + messageId
+  - `users/{uid}.lastActiveAt`: For re-engagement tracking
 
 ---
 
 ## Test Reports
+
+### Iteration 15 - P3 Emails + Production Setup (February 2025)
+- **Success Rate:** 100% backend (22/22 tests)
+- **Features Tested:** First-image, EPK-published endpoints, apphosting.yaml config
+- **All 10 email endpoints verified available and secured**
 
 ### Iteration 14 - Phase 6C Complete + Stripe (February 2025)
 - **Success Rate:** 100% backend (31/31 tests)
