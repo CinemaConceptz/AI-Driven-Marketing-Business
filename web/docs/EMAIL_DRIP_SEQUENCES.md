@@ -1,5 +1,37 @@
 # Email Drip Sequences - Verified Sound A&R
 
+## Implementation Status
+
+| Priority | Sequence | Status | Endpoint |
+|----------|----------|--------|----------|
+| **P0** | Welcome Email | ✅ IMPLEMENTED | `/api/email/welcome` |
+| **P0** | Upgrade Limit | ✅ IMPLEMENTED | `/api/email/upgrade-limit` |
+| **P1** | Day 7 Upgrade | ✅ IMPLEMENTED | `/api/email/upgrade-day7` + `/api/cron/emails` |
+| **P1** | Profile Reminder | 📋 DRAFTED | - |
+| **P2** | EPK Setup Guide | 📋 DRAFTED | - |
+| **P2** | Re-engagement | 📋 DRAFTED | - |
+| **P3** | First Image | 📋 DRAFTED | - |
+| **P3** | EPK Published | 📋 DRAFTED | - |
+
+## Cron Job Setup
+
+The Day 7 upgrade email is sent automatically via a cron endpoint. Configure your scheduler to call:
+
+```bash
+# Daily at 9:00 AM UTC
+curl -X GET "https://verifiedsoundar.com/api/cron/emails?type=day7" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+
+# Dry run (preview without sending)
+curl -X GET "https://verifiedsoundar.com/api/cron/emails?type=day7&dryRun=true" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+**Required Environment Variable:**
+- `CRON_SECRET` - Secret token to authorize cron requests
+
+---
+
 ## Prioritization Recommendation
 
 Based on revenue impact and user activation, here's the recommended implementation order:
