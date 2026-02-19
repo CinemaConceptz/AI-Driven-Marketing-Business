@@ -5,6 +5,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { getAnalyticsData } from "@/lib/admin/queries";
 import { TIER_LABELS } from "@/lib/subscription";
 import ExperimentsDashboard from "@/components/admin/ExperimentsDashboard";
+import EmailRetentionDashboard from "@/components/admin/EmailRetentionDashboard";
 
 type AnalyticsData = Awaited<ReturnType<typeof getAnalyticsData>>;
 
