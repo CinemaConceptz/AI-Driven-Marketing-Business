@@ -1,4 +1,5 @@
 # Firebase App Hosting runtime config for backend: verifiedsoundar
+# Version: 1.0.1 - Updated yarn.lock for xlsx dependency
 # NOTE: Secrets must exist in Google Secret Manager (same GCP project).
 #
 # Create secrets:
