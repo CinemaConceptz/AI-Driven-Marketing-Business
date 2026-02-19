@@ -194,16 +194,16 @@ export default function DashboardPage() {
       {/* Subscription Status Banner */}
       <SubscriptionBanner status={rawStatus} />
 
-      {/* Header */}
+      {/* Welcome Header */}
       <section className="glass-panel rounded-3xl px-8 py-10">
         <p className="text-sm uppercase tracking-[0.2em] text-slate-400" data-testid="dashboard-kicker">
-          Subscription overview
+          Welcome back
         </p>
         <h1 className="mt-3 text-3xl font-semibold text-white" data-testid="dashboard-title">
-          Representation dashboard
+          Hello, {userName}
         </h1>
         <p className="mt-3 text-sm text-slate-200" data-testid="dashboard-subtitle">
-          Track your current representation tier and next steps.
+          Track your current representation tier, manage your EPK, and connect with labels.
         </p>
       </section>
 
