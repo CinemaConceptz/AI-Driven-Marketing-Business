@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import PressImageManager from "@/components/PressImageManager";
+import AudioUploadManager from "@/components/AudioUploadManager";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function MediaPage() {
@@ -49,9 +50,14 @@ export default function MediaPage() {
           Media
         </h1>
         <p className="mt-3 text-sm text-slate-200" data-testid="media-subtitle">
-          Manage your press image and metadata.
+          Manage your press images and audio tracks for your EPK.
         </p>
       </div>
+      
+      {/* Audio Upload Section */}
+      <AudioUploadManager user={user} maxTracks={2} />
+      
+      {/* Press Images Section */}
       <PressImageManager user={user} />
     </main>
   );
