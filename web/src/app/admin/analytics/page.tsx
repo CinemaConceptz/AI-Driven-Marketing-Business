@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAnalyticsData } from "@/lib/admin/queries";
 import { TIER_LABELS } from "@/lib/subscription";
+import ExperimentsDashboard from "@/components/admin/ExperimentsDashboard";
 
 type AnalyticsData = Awaited<ReturnType<typeof getAnalyticsData>>;
 
