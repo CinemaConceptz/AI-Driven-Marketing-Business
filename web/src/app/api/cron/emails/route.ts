@@ -137,7 +137,7 @@ function generateReengagementHtml(name: string, dashboardUrl: string, daysInacti
 // CRON JOB LOGIC
 // ============================================
 
-type EmailType = "day2" | "day5" | "day7" | "reengagement" | "all";
+type EmailType = "day2" | "day5" | "day7" | "reengagement" | "winback" | "all";
 
 interface CronResults {
   requestId: string;
