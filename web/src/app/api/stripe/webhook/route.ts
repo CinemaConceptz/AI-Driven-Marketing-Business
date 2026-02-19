@@ -74,6 +74,14 @@ export async function POST(req: Request) {
       const tier = session.metadata?.tier || "tier1";
       const billingPeriod = session.metadata?.billingPeriod || "monthly";
 
+      // Track checkout completed
+      await trackServerEvent("checkout_completed", uid, {
+        tier,
+        billingPeriod,
+        amount: session.amount_total,
+        currency: session.currency,
+      });
+
       // Record payment
       await adminDb.collection("payments").doc(sessionId).set({
         uid: uid || null,
