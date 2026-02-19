@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import admin from "firebase-admin";
 import { getStripe } from "@/lib/stripe";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { trackServerEvent } from "@/lib/analytics/serverTracking";
 import Stripe from "stripe";
 
 // Map Stripe subscription status to app status
