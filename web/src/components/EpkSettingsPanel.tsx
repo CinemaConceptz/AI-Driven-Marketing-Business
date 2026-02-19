@@ -12,6 +12,7 @@ type Props = {
 type EpkSettings = {
   epkPublished: boolean;
   epkSlug: string;
+  epkSlugLocked: boolean;
 };
 
 export default function EpkSettingsPanel({ user }: Props) {
