@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 import { trackEvent, trackUpgradeClick, trackCheckoutStarted } from "@/lib/analytics/trackEvent";
+import { getExperimentContent, trackExperimentConversion, PRICING_HEADLINES } from "@/lib/experiments/abTest";
 
 type BillingPeriod = "monthly" | "annual";
 
@@ -77,6 +78,9 @@ export default function PricingPage() {
   const router = useRouter();
   const { user } = useAuth();
 
+  // Get A/B test variant for headline
+  const headline = getExperimentContent("pricing_headline", PRICING_HEADLINES, user?.uid);
+
   // Track pricing page view
   useEffect(() => {
     trackEvent("pricing_page_viewed", user?.uid || null, { source: "direct" });
@@ -87,6 +91,9 @@ export default function PricingPage() {
     
     // Track upgrade click
     trackUpgradeClick(user?.uid || null, "pricing_page", undefined, tierId);
+    
+    // Track A/B test conversion
+    trackExperimentConversion("pricing_headline", "tier_selected", user?.uid, { tier: tierId });
     
     if (!user) {
       router.push(`/login?next=/pricing&tier=${tierId}`);
@@ -151,11 +158,10 @@ export default function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 text-4xl font-semibold text-white" data-testid="pricing-title">
-          Choose Your Path to Label Success
+          {headline.title}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-slate-200">
-          Select the plan that fits your career stage. All plans include access to our
-          A&R network and professional EPK tools.
+          {headline.subtitle}
         </p>
 
         {/* Billing Toggle */}
