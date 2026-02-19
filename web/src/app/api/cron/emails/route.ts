@@ -489,6 +489,90 @@ export async function GET(req: Request) {
       }
     }
 
+    // ============================================
+    // WINBACK: 30+ DAYS SINCE SUBSCRIPTION CANCELED
+    // ============================================
+    if (emailTypes.includes("winback")) {
+      results.breakdown.winback = { processed: 0, sent: 0, skipped: 0 };
+      
+      const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      const ninetyDaysAgo = new Date(now - 90 * 24 * 60 * 60 * 1000);
+
+      try {
+        // Query users who canceled 30-90 days ago
+        const usersSnapshot = await adminDb
+          .collection("users")
+          .where("subscriptionCanceledAt", ">=", ninetyDaysAgo)
+          .where("subscriptionCanceledAt", "<=", thirtyDaysAgo)
+          .get();
+
+        for (const userDoc of usersSnapshot.docs) {
+          results.breakdown.winback.processed++;
+          results.processed++;
+          const userData = userDoc.data();
+          const uid = userDoc.id;
+
+          // Skip if already sent within 60 days
+          const lastSent = userData.emailFlags?.winbackSentAt?.toDate?.();
+          if (lastSent && (now - lastSent.getTime()) < 60 * 24 * 60 * 60 * 1000) {
+            results.breakdown.winback.skipped++;
+            results.skipped++;
+            continue;
+          }
+
+          // Skip if user is unsubscribed from marketing
+          if (userData.emailPreferences?.marketingUnsubscribed || userData.emailPreferences?.unsubscribed_winback) {
+            results.breakdown.winback.skipped++;
+            results.skipped++;
+            continue;
+          }
+
+          // Skip if user has resubscribed
+          const currentTier = userData.subscriptionTier || userData.tier;
+          if (currentTier && currentTier !== "free" && currentTier !== "tier1") {
+            results.breakdown.winback.skipped++;
+            results.skipped++;
+            continue;
+          }
+
+          const email = userData.email;
+          if (!email) {
+            results.breakdown.winback.skipped++;
+            results.skipped++;
+            continue;
+          }
+
+          if (dryRun) {
+            console.log(`[cron/emails] DRY RUN - Would send winback email to ${email}`);
+            results.breakdown.winback.sent++;
+            results.sent++;
+            continue;
+          }
+
+          try {
+            // Call the winback endpoint
+            const winbackResponse = await fetch(`${baseUrl}/api/email/winback`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ uid }),
+            });
+
+            if (winbackResponse.ok) {
+              results.breakdown.winback.sent++;
+              results.sent++;
+            } else {
+              results.breakdown.winback.skipped++;
+              results.skipped++;
+            }
+          } catch (err: any) {
+            results.errors.push(`winback:${email}: ${err?.message}`);
+          }
+        }
+      } catch (err: any) {
+        results.errors.push(`winback:query: ${err?.message}`);
+      }
+    }
+
     console.log(`[cron/emails] Job ${requestId} complete:`, results);
     return NextResponse.json(results);
   } catch (error: any) {
