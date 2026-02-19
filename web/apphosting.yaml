@@ -78,3 +78,5 @@ env:
     secret: CRON_SECRET
     availability:
       - RUNTIME
+  - variable: SENTRY_RELEASE
+    value: "verifiedsound@1.0.0"
