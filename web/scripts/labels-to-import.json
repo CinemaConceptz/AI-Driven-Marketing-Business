@@ -1,0 +1,1909 @@
+{
+  "labels": [
+    {
+      "name": "Defected Records",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://defected.com",
+      "submissionUrl": "https://defected.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Glitterbox",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://glitterboxibiza.com",
+      "submissionUrl": "https://glitterboxibiza.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Toolroom Records",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://toolroomrecords.com",
+      "submissionUrl": "https://toolroomrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Nervous Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://nervousnyc.com",
+      "submissionUrl": "https://nervousnyc.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Soulfuric",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://soulfuric.com",
+      "submissionUrl": "https://soulfuric.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Strictly Rhythm",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://strictlyrhythm.com",
+      "submissionUrl": "https://strictlyrhythm.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Large Music",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://largemusic.com",
+      "submissionUrl": "https://largemusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "King Street Sounds",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://kingstreetsounds.com",
+      "submissionUrl": "https://kingstreetsounds.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Quantize Recordings",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://quantizerecordings.com",
+      "submissionUrl": "https://quantizerecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Glasgow Underground",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://glasgowunderground.com",
+      "submissionUrl": "https://glasgowunderground.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Tribe Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://triberecords.com",
+      "submissionUrl": "https://triberecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Yoruba Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://yorubarecords.com",
+      "submissionUrl": "https://yorubarecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Vega Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://vegarecords.com",
+      "submissionUrl": "https://vegarecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Razor-N-Tape",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://razorn-tape.com",
+      "submissionUrl": "https://razorn-tape.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "House of Trax",
+      "genres": [
+        "House"
+      ],
+      "country": "Germany",
+      "website": "https://houseoftrax.com",
+      "submissionUrl": "https://houseoftrax.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "DIRIDIM",
+      "genres": [
+        "House"
+      ],
+      "country": "France",
+      "website": "https://diridim.com",
+      "submissionUrl": "https://diridim.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Heist Recordings",
+      "genres": [
+        "House"
+      ],
+      "country": "Netherlands",
+      "website": "https://heistrecordings.com",
+      "submissionUrl": "https://heistrecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Anjunadeep",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://anjunadeep.com",
+      "submissionUrl": "https://anjunadeep.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Cajual Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://cajualrecords.com",
+      "submissionUrl": "https://cajualrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Relief Records",
+      "genres": [
+        "House"
+      ],
+      "country": "USA",
+      "website": "https://reliefrecords.com",
+      "submissionUrl": "https://reliefrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Soul Heaven Records",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://soulheaven.com",
+      "submissionUrl": "https://soulheaven.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Local Talk",
+      "genres": [
+        "House"
+      ],
+      "country": "Sweden",
+      "website": "https://localtalk.se",
+      "submissionUrl": "https://localtalk.se/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Freerange Records",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://freerangerecords.co.uk",
+      "submissionUrl": "https://freerangerecords.co.uk/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "NRK Sound Division",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://nrksounddivision.com",
+      "submissionUrl": "https://nrksounddivision.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sub_Urban",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://suburbanlondon.com",
+      "submissionUrl": "https://suburbanlondon.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Classic Music Company",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://classicmusiccompany.com",
+      "submissionUrl": "https://classicmusiccompany.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Crosstown Rebels",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://crosstownrebels.com",
+      "submissionUrl": "https://crosstownrebels.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Stay True Sounds",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://staytruesounds.com",
+      "submissionUrl": "https://staytruesounds.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sleazy Deep",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://sleazydeep.com",
+      "submissionUrl": "https://sleazydeep.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Groove Culture",
+      "genres": [
+        "House"
+      ],
+      "country": "UK",
+      "website": "https://grooveculturemusic.com",
+      "submissionUrl": "https://grooveculturemusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Afrocentric Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://afrocentricrecords.com",
+      "submissionUrl": "https://afrocentricrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "MoBlack Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Italy",
+      "website": "https://moblackrecords.com",
+      "submissionUrl": "https://moblackrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Offering Recordings",
+      "genres": [
+        "Afro"
+      ],
+      "country": "USA",
+      "website": "https://offeringrecordings.com",
+      "submissionUrl": "https://offeringrecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Connected Frontline",
+      "genres": [
+        "Afro"
+      ],
+      "country": "UK",
+      "website": "https://connectedfrontline.com",
+      "submissionUrl": "https://connectedfrontline.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Kazukuta Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://kazukutarecords.com",
+      "submissionUrl": "https://kazukutarecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Seres Producoes",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Angola",
+      "website": "https://seresproducoes.com",
+      "submissionUrl": "https://seresproducoes.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Iklwa Brothers",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://ikwabrothers.com",
+      "submissionUrl": "https://ikwabrothers.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Nyami Nyami Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "UK",
+      "website": "https://nyaminyamirecords.com",
+      "submissionUrl": "https://nyaminyamirecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Enoo Napa Music",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://enoonapa.com",
+      "submissionUrl": "https://enoonapa.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Pasqua Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Italy",
+      "website": "https://pasquarecords.com",
+      "submissionUrl": "https://pasquarecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "VIVa Africa",
+      "genres": [
+        "Afro"
+      ],
+      "country": "UK",
+      "website": "https://vivaafrica.com",
+      "submissionUrl": "https://vivaafrica.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Zamora Music",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://zamoramusic.com",
+      "submissionUrl": "https://zamoramusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sunclock Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://sunclockrecords.com",
+      "submissionUrl": "https://sunclockrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "AfromaticLab",
+      "genres": [
+        "Afro"
+      ],
+      "country": "France",
+      "website": "https://afromaticlab.com",
+      "submissionUrl": "https://afromaticlab.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Deep Root Tribe",
+      "genres": [
+        "Afro"
+      ],
+      "country": "USA",
+      "website": "https://deeproottribe.com",
+      "submissionUrl": "https://deeproottribe.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Yoruba Soul",
+      "genres": [
+        "Afro"
+      ],
+      "country": "USA",
+      "website": "https://yorubasoul.com",
+      "submissionUrl": "https://yorubasoul.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Madorasindahouse",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Angola",
+      "website": "https://madorasindahouse.com",
+      "submissionUrl": "https://madorasindahouse.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Aluku Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "France",
+      "website": "https://alukurecords.com",
+      "submissionUrl": "https://alukurecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Tribe Records SA",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://triberecordssa.com",
+      "submissionUrl": "https://triberecordssa.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Drumpoet Community",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Switzerland",
+      "website": "https://drumpoet.com",
+      "submissionUrl": "https://drumpoet.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Boddhi Satva Ancestral Soul",
+      "genres": [
+        "Afro"
+      ],
+      "country": "France",
+      "website": "https://ancestralsoul.com",
+      "submissionUrl": "https://ancestralsoul.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Descendants of the Deep",
+      "genres": [
+        "Afro"
+      ],
+      "country": "UK",
+      "website": "https://descendantsofthedeep.com",
+      "submissionUrl": "https://descendantsofthedeep.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sondela Recordings",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://sondelarecordings.com",
+      "submissionUrl": "https://sondelarecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Bush Doctor Recordings",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://bushdoctorrecordings.com",
+      "submissionUrl": "https://bushdoctorrecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Roots Underground",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Kenya",
+      "website": "https://rootsunderground.com",
+      "submissionUrl": "https://rootsunderground.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Kalawa Jazmee",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://kalawajazmee.com",
+      "submissionUrl": "https://kalawajazmee.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Just Move Records",
+      "genres": [
+        "Afro"
+      ],
+      "country": "UK",
+      "website": "https://justmoverecords.com",
+      "submissionUrl": "https://justmoverecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Afro Acid",
+      "genres": [
+        "Afro"
+      ],
+      "country": "Germany",
+      "website": "https://afroacid.com",
+      "submissionUrl": "https://afroacid.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Wicked Wax",
+      "genres": [
+        "Afro"
+      ],
+      "country": "USA",
+      "website": "https://wickedwax.com",
+      "submissionUrl": "https://wickedwax.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Soul Candi",
+      "genres": [
+        "Afro"
+      ],
+      "country": "South Africa",
+      "website": "https://soulcandi.co.za",
+      "submissionUrl": "https://soulcandi.co.za/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "RCA Inspiration",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://rcainspiration.com",
+      "submissionUrl": "https://rcainspiration.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Verity Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://verityrecords.com",
+      "submissionUrl": "https://verityrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Light Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://lightrecords.com",
+      "submissionUrl": "https://lightrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Malaco Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://malacorecords.com",
+      "submissionUrl": "https://malacorecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Central South Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://centralsouthrecords.com",
+      "submissionUrl": "https://centralsouthrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Black Smoke Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://blacksmokemusic.com",
+      "submissionUrl": "https://blacksmokemusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Shanachie Gospel",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://shanachie.com",
+      "submissionUrl": "https://shanachie.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Tyscot Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://tyscot.com",
+      "submissionUrl": "https://tyscot.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Tribute Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://tributerecords.com",
+      "submissionUrl": "https://tributerecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Crossroads",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://crossroadslabel.com",
+      "submissionUrl": "https://crossroadslabel.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "GospoCentric",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://gospocentric.com",
+      "submissionUrl": "https://gospocentric.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Integrity Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://integritymusic.com",
+      "submissionUrl": "https://integritymusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Centricity Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://centricitymusic.com",
+      "submissionUrl": "https://centricitymusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Word Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://wordrecords.com",
+      "submissionUrl": "https://wordrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Fair Trade Services",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://fairtradeservices.com",
+      "submissionUrl": "https://fairtradeservices.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Lamp Mode",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://lampmode.com",
+      "submissionUrl": "https://lampmode.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Hilltop Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://hilltoprecords.com",
+      "submissionUrl": "https://hilltoprecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "eOne Gospel",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://eonegospel.com",
+      "submissionUrl": "https://eonegospel.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Walk By Faith Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://walkbyfaithrecords.com",
+      "submissionUrl": "https://walkbyfaithrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Habbakkuk Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://habbakkukmusic.com",
+      "submissionUrl": "https://habbakkukmusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "PRAISE Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://praiserecords.com",
+      "submissionUrl": "https://praiserecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Heavenly Praise",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://heavenlypraise.com",
+      "submissionUrl": "https://heavenlypraise.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Intersound Gospel",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://intersoundrecords.com",
+      "submissionUrl": "https://intersoundrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "New Day Distribution",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://newdaydistributors.com",
+      "submissionUrl": "https://newdaydistributors.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Flow Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://flowrecords.com",
+      "submissionUrl": "https://flowrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Kingdom City Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://kingdomcityrecords.com",
+      "submissionUrl": "https://kingdomcityrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Gospo Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://gosporecords.com",
+      "submissionUrl": "https://gosporecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Destiny Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://destinymusic.com",
+      "submissionUrl": "https://destinymusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Soul Gospel Music",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://soulgospelmusic.com",
+      "submissionUrl": "https://soulgospelmusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sanctuary Records",
+      "genres": [
+        "Gospel"
+      ],
+      "country": "USA",
+      "website": "https://sanctuaryrecords.com",
+      "submissionUrl": "https://sanctuaryrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Stones Throw",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://stonesthrow.com",
+      "submissionUrl": "https://stonesthrow.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Rhymesayers",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://rhymesayers.com",
+      "submissionUrl": "https://rhymesayers.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Duck Down Music",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://duckdown.com",
+      "submissionUrl": "https://duckdown.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Rawkus",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://rawkus.com",
+      "submissionUrl": "https://rawkus.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Fool's Gold",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://foolsgoldrecs.com",
+      "submissionUrl": "https://foolsgoldrecs.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Mass Appeal",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://massappeal.com",
+      "submissionUrl": "https://massappeal.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Top Dawg Entertainment",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://topdawgent.com",
+      "submissionUrl": "https://topdawgent.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Griselda Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://griselda-records.com",
+      "submissionUrl": "https://griselda-records.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Strange Music",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://strangemusicinc.com",
+      "submissionUrl": "https://strangemusicinc.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Roc Nation",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://rocnation.com",
+      "submissionUrl": "https://rocnation.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Def Jam (Indie Ops)",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://defjam.com",
+      "submissionUrl": "https://defjam.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Black Market Music",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://blackmarketmusic.com",
+      "submissionUrl": "https://blackmarketmusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Hieroglyphics Imperium",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://hieroglyphics.com",
+      "submissionUrl": "https://hieroglyphics.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Babygrande",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://babygrande.com",
+      "submissionUrl": "https://babygrande.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Mello Music Group",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://mellomusicgroup.com",
+      "submissionUrl": "https://mellomusicgroup.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Lex Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "UK",
+      "website": "https://lexrecords.com",
+      "submissionUrl": "https://lexrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "High Focus Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "UK",
+      "website": "https://highfocusrecords.com",
+      "submissionUrl": "https://highfocusrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Bad Taste Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://badtasterecords.com",
+      "submissionUrl": "https://badtasterecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Stupid Fly",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://stupidfly.com",
+      "submissionUrl": "https://stupidfly.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Nature Sounds",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://naturesoundsmusic.com",
+      "submissionUrl": "https://naturesoundsmusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Definitive Jux",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://defjux.com",
+      "submissionUrl": "https://defjux.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Fat Beats",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://fatbeats.com",
+      "submissionUrl": "https://fatbeats.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "RSE",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://rse.com",
+      "submissionUrl": "https://rse.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Pro Era",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://proera.com",
+      "submissionUrl": "https://proera.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Jamla Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://jamlarecords.com",
+      "submissionUrl": "https://jamlarecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Mindbender Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://mindbenderrecords.com",
+      "submissionUrl": "https://mindbenderrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Blacksmith Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://blacksmithrecords.com",
+      "submissionUrl": "https://blacksmithrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Closed Sessions",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://closedsessions.com",
+      "submissionUrl": "https://closedsessions.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Coalmine Records",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://coalminerecords.com",
+      "submissionUrl": "https://coalminerecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Tuff Kong",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "Italy",
+      "website": "https://tuffkongrecords.com",
+      "submissionUrl": "https://tuffkongrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Sub Pop",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://subpop.com",
+      "submissionUrl": "https://subpop.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "XL Recordings",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://xlrecordings.com",
+      "submissionUrl": "https://xlrecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Domino Recording Co.",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://dominorecordco.com",
+      "submissionUrl": "https://dominorecordco.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Warp Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://warp.net",
+      "submissionUrl": "https://warp.net/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Ninja Tune",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://ninjatune.net",
+      "submissionUrl": "https://ninjatune.net/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Secretly Canadian",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://secretlycanadian.com",
+      "submissionUrl": "https://secretlycanadian.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Jagjaguwar",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://jagjaguwar.com",
+      "submissionUrl": "https://jagjaguwar.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Dead Oceans",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://deadoceans.com",
+      "submissionUrl": "https://deadoceans.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Captured Tracks",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://capturedtracks.com",
+      "submissionUrl": "https://capturedtracks.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "4AD",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://4ad.com",
+      "submissionUrl": "https://4ad.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Merge Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://mergerecords.com",
+      "submissionUrl": "https://mergerecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Matador Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://matadorrecords.com",
+      "submissionUrl": "https://matadorrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Rough Trade",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://roughtrade.com",
+      "submissionUrl": "https://roughtrade.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Beggars Banquet",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://beggars.com",
+      "submissionUrl": "https://beggars.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Mute Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://mute.com",
+      "submissionUrl": "https://mute.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Glassnote Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://glassnoterecords.com",
+      "submissionUrl": "https://glassnoterecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Mexican Summer",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://mexicansummer.com",
+      "submissionUrl": "https://mexicansummer.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Carpark Records",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://carparkrecords.com",
+      "submissionUrl": "https://carparkrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Saddle Creek",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://saddle-creek.com",
+      "submissionUrl": "https://saddle-creek.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Polyvinyl",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://polyvinylrecords.com",
+      "submissionUrl": "https://polyvinylrecords.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Stones Throw Electronic",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://stonesthrow.com",
+      "submissionUrl": "https://stonesthrow.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Astralwerks",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://astralwerks.com",
+      "submissionUrl": "https://astralwerks.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Ultra Music",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://ultramusic.com",
+      "submissionUrl": "https://ultramusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Anjunabeats",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://anjunabeats.com",
+      "submissionUrl": "https://anjunabeats.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Ghostly International",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://ghostly.com",
+      "submissionUrl": "https://ghostly.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Loma Vista",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://lomavistarecordings.com",
+      "submissionUrl": "https://lomavistarecordings.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Cooking Vinyl",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://cookingvinyl.com",
+      "submissionUrl": "https://cookingvinyl.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "City Slang",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "Germany",
+      "website": "https://cityslang.com",
+      "submissionUrl": "https://cityslang.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "PIAS",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "Belgium",
+      "website": "https://pias.com",
+      "submissionUrl": "https://pias.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Erased Tapes",
+      "genres": [
+        "Pop",
+        "Indie Rock",
+        "Electronic"
+      ],
+      "country": "UK",
+      "website": "https://erasedtapes.com",
+      "submissionUrl": "https://erasedtapes.com/contact",
+      "submissionEmail": "",
+      "notes": "Check official site for demo policy"
+    },
+    {
+      "name": "Stones Throw Records",
+      "genres": [
+        "Hip-Hop",
+        "Soul"
+      ],
+      "country": "USA",
+      "website": "https://www.stonesthrow.com",
+      "submissionUrl": "https://www.stonesthrow.com/contact",
+      "submissionEmail": "",
+      "notes": "Check site for demo submission policy"
+    },
+    {
+      "name": "Domino Recording Company",
+      "genres": [
+        "Indie Rock"
+      ],
+      "country": "UK",
+      "website": "https://www.dominomusic.com",
+      "submissionUrl": "https://www.dominomusic.com/contact",
+      "submissionEmail": "",
+      "notes": "Check site for demo submission policy"
+    },
+    {
+      "name": "Rhymesayers Entertainment",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://rhymesayers.com",
+      "submissionUrl": "https://rhymesayers.com/contact",
+      "submissionEmail": "",
+      "notes": "Check site for demo submission policy"
+    },
+    {
+      "name": "Def Jam Indie",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "country": "USA",
+      "website": "https://defjam.com",
+      "submissionUrl": "https://defjam.com/contact",
+      "submissionEmail": "",
+      "notes": "Check site for demo submission policy"
+    },
+    {
+      "name": "Mad Decent",
+      "genres": [
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://maddecent.com",
+      "submissionUrl": "https://maddecent.com/contact",
+      "submissionEmail": "",
+      "notes": "Check site for demo submission policy"
+    },
+    {
+      "name": "Matinee Recordings",
+      "genres": [
+        "Indie Pop"
+      ],
+      "country": "USA",
+      "website": "https://matineerecordings.com",
+      "submissionUrl": "https://matineerecordings.com/contact",
+      "submissionEmail": "info@matineerecordings.com",
+      "notes": "Accepts demos via contact page"
+    },
+    {
+      "name": "Red Bull Records",
+      "genres": [],
+      "country": "USA",
+      "website": "https://redbullrecords.com",
+      "submissionUrl": "https://redbullrecords.com/demo-submissions/",
+      "submissionEmail": "",
+      "notes": "Uses official demo submission form"
+    },
+    {
+      "name": "604 Records",
+      "genres": [
+        "Pop",
+        "Rock"
+      ],
+      "country": "Canada",
+      "website": "https://www.604records.com",
+      "submissionUrl": "https://www.604records.com/contact/demo-submission/",
+      "submissionEmail": "",
+      "notes": "Streaming links only"
+    },
+    {
+      "name": "Rexius Records",
+      "genres": [
+        "Indie",
+        "Pop"
+      ],
+      "country": "USA",
+      "website": "https://www.rexiusrecords.com",
+      "submissionUrl": "https://www.rexiusrecords.com/submit-demo/",
+      "submissionEmail": "",
+      "notes": "Manual A&R review"
+    },
+    {
+      "name": "Bloodshot Records",
+      "genres": [
+        "Alt-Country",
+        "Indie"
+      ],
+      "country": "USA",
+      "website": "https://bloodshotrecords.com",
+      "submissionUrl": "https://bloodshotrecords.com",
+      "submissionEmail": "",
+      "notes": "Check site for current submission status"
+    },
+    {
+      "name": "Darla Records",
+      "genres": [
+        "Indie",
+        "Electronic"
+      ],
+      "country": "USA",
+      "website": "https://darla.com",
+      "submissionUrl": "https://darla.com",
+      "submissionEmail": "",
+      "notes": "Long-running indie label"
+    },
+    {
+      "name": "Misra Records",
+      "genres": [
+        "Indie",
+        "Folk"
+      ],
+      "country": "USA",
+      "website": "https://www.misrarecords.com",
+      "submissionUrl": "https://www.misrarecords.com",
+      "submissionEmail": "",
+      "notes": "Regional indie label"
+    },
+    {
+      "name": "Counter Intuitive Records",
+      "genres": [
+        "Indie",
+        "Emo",
+        "Punk"
+      ],
+      "country": "USA",
+      "website": "https://counterintuitiverecords.com",
+      "submissionUrl": "https://counterintuitiverecords.com",
+      "submissionEmail": "",
+      "notes": "DIY-focused label"
+    },
+    {
+      "name": "Fat Possum Records",
+      "genres": [
+        "Indie",
+        "Blues",
+        "Rock"
+      ],
+      "country": "USA",
+      "website": "https://fatpossum.com",
+      "submissionUrl": "https://fatpossum.com",
+      "submissionEmail": "",
+      "notes": "Selective demo intake"
+    },
+    {
+      "name": "10K Projects",
+      "genres": [
+        "Hip-Hop",
+        "Pop"
+      ],
+      "country": "USA",
+      "website": "https://10kprojects.com",
+      "submissionUrl": "https://10kprojects.com",
+      "submissionEmail": "",
+      "notes": "Artist Partner Group-style indie"
+    },
+    {
+      "name": "APG (Artist Partner Group)",
+      "genres": [],
+      "country": "USA",
+      "website": "https://apgworldwide.com",
+      "submissionUrl": "https://apgworldwide.com",
+      "submissionEmail": "",
+      "notes": "Industry-facing indie group"
+    },
+    {
+      "name": "Putumayo World Music",
+      "genres": [
+        "World",
+        "Folk"
+      ],
+      "country": "USA",
+      "website": "https://putumayo.com",
+      "submissionUrl": "https://putumayo.com",
+      "submissionEmail": "",
+      "notes": "World music focus"
+    }
+  ]
+}
