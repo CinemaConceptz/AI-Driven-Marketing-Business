@@ -19,6 +19,7 @@ export default function EpkSettingsPanel({ user }: Props) {
   const [settings, setSettings] = useState<EpkSettings>({
     epkPublished: false,
     epkSlug: "",
+    epkSlugLocked: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
