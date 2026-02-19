@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="space-y-20">
       <section className="glass-panel mx-auto flex w-full max-w-6xl flex-col gap-12 rounded-3xl px-8 py-14 lg:flex-row lg:items-center">
-        <div className="flex flex-1 flex-col gap-6">
+        <div className="flex flex-1 flex-col items-center text-center gap-6 lg:items-start lg:text-left">
           <div
             className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200"
             data-testid="hero-badge"
@@ -25,7 +25,9 @@ export default function Home() {
             className="text-4xl font-semibold tracking-tight text-white sm:text-5xl"
             data-testid="hero-title"
           >
-            Verified Sound A&R – Representation Platform
+            <span className="block">Verified Sound A&R</span>
+            <span className="block">Representation</span>
+            <span className="block">Platform</span>
           </h1>
           <p
             className="text-lg text-slate-200"
@@ -35,7 +37,7 @@ export default function Home() {
             House, EDM, Disco, Afro, Soulful, and Trance artists for
             placement-focused outcomes.
           </p>
-          <div className="flex flex-wrap gap-3" data-testid="focus-genres">
+          <div className="flex flex-wrap justify-center lg:justify-start gap-3" data-testid="focus-genres">
             {focusGenres.map((genre) => (
               <span
                 key={genre}
@@ -45,7 +47,7 @@ export default function Home() {
               </span>
             ))}
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap justify-center lg:justify-start gap-4">
             <Link
               href="/pricing"
               data-testid="hero-primary-cta"
