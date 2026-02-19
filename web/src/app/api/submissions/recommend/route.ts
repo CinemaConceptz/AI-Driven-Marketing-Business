@@ -79,6 +79,8 @@ export async function GET(req: Request) {
       genres: label.genres,
       matchScore: label.matchScore,
       submissionMethod: label.submissionMethod,
+      submissionEmail: label.submissionEmail,
+      submissionUrl: label.submissionUrl,
       website: label.website,
       country: label.country,
     }));
