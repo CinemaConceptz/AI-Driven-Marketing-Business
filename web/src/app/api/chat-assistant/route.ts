@@ -175,13 +175,21 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error(`[chat-assistant] requestId=${requestId}`, error?.message || error);
 
-    // Return user-friendly error
-    const errorMessage = error?.message?.includes("API_KEY") 
-      ? "Chat service is temporarily unavailable."
-      : "Failed to process message. Please try again.";
+    // Determine user-friendly error message
+    let errorMessage = "Failed to process message. Please try again.";
+    
+    if (error?.message?.includes("API_KEY") || error?.message?.includes("API key")) {
+      errorMessage = "Chat service is temporarily unavailable.";
+    } else if (error?.message?.includes("quota") || error?.message?.includes("RATE_LIMIT")) {
+      errorMessage = "Service is busy. Please try again in a moment.";
+    } else if (error?.message?.includes("not found") || error?.message?.includes("404")) {
+      errorMessage = "Chat service configuration error. Please contact support.";
+    } else if (error?.message?.includes("blocked") || error?.message?.includes("safety")) {
+      errorMessage = "Message could not be processed. Please rephrase your question.";
+    }
 
     return NextResponse.json(
-      { ok: false, error: errorMessage },
+      { ok: false, error: errorMessage, debug: process.env.NODE_ENV === "development" ? error?.message : undefined },
       { status: 500 }
     );
   }
