@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { User } from "firebase/auth";
 import {
   deletePressImage,
@@ -16,6 +16,52 @@ type Props = {
   user: User | null;
   maxImages?: number; // Tier-aware override (default: MAX_IMAGES = 3)
 };
+
+// Component to show upgrade nudge and trigger email when limit is reached
+function LimitReachedUpgrade({ user, currentCount }: { user: User | null; currentCount: number }) {
+  const emailSentRef = useRef(false);
+
+  useEffect(() => {
+    // Send upgrade limit email when component mounts (limit was just reached)
+    if (user && !emailSentRef.current) {
+      emailSentRef.current = true;
+      (async () => {
+        try {
+          const token = await user.getIdToken();
+          await fetch("/api/email/upgrade-limit", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              limitType: "press_images",
+              currentValue: `${currentCount}/3 images`,
+            }),
+          });
+        } catch (err) {
+          console.error("Upgrade limit email failed", err);
+        }
+      })();
+    }
+  }, [user, currentCount]);
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+      <p className="text-xs text-slate-300">
+        <span className="text-emerald-400 font-semibold">Tier I limit reached.</span>{" "}
+        Upgrade to Tier II for up to 10 press images.
+      </p>
+      <a
+        href="/pricing"
+        className="shrink-0 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400 transition-colors"
+        data-testid="press-image-upgrade-button"
+      >
+        Upgrade →
+      </a>
+    </div>
+  );
+}
 
 export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Props) {
   const [loading, setLoading] = useState(false);
