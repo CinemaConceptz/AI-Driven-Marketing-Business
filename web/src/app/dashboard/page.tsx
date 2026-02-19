@@ -177,6 +177,9 @@ export default function DashboardPage() {
     description: "Submit your intake to start the review process.",
   };
 
+  // Get user's display name
+  const userName = profile?.artistName || profile?.displayName || user?.displayName || "Artist";
+
   if (!user && loading) {
     return (
       <div className="mx-auto w-full max-w-4xl" data-testid="dashboard-loading">
