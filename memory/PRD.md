@@ -563,6 +563,8 @@ APP_BASE_URL=
 - [x] Firebase.json App Hosting configuration
 - [x] Deploy to Firebase App Hosting (completed)
 - [x] Phase 6A: Onboarding Flow (completed February 2025)
+- [x] Phase 8B: A/B Testing Framework (completed February 2025)
+- [x] Phase 8C: Retention & Lifecycle (completed February 2025)
 - [ ] Custom domain setup (verifiedsoundar.com) (user action required)
 
 ### P1 (High Priority) - Phase 3 Security Hardening
