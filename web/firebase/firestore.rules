@@ -159,6 +159,49 @@ service cloud.firestore {
       allow write: if false; // Server only via Admin SDK
     }
 
+    // ========== LABELS DATABASE ==========
+    
+    // Label information for A&R submissions
+    // - All authenticated users can read
+    // - Users can add their own labels
+    // - Admins can add/edit any label
+    match /labels/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow delete: if signedIn() && isAdmin();
+    }
+
+    // ========== SUBMISSION LOGS ==========
+    
+    // Track all label submissions
+    // - Users can read their own submissions
+    // - Admins can read all
+    match /submissionLogs/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if false; // Server only via Admin SDK
+    }
+
+    // ========== SUBMISSION CAMPAIGNS ==========
+    
+    // Bulk submission campaigns
+    // - Users can read their own campaigns
+    // - Admins can read all
+    match /submissionCampaigns/{id} {
+      allow read: if signedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if false; // Server only via Admin SDK
+    }
+
+    // ========== ARTIST PITCHES ==========
+    
+    // Generated pitch content
+    // - Users can read their own pitch
+    // - Server manages writes
+    match /artistPitches/{uid} {
+      allow read: if isOwner(uid) || (signedIn() && isAdmin());
+      allow write: if false; // Server only via Admin SDK
+    }
+
     // ========== CATCH-ALL DENY ==========
     
     // Deny access to any collection not explicitly defined above
