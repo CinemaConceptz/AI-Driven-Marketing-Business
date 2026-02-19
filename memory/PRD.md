@@ -234,7 +234,39 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Phase 6 Progress
+
+### Phase 6A - Onboarding Flow (COMPLETED - February 2025)
+- **Files:**
+  - `/app/web/src/app/onboarding/page.tsx` - Main 4-step onboarding page
+  - `/app/web/src/app/login/page.tsx` - Updated with onboarding redirect logic
+  - `/app/web/src/app/dashboard/page.tsx` - Updated with onboarding check
+
+- **Features Implemented:**
+  - 4-step guided onboarding: Welcome → Profile Setup → Choose Plan → Complete
+  - New users automatically redirected to onboarding after signup
+  - Existing users without onboardingCompleted redirected to onboarding on login
+  - Users with onboardingCompleted=true bypass onboarding
+  - Skip functionality available throughout all steps
+  - Progress bar shows current step (4 segments)
+  - Profile data (artist name, genre, bio) saved to Firestore on completion
+  - Pre-fills existing profile data if available
+  - Sets `onboardingCompleted: true` and `onboardingCompletedAt` timestamp
+
+- **Database Schema Updates:**
+  - `users/{uid}` now includes:
+    - `onboardingCompleted: boolean`
+    - `onboardingCompletedAt: Timestamp`
+
+---
+
 ## Test Reports
+
+### Iteration 10 - Phase 6A Onboarding Flow (February 2025)
+- **Success Rate:** 100% frontend
+- **Passed:** All 16 onboarding flow tests
+- **Features Tested:** All 4 steps, navigation, skip functionality, redirects, form data capture
+- **Test IDs Added:** onboarding-step-indicator, onboarding-skip-button, onboarding-get-started-button, onboarding-artist-name-input, onboarding-genre-select, onboarding-bio-textarea, onboarding-back-button, onboarding-continue-button, onboarding-complete-button
 
 ### Iteration 9 - Phase 3 Regression Test (December 2025)
 - **Success Rate:** 90% frontend
