@@ -11,6 +11,7 @@ import DownloadEpkButton from "@/components/DownloadEpkButton";
 import SubscriptionBanner from "@/components/SubscriptionBanner";
 import FeatureAccessGrid from "@/components/FeatureAccessGrid";
 import TierGate from "@/components/TierGate";
+import UpgradeNudge from "@/components/UpgradeNudge";
 import {
   getMaxPressImages,
   getEffectiveTier,
