@@ -173,23 +173,35 @@ export async function POST(req: Request) {
       reply: assistantReply,
     });
   } catch (error: any) {
-    console.error(`[chat-assistant] requestId=${requestId}`, error?.message || error);
+    const errorMsg = error?.message || String(error);
+    console.error(`[chat-assistant] requestId=${requestId} error=${errorMsg}`, error);
 
     // Determine user-friendly error message
     let errorMessage = "Failed to process message. Please try again.";
     
-    if (error?.message?.includes("API_KEY") || error?.message?.includes("API key")) {
-      errorMessage = "Chat service is temporarily unavailable.";
-    } else if (error?.message?.includes("quota") || error?.message?.includes("RATE_LIMIT")) {
+    if (errorMsg.includes("API_KEY") || errorMsg.includes("API key") || errorMsg.includes("PERMISSION_DENIED")) {
+      errorMessage = "Chat service is temporarily unavailable. (Auth issue)";
+    } else if (errorMsg.includes("quota") || errorMsg.includes("RATE_LIMIT") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
       errorMessage = "Service is busy. Please try again in a moment.";
-    } else if (error?.message?.includes("not found") || error?.message?.includes("404")) {
-      errorMessage = "Chat service configuration error. Please contact support.";
-    } else if (error?.message?.includes("blocked") || error?.message?.includes("safety")) {
+    } else if (errorMsg.includes("not found") || errorMsg.includes("404") || errorMsg.includes("NOT_FOUND")) {
+      errorMessage = "Chat model not available. Please try again later.";
+    } else if (errorMsg.includes("blocked") || errorMsg.includes("safety") || errorMsg.includes("SAFETY")) {
       errorMessage = "Message could not be processed. Please rephrase your question.";
+    } else if (errorMsg.includes("INVALID_ARGUMENT")) {
+      errorMessage = "Invalid request. Please try a different message.";
     }
 
+    // Log full error for debugging
+    console.error(`[chat-assistant] Full error details:`, JSON.stringify({
+      requestId,
+      message: errorMsg,
+      name: error?.name,
+      code: error?.code,
+      status: error?.status,
+    }));
+
     return NextResponse.json(
-      { ok: false, error: errorMessage, debug: process.env.NODE_ENV === "development" ? error?.message : undefined },
+      { ok: false, error: errorMessage },
       { status: 500 }
     );
   }
