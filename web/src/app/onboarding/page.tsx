@@ -89,6 +89,12 @@ export default function OnboardingPage() {
         },
         { merge: true }
       );
+      // Track onboarding completion
+      trackEvent("onboarding_completed", user.uid, { 
+        hasArtistName: !!artistName.trim(),
+        hasGenre: !!genre,
+        hasBio: !!bio.trim(),
+      });
     } catch (e) {
       console.error("Failed to save profile", e);
     } finally {
@@ -103,12 +109,20 @@ export default function OnboardingPage() {
 
   const skipToEnd = async () => {
     if (!user) return;
+    // Track skip event
+    trackEvent("onboarding_skipped", user.uid, { skippedAtStep: step });
     await setDoc(
       doc(db, "users", user.uid),
       { onboardingCompleted: true, onboardingCompletedAt: serverTimestamp() },
       { merge: true }
     );
     router.push("/dashboard");
+  };
+
+  // Track step changes
+  const handleStepChange = (newStep: number) => {
+    trackEvent("onboarding_step_completed", user?.uid, { step: step, nextStep: newStep });
+    setStep(newStep);
   };
 
   if (loading || !user || checkingOnboarding) {
