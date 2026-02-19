@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
@@ -34,14 +34,42 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
   // Profile fields
   const [artistName, setArtistName] = useState("");
   const [genre, setGenre] = useState("");
   const [bio, setBio] = useState("");
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
+  }, [user, loading, router]);
+
+  // Check if user already completed onboarding - redirect to dashboard
+  useEffect(() => {
+    if (loading || !user) return;
+    
+    const checkOnboardingStatus = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data();
+        if (userData?.onboardingCompleted) {
+          router.replace("/dashboard");
+          return;
+        }
+        // Pre-fill existing profile data if available
+        if (userData?.artistName) setArtistName(userData.artistName);
+        if (userData?.genre) setGenre(userData.genre);
+        if (userData?.bio) setBio(userData.bio);
+      } catch (e) {
+        console.error("Error checking onboarding status", e);
+      } finally {
+        setCheckingOnboarding(false);
+      }
+    };
+    
+    checkOnboardingStatus();
   }, [user, loading, router]);
 
   const saveProfile = async () => {
@@ -82,7 +110,13 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   };
 
-  if (loading || !user) return null;
+  if (loading || !user || checkingOnboarding) {
+    return (
+      <div className="mx-auto flex min-h-[80vh] w-full max-w-2xl items-center justify-center">
+        <div className="text-slate-400">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex min-h-[80vh] w-full max-w-2xl flex-col justify-center gap-6 px-4 py-12">
