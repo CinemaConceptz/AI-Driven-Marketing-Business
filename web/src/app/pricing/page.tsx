@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
+import { trackEvent, trackUpgradeClick, trackCheckoutStarted } from "@/lib/analytics/trackEvent";
 
 type BillingPeriod = "monthly" | "annual";
 
