@@ -14,18 +14,12 @@ export default function Footer() {
           <p data-testid="footer-email">info@verifiedsoundar.com</p>
         </div>
         <div className="grid grid-cols-2 gap-6 text-sm">
-          <div className="space-y-2">
+          <div className="flex flex-col space-y-2">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
               Platform
             </p>
             <Link href="/pricing" data-testid="footer-pricing-link">
-              Pricing
-            </Link>
-            <Link href="/apply" data-testid="footer-apply-link">
-              Apply
-            </Link>
-            <Link href="/dashboard" data-testid="footer-dashboard-link">
-              Dashboard
+              A&amp;R–Representation
             </Link>
           </div>
           <div className="space-y-2">
