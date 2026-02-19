@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
+import { trackEvent } from "@/lib/analytics/trackEvent";
 import Link from "next/link";
 
 const GENRES = [
