@@ -258,10 +258,12 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
     - `onboardingCompleted: boolean`
     - `onboardingCompletedAt: Timestamp`
 
-### Phase 6C - Email Drip Sequences (P0 COMPLETED - February 2025)
+### Phase 6C - Email Drip Sequences (P0 + P1 COMPLETED - February 2025)
 - **Files:**
   - `/app/web/src/app/api/email/welcome/route.ts` - Enhanced welcome email with professional HTML template
-  - `/app/web/src/app/api/email/upgrade-limit/route.ts` - New upgrade limit email endpoint
+  - `/app/web/src/app/api/email/upgrade-limit/route.ts` - Upgrade limit email endpoint
+  - `/app/web/src/app/api/email/upgrade-day7/route.ts` - Day 7 upgrade email (manual trigger)
+  - `/app/web/src/app/api/cron/emails/route.ts` - Automated cron endpoint for scheduled emails
   - `/app/web/src/components/PressImageManager.tsx` - LimitReachedUpgrade component
   - `/app/web/docs/EMAIL_DRIP_SEQUENCES.md` - Full email content documentation
 
@@ -278,15 +280,28 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
      - Rate limited: 2 emails per day per user
      - 24-hour cooldown between sends
 
+- **P1 Emails Implemented:**
+  3. **Day 7 Upgrade Email** - Automated sequence for Tier I users
+     - Sent 7 days after signup via cron job
+     - Stats: 3x review turnaround, 2x opportunities, 47% response rate
+     - Highlights missing Tier I features
+     - Rate limited: 1 email per week per user
+     - Skips users who already upgraded to Tier II/III
+     - Subject: "Tier II Artists Get 3x More A&R Engagement"
+
+- **Cron Setup Required:**
+  - Call `GET /api/cron/emails?type=day7` daily
+  - Requires `CRON_SECRET` env var for production auth
+  - Supports `dryRun=true` for preview mode
+
 - **Database Schema Updates:**
   - `users/{uid}.emailFlags` now includes:
-    - `upgradeLimitSentAt: Timestamp`
-    - `upgradeLimitMessageId: string`
-    - `upgradeLimitType: string`
+    - `welcomeSentAt`, `welcomeMessageId`
+    - `upgradeLimitSentAt`, `upgradeLimitMessageId`, `upgradeLimitType`
+    - `upgrade7DaySentAt`, `upgrade7DayMessageId`
 
-- **Remaining P1/P2 Emails (Drafted, Not Implemented):**
+- **Remaining P2 Emails (Drafted, Not Implemented):**
   - Profile Completion Reminder (Day 2)
-  - Day 7 Upgrade Prompt
   - EPK Setup Guide (Day 5)
   - Inactive Re-engagement (7 days)
 
