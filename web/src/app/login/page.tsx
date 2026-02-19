@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { trackEvent } from "@/lib/analytics/trackEvent";
 
 function LoginContent() {
   const router = useRouter();
@@ -24,9 +25,16 @@ function LoginContent() {
     setStatus("loading");
     setErrorMessage(null);
 
+    // Track signup/login attempt
+    trackEvent(mode === "signup" ? "signup_started" : "page_view", null, { page: "login", mode });
+
     try {
       if (mode === "signup") {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Track successful signup
+        trackEvent("signup_completed", credential.user.uid, { method: "email" });
+        
         try {
           const token = await credential.user.getIdToken();
           await fetch("/api/email/welcome", {
