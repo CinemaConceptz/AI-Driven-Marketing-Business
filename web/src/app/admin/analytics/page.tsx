@@ -74,15 +74,37 @@ function ConversionRate({ label, rate }: { label: string; rate: number }) {
 
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
+  const [funnel, setFunnel] = useState<FunnelData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    getAnalyticsData()
-      .then(setData)
-      .catch((e) => setError(e?.message || "Failed to load analytics"))
-      .finally(() => setLoading(false));
-  }, []);
+    const loadData = async () => {
+      try {
+        const analyticsData = await getAnalyticsData();
+        setData(analyticsData);
+        
+        // Load funnel data
+        if (user) {
+          const token = await user.getIdToken();
+          const funnelRes = await fetch("/api/admin/funnel?days=30", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (funnelRes.ok) {
+            const funnelData = await funnelRes.json();
+            setFunnel(funnelData);
+          }
+        }
+      } catch (e: any) {
+        setError(e?.message || "Failed to load analytics");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [user]);
 
   if (error) return (
     <div className="rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</div>
@@ -103,6 +125,66 @@ export default function AdminAnalyticsPage() {
             <StatCard label="PDF Downloads" value={data.pdfs.total} sub="All time" />
             <StatCard label="Contact Inquiries" value={data.contacts.total} sub="All time" />
           </div>
+
+          {/* Conversion Funnel */}
+          {funnel && (
+            <div className="glass-panel rounded-2xl px-6 py-6 space-y-5">
+              <div className="flex justify-between items-center">
+                <h3 className="text-base font-semibold text-white">Conversion Funnel</h3>
+                <span className="text-xs text-slate-500">Last {funnel.days} days</span>
+              </div>
+              
+              {/* Funnel Steps */}
+              <div className="space-y-3 border-l-2 border-white/10 pl-4">
+                <FunnelStep 
+                  label="Signups" 
+                  value={funnel.events.signup_completed || 0} 
+                  color="bg-blue-400"
+                />
+                <FunnelStep 
+                  label="Onboarding Completed" 
+                  value={funnel.events.onboarding_completed || 0}
+                  prevValue={funnel.events.signup_completed}
+                  color="bg-cyan-400"
+                />
+                <FunnelStep 
+                  label="First Image Uploaded" 
+                  value={funnel.events.first_image_uploaded || 0}
+                  prevValue={funnel.events.onboarding_completed}
+                  color="bg-emerald-400"
+                />
+                <FunnelStep 
+                  label="Pricing Page Viewed" 
+                  value={funnel.events.pricing_page_viewed || 0}
+                  prevValue={funnel.events.first_image_uploaded}
+                  color="bg-amber-400"
+                />
+                <FunnelStep 
+                  label="Checkout Started" 
+                  value={funnel.events.checkout_started || 0}
+                  prevValue={funnel.events.pricing_page_viewed}
+                  color="bg-orange-400"
+                />
+                <FunnelStep 
+                  label="Payment Completed" 
+                  value={funnel.events.checkout_completed || 0}
+                  prevValue={funnel.events.checkout_started}
+                  color="bg-green-500"
+                />
+              </div>
+
+              {/* Conversion Rates */}
+              <div className="pt-4 border-t border-white/10">
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-3">Key Conversion Rates</p>
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <ConversionRate label="Signup → Onboarding" rate={funnel.conversionRates.signup_to_onboarding || 0} />
+                  <ConversionRate label="Signup → First Image" rate={funnel.conversionRates.signup_to_first_image || 0} />
+                  <ConversionRate label="Pricing → Checkout" rate={funnel.conversionRates.pricing_to_checkout || 0} />
+                  <ConversionRate label="Checkout → Paid" rate={funnel.conversionRates.checkout_completion || 0} />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Subscription Tier Breakdown */}
           <div className="glass-panel rounded-2xl px-6 py-6 space-y-5">
