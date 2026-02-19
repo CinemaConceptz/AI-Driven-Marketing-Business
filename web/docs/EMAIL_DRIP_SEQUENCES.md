@@ -7,28 +7,113 @@
 | **P0** | Welcome Email | ✅ IMPLEMENTED | `/api/email/welcome` |
 | **P0** | Upgrade Limit | ✅ IMPLEMENTED | `/api/email/upgrade-limit` |
 | **P1** | Day 7 Upgrade | ✅ IMPLEMENTED | `/api/email/upgrade-day7` + `/api/cron/emails` |
-| **P1** | Profile Reminder | 📋 DRAFTED | - |
-| **P2** | EPK Setup Guide | 📋 DRAFTED | - |
-| **P2** | Re-engagement | 📋 DRAFTED | - |
+| **P1** | Profile Reminder | ✅ IMPLEMENTED | `/api/email/profile-reminder` + `/api/cron/emails` |
+| **P2** | EPK Setup Guide | ✅ IMPLEMENTED | `/api/email/epk-guide` + `/api/cron/emails` |
+| **P2** | Re-engagement | ✅ IMPLEMENTED | `/api/email/reengagement` + `/api/cron/emails` |
 | **P3** | First Image | 📋 DRAFTED | - |
 | **P3** | EPK Published | 📋 DRAFTED | - |
 
-## Cron Job Setup
+## Cloud Scheduler Setup (Google Cloud)
 
-The Day 7 upgrade email is sent automatically via a cron endpoint. Configure your scheduler to call:
+### Step 1: Set Environment Variable
+Add to your `apphosting.yaml`:
+```yaml
+env:
+  - variable: CRON_SECRET
+    value: your-secure-random-string-here
+```
+
+### Step 2: Create Cloud Scheduler Jobs
 
 ```bash
-# Daily at 9:00 AM UTC
-curl -X GET "https://verifiedsoundar.com/api/cron/emails?type=day7" \
-  -H "Authorization: Bearer YOUR_CRON_SECRET"
+# Install gcloud CLI if not already installed
+# https://cloud.google.com/sdk/docs/install
 
-# Dry run (preview without sending)
-curl -X GET "https://verifiedsoundar.com/api/cron/emails?type=day7&dryRun=true" \
+# Authenticate
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+
+# Create job for ALL email types (recommended - runs daily at 9 AM UTC)
+gcloud scheduler jobs create http email-drip-all \
+  --location=us-central1 \
+  --schedule="0 9 * * *" \
+  --uri="https://verifiedsoundar.com/api/cron/emails?type=all" \
+  --http-method=GET \
+  --headers="Authorization=Bearer YOUR_CRON_SECRET" \
+  --description="Daily email drip sequences (Day 2, 5, 7, reengagement)"
+
+# OR create individual jobs for each type
+gcloud scheduler jobs create http email-drip-day2 \
+  --location=us-central1 \
+  --schedule="0 9 * * *" \
+  --uri="https://verifiedsoundar.com/api/cron/emails?type=day2" \
+  --http-method=GET \
+  --headers="Authorization=Bearer YOUR_CRON_SECRET"
+
+gcloud scheduler jobs create http email-drip-day5 \
+  --location=us-central1 \
+  --schedule="0 9 * * *" \
+  --uri="https://verifiedsoundar.com/api/cron/emails?type=day5" \
+  --http-method=GET \
+  --headers="Authorization=Bearer YOUR_CRON_SECRET"
+
+gcloud scheduler jobs create http email-drip-day7 \
+  --location=us-central1 \
+  --schedule="0 9 * * *" \
+  --uri="https://verifiedsoundar.com/api/cron/emails?type=day7" \
+  --http-method=GET \
+  --headers="Authorization=Bearer YOUR_CRON_SECRET"
+
+gcloud scheduler jobs create http email-reengagement \
+  --location=us-central1 \
+  --schedule="0 9 * * *" \
+  --uri="https://verifiedsoundar.com/api/cron/emails?type=reengagement" \
+  --http-method=GET \
+  --headers="Authorization=Bearer YOUR_CRON_SECRET"
+```
+
+### Step 3: Test (Dry Run)
+```bash
+# Test without sending emails
+curl -X GET "https://verifiedsoundar.com/api/cron/emails?type=all&dryRun=true" \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 ```
 
-**Required Environment Variable:**
-- `CRON_SECRET` - Secret token to authorize cron requests
+### Step 4: Verify in Cloud Console
+1. Go to Cloud Scheduler: https://console.cloud.google.com/cloudscheduler
+2. Check job status and execution history
+3. Monitor logs in Cloud Logging
+
+---
+
+## Cron Endpoint Reference
+
+**Endpoint:** `GET /api/cron/emails`
+
+**Query Parameters:**
+| Param | Values | Description |
+|-------|--------|-------------|
+| `type` | `day2`, `day5`, `day7`, `reengagement`, `all` | Email type(s) to process |
+| `dryRun` | `true`, `false` | Preview mode (no emails sent) |
+
+**Response:**
+```json
+{
+  "requestId": "uuid",
+  "emailTypes": ["day2", "day5", "day7", "reengagement"],
+  "dryRun": false,
+  "processed": 10,
+  "sent": 3,
+  "skipped": 7,
+  "errors": [],
+  "breakdown": {
+    "day2": { "processed": 2, "sent": 1, "skipped": 1 },
+    "day5": { "processed": 3, "sent": 1, "skipped": 2 },
+    "day7": { "processed": 3, "sent": 1, "skipped": 2 },
+    "reengagement": { "processed": 2, "sent": 0, "skipped": 2 }
+  }
+}
+```
 
 ---
 
