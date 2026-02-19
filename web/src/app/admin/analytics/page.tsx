@@ -248,6 +248,11 @@ export default function AdminAnalyticsPage() {
             <p className="text-2xl font-bold text-emerald-400">{data.chat.total}</p>
             <p className="text-xs text-slate-500 mt-1">Total chat sessions logged</p>
           </div>
+
+          {/* A/B Experiments Section */}
+          <div className="pt-6 border-t border-white/10">
+            <ExperimentsDashboard />
+          </div>
         </>
       )}
     </div>
