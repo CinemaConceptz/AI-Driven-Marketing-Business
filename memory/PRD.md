@@ -327,6 +327,43 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Phase 8: Conversion Optimization
+
+### 8A — Funnel Tracking (COMPLETED - February 2025)
+- **Files:**
+  - `/app/web/src/lib/analytics/trackEvent.ts` - Client-side event tracking
+  - `/app/web/src/lib/analytics/serverTracking.ts` - Server-side tracking + metrics
+  - `/app/web/src/app/api/admin/funnel/route.ts` - Funnel metrics API
+
+- **Events Tracked:**
+  | Event | Location | Status |
+  |-------|----------|--------|
+  | `signup_started` | Login page | ✅ |
+  | `signup_completed` | Login page | ✅ |
+  | `onboarding_step_completed` | Onboarding | ✅ |
+  | `onboarding_completed` | Onboarding | ✅ |
+  | `onboarding_skipped` | Onboarding | ✅ |
+  | `first_image_uploaded` | PressImageManager | ✅ |
+  | `pricing_page_viewed` | Pricing page | ✅ |
+  | `upgrade_click` | Pricing page | ✅ |
+  | `checkout_started` | Pricing page | ✅ |
+  | `checkout_completed` | Stripe webhook | ✅ |
+
+- **Admin Dashboard Enhanced:**
+  - Conversion funnel visualization
+  - Drop-off rates between steps
+  - Key conversion rate metrics:
+    - Signup → Onboarding
+    - Signup → First Image
+    - Pricing → Checkout
+    - Checkout → Paid
+
+- **Database:**
+  - New collection: `funnelEvents`
+  - Fields: event, userId, metadata, timestamp, userAgent, url, referrer
+
+---
+
 ## Test Reports
 
 ### Iteration 15 - P3 Emails + Production Setup (February 2025)
