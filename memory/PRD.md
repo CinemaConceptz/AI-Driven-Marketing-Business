@@ -362,6 +362,60 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
   - New collection: `funnelEvents`
   - Fields: event, userId, metadata, timestamp, userAgent, url, referrer
 
+### 8B — Upgrade Experiments / A/B Testing (COMPLETED - February 2025)
+- **Files:**
+  - `/app/web/src/lib/experiments/abTest.ts` - Client-side A/B test framework
+  - `/app/web/src/lib/experiments/serverAbTest.ts` - Server-side tracking + metrics
+  - `/app/web/src/app/api/admin/experiments/route.ts` - Experiments API
+  - `/app/web/src/components/admin/ExperimentsDashboard.tsx` - Admin UI
+
+- **Active Experiments:**
+  | Experiment | Variants | Status |
+  |------------|----------|--------|
+  | `pricing_headline` | Control + 2 variants | ✅ Active |
+  | `upgrade_prompt_style` | Banner vs Inline | ✅ Active |
+  | `paywall_messaging` | Value vs Urgency | ✅ Active |
+
+- **Features:**
+  - Cookie-based variant assignment (persistent 30 days)
+  - Automatic tracking of views and conversions
+  - Statistical significance indicators
+  - Admin dashboard with per-variant conversion rates
+
+- **Integration:**
+  - Pricing page now uses A/B tested headlines
+
+### 8C — Retention & Lifecycle (COMPLETED - February 2025)
+- **Files:**
+  - `/app/web/src/lib/email/unsubscribe.ts` - Unsubscribe utilities
+  - `/app/web/src/app/api/email/unsubscribe/route.ts` - Unsubscribe endpoint
+  - `/app/web/src/app/api/email/winback/route.ts` - Win-back email endpoint
+  - `/app/web/src/app/api/admin/email-metrics/route.ts` - Email metrics API
+  - `/app/web/src/components/admin/EmailRetentionDashboard.tsx` - Admin UI
+
+- **Features:**
+  - **Unsubscribe Compliance:**
+    - Token-based unsubscribe links
+    - Per-email-type unsubscribe options
+    - Global marketing unsubscribe
+    - Logged to `emailUnsubscribes` collection
+  
+  - **Win-Back Email:**
+    - Targets users 30-90 days after subscription cancellation
+    - 20% off welcome-back offer
+    - Integrated into daily cron job
+  
+  - **Email Retention Dashboard:**
+    - Delivery rates per email sequence
+    - Unsubscribe tracking
+    - Bounce/spam complaint monitoring
+    - Compliance status indicators
+
+- **Database Updates:**
+  - New collection: `emailUnsubscribes`
+  - New collection: `experimentEvents`
+  - Updated Firestore rules for all new collections
+
 ---
 
 ## Test Reports
