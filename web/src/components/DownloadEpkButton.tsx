@@ -220,10 +220,24 @@ export default function DownloadEpkButton({ user, tier = "tier1" }: Props) {
         )}
       </div>
 
-      {/* Upgrade prompt for Tier I */}
-      {tierKey === "tier1" && (
+      {/* Upgrade nudge for Tier I — shown after successful download */}
+      {tierKey === "tier1" && success && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+          <p className="text-xs text-slate-300">
+            Want a <span className="text-emerald-400 font-semibold">watermark-free PDF</span> with QR codes and enhanced layout?
+          </p>
+          <a
+            href="/pricing"
+            className="shrink-0 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400 transition-colors"
+          >
+            Upgrade →
+          </a>
+        </div>
+      )}
+      {/* Static hint for Tier I before download */}
+      {tierKey === "tier1" && !success && (
         <p className="text-xs text-center text-slate-500">
-          Upgrade to Tier II for watermark-free PDFs with QR codes
+          Upgrade to <a href="/pricing" className="text-emerald-400 hover:underline">Tier II</a> for watermark-free PDFs with QR codes
         </p>
       )}
     </div>
