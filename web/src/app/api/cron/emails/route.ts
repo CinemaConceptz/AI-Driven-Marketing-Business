@@ -171,7 +171,7 @@ export async function GET(req: Request) {
   const emailType = (searchParams.get("type") || "all") as EmailType;
   const dryRun = searchParams.get("dryRun") === "true";
 
-  const emailTypes = emailType === "all" ? ["day2", "day5", "day7", "reengagement"] : [emailType];
+  const emailTypes = emailType === "all" ? ["day2", "day5", "day7", "reengagement", "winback"] : [emailType];
 
   const results: CronResults = {
     requestId,
