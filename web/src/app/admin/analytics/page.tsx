@@ -1,10 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import { getAnalyticsData } from "@/lib/admin/queries";
 import { TIER_LABELS } from "@/lib/subscription";
 
 type AnalyticsData = Awaited<ReturnType<typeof getAnalyticsData>>;
+
+type FunnelData = {
+  ok: boolean;
+  days: number;
+  totalUsers: number;
+  tierBreakdown: { tier1: number; tier2: number; tier3: number };
+  onboardingRate: number;
+  events: Record<string, number>;
+  conversionRates: Record<string, number>;
+  dailySignups: { date: string; count: number }[];
+  dailyUpgrades: { date: string; count: number }[];
+};
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
@@ -27,6 +40,34 @@ function TierBar({ label, value, total, color }: { label: string; value: number;
       <div className="h-2 w-full rounded-full bg-white/10">
         <div className={`h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  );
+}
+
+function FunnelStep({ label, value, prevValue, color }: { label: string; value: number; prevValue?: number; color: string }) {
+  const dropoff = prevValue && prevValue > 0 ? Math.round(((prevValue - value) / prevValue) * 100) : 0;
+  return (
+    <div className="flex items-center gap-4">
+      <div className={`w-3 h-3 rounded-full ${color}`} />
+      <div className="flex-1">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-slate-300">{label}</span>
+          <span className="text-sm font-semibold text-white">{value}</span>
+        </div>
+        {prevValue !== undefined && dropoff > 0 && (
+          <p className="text-xs text-red-400 mt-0.5">↓ {dropoff}% drop-off</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ConversionRate({ label, rate }: { label: string; rate: number }) {
+  const color = rate >= 50 ? "text-emerald-400" : rate >= 25 ? "text-amber-400" : "text-red-400";
+  return (
+    <div className="rounded-xl bg-white/5 px-4 py-3 text-center">
+      <p className={`text-xl font-bold ${color}`}>{rate}%</p>
+      <p className="text-xs text-slate-400 mt-1">{label}</p>
     </div>
   );
 }
