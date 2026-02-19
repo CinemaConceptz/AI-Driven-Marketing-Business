@@ -136,7 +136,7 @@ export default function EpkSettingsPanel({ user }: Props) {
       const slugToSave = normalizedSlug || user.uid;
       
       // Lock the slug after first save (if it's a custom slug, not user ID)
-      const shouldLock = normalizedSlug && normalizedSlug !== user.uid;
+      const shouldLock = !!(normalizedSlug && normalizedSlug !== user.uid);
       
       await updateDoc(userRef, {
         epkSlug: slugToSave,
