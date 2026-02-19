@@ -130,6 +130,35 @@ service cloud.firestore {
       allow write: if false; // Server only via Admin SDK
     }
 
+    // ========== FUNNEL EVENTS ==========
+    
+    // Conversion funnel tracking - created by client and server
+    // - Users can write their own events
+    // - Admins can read all for analytics
+    match /funnelEvents/{id} {
+      allow read: if signedIn() && isAdmin();
+      allow create: if true; // Allow anonymous tracking
+      allow update, delete: if false; // Server only
+    }
+
+    // ========== A/B EXPERIMENT EVENTS ==========
+    
+    // Experiment tracking - created by server
+    // - Admins can read for analytics
+    match /experimentEvents/{id} {
+      allow read: if signedIn() && isAdmin();
+      allow write: if false; // Server only via Admin SDK
+    }
+
+    // ========== EMAIL UNSUBSCRIBES ==========
+    
+    // Unsubscribe logs - created by API
+    // - Admins can read for compliance
+    match /emailUnsubscribes/{id} {
+      allow read: if signedIn() && isAdmin();
+      allow write: if false; // Server only via Admin SDK
+    }
+
     // ========== CATCH-ALL DENY ==========
     
     // Deny access to any collection not explicitly defined above
