@@ -292,9 +292,26 @@ export default function PressImageManager({ user, maxImages = MAX_IMAGES }: Prop
           )}
         </div>
       ) : (
-        <p className="text-sm text-amber-300" data-testid="press-image-manager-full">
-          Maximum {maxImages} images reached. Delete one to upload more.
-        </p>
+        <div className="space-y-3">
+          <p className="text-sm text-amber-300" data-testid="press-image-manager-full">
+            Maximum {maxImages} images reached. Delete one to upload more.
+          </p>
+          {/* Upgrade nudge for Tier I only */}
+          {maxImages === 3 && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+              <p className="text-xs text-slate-300">
+                <span className="text-emerald-400 font-semibold">Tier I limit reached.</span>{" "}
+                Upgrade to Tier II for up to 10 press images.
+              </p>
+              <a
+                href="/pricing"
+                className="shrink-0 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400 transition-colors"
+              >
+                Upgrade →
+              </a>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Refresh button */}
