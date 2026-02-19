@@ -11,6 +11,8 @@ type Label = {
   genres: string[];
   matchScore?: number;
   submissionMethod: string;
+  submissionEmail?: string;
+  submissionUrl?: string;
   website?: string;
   country?: string;
 };
@@ -52,12 +54,14 @@ export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [pitch, setPitch] = useState<Pitch | null>(null);
-  const [selectedLabels, setSelectedLabels] = useState<Set<string>>(new Set());
+  const [selectedLabel, setSelectedLabel] = useState<Label | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showWebformModal, setShowWebformModal] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -146,68 +150,96 @@ export default function SubmissionsPage() {
     }
   };
 
-  const toggleLabelSelection = (labelId: string) => {
-    const newSelection = new Set(selectedLabels);
-    if (newSelection.has(labelId)) {
-      newSelection.delete(labelId);
-    } else {
-      // Check remaining limit
-      if (stats && newSelection.size >= stats.remaining) {
-        setError(`You can only select ${stats.remaining} more labels this month`);
-        return;
-      }
-      newSelection.add(labelId);
-    }
-    setSelectedLabels(newSelection);
-    setError(null);
-  };
-
-  const submitToLabels = async () => {
-    if (!user || selectedLabels.size === 0) return;
+  const handleLabelClick = (label: Label) => {
     if (!pitch) {
       setError("Please generate your pitch first");
       return;
     }
 
+    // Check remaining limit
+    if (stats && stats.remaining <= 0) {
+      setError(`Monthly submission limit reached. Upgrade your tier for more submissions.`);
+      return;
+    }
+
+    setSelectedLabel(label);
+    
+    if (label.submissionMethod === "email" && label.submissionEmail) {
+      // Mode C: Direct email submission
+      submitViaEmail(label);
+    } else if (label.submissionUrl) {
+      // Mode A: Webform guidance
+      setShowWebformModal(true);
+    } else {
+      setError("This label doesn't have submission info available");
+    }
+  };
+
+  const submitViaEmail = async (label: Label) => {
+    if (!user || !pitch) return;
+
     setSubmitting(true);
     setError(null);
-    setSuccess(null);
 
-    const token = await user.getIdToken();
-    let successCount = 0;
-    let failCount = 0;
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch("/api/submissions/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ labelId: label.id, pitchType: "medium" }),
+      });
 
-    for (const labelId of selectedLabels) {
-      try {
-        const res = await fetch("/api/submissions/send", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ labelId, pitchType: "medium" }),
-        });
-
-        if (res.ok) {
-          successCount++;
-        } else {
-          failCount++;
-        }
-      } catch {
-        failCount++;
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send submission");
       }
-    }
 
-    setSubmitting(false);
-    setSelectedLabels(new Set());
-    
-    if (successCount > 0) {
-      setSuccess(`Successfully sent ${successCount} submission${successCount > 1 ? "s" : ""}!`);
-      loadData(); // Refresh data
+      setSuccess(`Submission sent to ${label.name}!`);
+      loadData();
+    } catch (err: any) {
+      setError(err?.message || "Failed to send submission");
+    } finally {
+      setSubmitting(false);
+      setSelectedLabel(null);
     }
-    
-    if (failCount > 0) {
-      setError(`${failCount} submission${failCount > 1 ? "s" : ""} failed`);
+  };
+
+  const logWebformSubmission = async () => {
+    if (!user || !selectedLabel) return;
+
+    try {
+      const token = await user.getIdToken();
+      await fetch("/api/submissions/log-webform", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ labelId: selectedLabel.id }),
+      });
+
+      setSuccess(`Submission to ${selectedLabel.name} logged!`);
+      setShowWebformModal(false);
+      setSelectedLabel(null);
+      loadData();
+    } catch {
+      // Don't show error, just close modal
+      setShowWebformModal(false);
+      setSelectedLabel(null);
+    }
+  };
+
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      setError("Failed to copy to clipboard");
     }
   };
 
@@ -331,16 +363,15 @@ export default function SubmissionsPage() {
                 {recommendations.map((label) => (
                   <div
                     key={label.id}
-                    onClick={() => toggleLabelSelection(label.id)}
-                    className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-                      selectedLabels.has(label.id)
-                        ? "bg-emerald-500/20 border border-emerald-500/40"
-                        : "bg-white/5 border border-white/10 hover:border-white/20"
-                    }`}
+                    onClick={() => handleLabelClick(label)}
+                    className="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/5"
                   >
                     <div>
                       <p className="text-white font-medium">{label.name}</p>
-                      <p className="text-xs text-slate-400">{label.genres.join(", ")}</p>
+                      <p className="text-xs text-slate-400">
+                        {label.genres.join(", ")}
+                        {label.country && ` • ${label.country}`}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {label.matchScore && (
@@ -352,15 +383,13 @@ export default function SubmissionsPage() {
                           {label.matchScore}% match
                         </span>
                       )}
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedLabels.has(label.id) ? "border-emerald-400 bg-emerald-400" : "border-slate-500"
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        label.submissionMethod === "email" 
+                          ? "bg-emerald-500/20 text-emerald-300" 
+                          : "bg-blue-500/20 text-blue-300"
                       }`}>
-                        {selectedLabels.has(label.id) && (
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
+                        {label.submissionMethod === "email" ? "Email" : "Webform"}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -372,21 +401,6 @@ export default function SubmissionsPage() {
                 <Link href="/settings" className="text-emerald-400 text-sm hover:underline mt-2 inline-block">
                   Update Profile
                 </Link>
-              </div>
-            )}
-
-            {selectedLabels.size > 0 && (
-              <div className="pt-4 border-t border-white/10">
-                <button
-                  onClick={submitToLabels}
-                  disabled={submitting || !pitch}
-                  className="w-full rounded-full bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting 
-                    ? "Submitting..." 
-                    : `Submit to ${selectedLabels.size} Label${selectedLabels.size > 1 ? "s" : ""}`
-                  }
-                </button>
               </div>
             )}
           </div>
@@ -428,6 +442,138 @@ export default function SubmissionsPage() {
       {/* Add Label Tab */}
       {activeTab === "labels" && (
         <AddLabelForm onSuccess={() => { setActiveTab("submit"); loadData(); }} />
+      )}
+
+      {/* Webform Modal (Mode A) */}
+      {showWebformModal && selectedLabel && pitch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="glass-panel rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white">
+                Submit to {selectedLabel.name}
+              </h2>
+              <button 
+                onClick={() => { setShowWebformModal(false); setSelectedLabel(null); }}
+                className="text-slate-400 hover:text-white"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Instructions */}
+              <div className="rounded-xl bg-blue-500/10 border border-blue-500/30 p-4">
+                <p className="text-sm text-blue-200">
+                  <strong>Mode A: Assisted Submission</strong><br/>
+                  Copy your pitch content below and paste it into the label&apos;s submission form.
+                </p>
+              </div>
+
+              {/* Open Form Button */}
+              <a
+                href={selectedLabel.submissionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-full bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Open Submission Form
+              </a>
+
+              {/* Copyable Fields */}
+              <div className="space-y-3 pt-4 border-t border-white/10">
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Copy Your Pitch Content</p>
+
+                {/* Subject Line */}
+                <div className="rounded-xl bg-white/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">Subject Line</span>
+                    <button
+                      onClick={() => copyToClipboard(pitch.subjectLine, "subject")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      {copiedField === "subject" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="text-white text-sm">{pitch.subjectLine}</p>
+                </div>
+
+                {/* Short Pitch */}
+                <div className="rounded-xl bg-white/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">Short Pitch (100 words)</span>
+                    <button
+                      onClick={() => copyToClipboard(pitch.shortPitch, "short")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      {copiedField === "short" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="text-slate-300 text-sm whitespace-pre-wrap">{pitch.shortPitch}</p>
+                </div>
+
+                {/* Full Pitch */}
+                <div className="rounded-xl bg-white/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">Full Pitch (300 words)</span>
+                    <button
+                      onClick={() => copyToClipboard(pitch.mediumPitch, "medium")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      {copiedField === "medium" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="text-slate-300 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">{pitch.mediumPitch}</p>
+                </div>
+
+                {/* Track URL */}
+                <div className="rounded-xl bg-white/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">Track Link</span>
+                    <button
+                      onClick={() => copyToClipboard(pitch.trackUrl, "track")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      {copiedField === "track" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="text-emerald-400 text-sm break-all">{pitch.trackUrl}</p>
+                </div>
+
+                {/* EPK URL */}
+                <div className="rounded-xl bg-white/5 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">EPK Link</span>
+                    <button
+                      onClick={() => copyToClipboard(pitch.epkUrl, "epk")}
+                      className="text-xs text-emerald-400 hover:text-emerald-300"
+                    >
+                      {copiedField === "epk" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <p className="text-emerald-400 text-sm break-all">{pitch.epkUrl}</p>
+                </div>
+              </div>
+
+              {/* Mark as Submitted */}
+              <div className="pt-4 border-t border-white/10 space-y-2">
+                <button
+                  onClick={logWebformSubmission}
+                  className="w-full rounded-full bg-white/10 py-3 text-sm font-medium text-white hover:bg-white/20"
+                >
+                  Mark as Submitted
+                </button>
+                <p className="text-xs text-slate-500 text-center">
+                  Click after you&apos;ve completed the form to track this submission
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
