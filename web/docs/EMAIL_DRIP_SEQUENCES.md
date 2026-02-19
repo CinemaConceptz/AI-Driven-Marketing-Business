@@ -2,16 +2,16 @@
 
 ## Implementation Status
 
-| Priority | Sequence | Status | Endpoint |
-|----------|----------|--------|----------|
-| **P0** | Welcome Email | ✅ IMPLEMENTED | `/api/email/welcome` |
-| **P0** | Upgrade Limit | ✅ IMPLEMENTED | `/api/email/upgrade-limit` |
-| **P1** | Day 7 Upgrade | ✅ IMPLEMENTED | `/api/email/upgrade-day7` + `/api/cron/emails` |
-| **P1** | Profile Reminder | ✅ IMPLEMENTED | `/api/email/profile-reminder` + `/api/cron/emails` |
-| **P2** | EPK Setup Guide | ✅ IMPLEMENTED | `/api/email/epk-guide` + `/api/cron/emails` |
-| **P2** | Re-engagement | ✅ IMPLEMENTED | `/api/email/reengagement` + `/api/cron/emails` |
-| **P3** | First Image | 📋 DRAFTED | - |
-| **P3** | EPK Published | 📋 DRAFTED | - |
+| Priority | Sequence | Status | Endpoint | Trigger |
+|----------|----------|--------|----------|---------|
+| **P0** | Welcome Email | ✅ IMPLEMENTED | `/api/email/welcome` | Signup |
+| **P0** | Upgrade Limit | ✅ IMPLEMENTED | `/api/email/upgrade-limit` | Hit limit |
+| **P1** | Day 7 Upgrade | ✅ IMPLEMENTED | `/api/email/upgrade-day7` | Cron |
+| **P1** | Profile Reminder | ✅ IMPLEMENTED | `/api/email/profile-reminder` | Cron |
+| **P2** | EPK Setup Guide | ✅ IMPLEMENTED | `/api/email/epk-guide` | Cron |
+| **P2** | Re-engagement | ✅ IMPLEMENTED | `/api/email/reengagement` | Cron |
+| **P3** | First Image | ✅ IMPLEMENTED | `/api/email/first-image` | First upload |
+| **P3** | EPK Published | ✅ IMPLEMENTED | `/api/email/epk-published` | Manual/Event |
 
 ## Cloud Scheduler Setup (Google Cloud)
 
