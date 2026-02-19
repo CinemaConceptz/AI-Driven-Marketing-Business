@@ -462,6 +462,70 @@ Build a full-stack application using Next.js 14+ for the frontend and backend (v
 
 ---
 
+## Phase 9: A&R Submission Infrastructure (NEW - February 2025)
+
+### 9A — Foundation (COMPLETED)
+- **New Collections:**
+  - `labels`: Label database with submission methods
+  - `submissionLogs`: Track all submissions with proof
+  - `submissionCampaigns`: Bulk campaign management
+  - `artistPitches`: AI-generated pitch content
+
+- **Submission Limits Per Tier:**
+  | Tier | Monthly Limit |
+  |------|---------------|
+  | Tier I | 5 submissions |
+  | Tier II | 10 submissions |
+  | Tier III | 20 submissions |
+
+### 9B — AI Pitch Engine (COMPLETED)
+- **Files:**
+  - `/app/web/src/lib/submissions/pitchGenerator.ts`
+  - `/app/web/src/app/api/submissions/pitch/route.ts`
+
+- **Features:**
+  - AI-generated pitches using Google Gemini
+  - 3 pitch lengths: hookLine (15 words), shortPitch (100 words), mediumPitch (300 words)
+  - Optimized subject lines
+  - Genre-aware content
+  - 24-hour cache with manual regeneration
+
+### 9C — Mode C: Email Submissions (COMPLETED)
+- **Files:**
+  - `/app/web/src/app/api/submissions/send/route.ts`
+  - `/app/web/src/app/api/submissions/history/route.ts`
+  - `/app/web/src/app/api/submissions/recommend/route.ts`
+  - `/app/web/src/app/api/labels/route.ts`
+
+- **Features:**
+  - Direct email submissions to labels via Postmark
+  - Genre-based label recommendations
+  - Submission tracking with status updates
+  - User-added labels (with platform labels)
+  - Monthly limit enforcement
+
+### 9D — User Interface (COMPLETED)
+- **File:** `/app/web/src/app/submissions/page.tsx`
+
+- **Features:**
+  - 3-tab interface: Submit, History, Add Label
+  - Pitch preview and regeneration
+  - Label selection with match scores
+  - Bulk submission (up to tier limit)
+  - Submission history with status
+
+### Future: Mode A (Assisted Webform)
+- Browser automation for form pre-fill
+- Human checkpoint for CAPTCHA/submit
+- Screenshot proof of submission
+- *Deferred until needed*
+
+### Future: Mode B (Fully Automated)
+- Complete automation including CAPTCHA
+- *Deferred until tech matures*
+
+---
+
 ## Phase 4 Progress
 
 ### Phase 4C - PDF EPK Generator (ENHANCED)
