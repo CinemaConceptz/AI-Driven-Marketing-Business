@@ -7,6 +7,27 @@ type ChatMessage = {
   parts: { text: string }[];
 };
 
+// Daily usage tracking (simple in-memory, resets on restart)
+const dailyUsage = {
+  count: 0,
+  date: new Date().toDateString(),
+  maxDaily: 5000, // Max 5000 requests per day (cost protection)
+};
+
+function checkDailyLimit(): boolean {
+  const today = new Date().toDateString();
+  if (dailyUsage.date !== today) {
+    // Reset for new day
+    dailyUsage.count = 0;
+    dailyUsage.date = today;
+  }
+  if (dailyUsage.count >= dailyUsage.maxDaily) {
+    return false;
+  }
+  dailyUsage.count++;
+  return true;
+}
+
 // System prompt for general assistant
 const SYSTEM_PROMPT = `You are the Verified Sound assistant. You help visitors learn about Verified Sound A&R services and answer their questions.
 
