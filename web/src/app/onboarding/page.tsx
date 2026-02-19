@@ -347,6 +347,7 @@ export default function OnboardingPage() {
             onClick={completeOnboarding}
             disabled={saving}
             className="w-full rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors disabled:opacity-70"
+            data-testid="onboarding-complete-button"
           >
             {saving ? "Saving..." : "Go to my dashboard →"}
           </button>
