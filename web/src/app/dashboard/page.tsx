@@ -39,6 +39,7 @@ type UserProfile = {
   emailFlags?: {
     welcomeSentAt?: any;
   };
+  onboardingCompleted?: boolean;
 };
 
 function formatDate(
@@ -84,11 +85,19 @@ export default function DashboardPage() {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login?next=/dashboard");
     }
   }, [loading, router, user]);
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (status === "ready" && profile && !profile.onboardingCompleted) {
+      router.replace("/onboarding");
+    }
+  }, [status, profile, router]);
 
   useEffect(() => {
     if (loading || !user) {

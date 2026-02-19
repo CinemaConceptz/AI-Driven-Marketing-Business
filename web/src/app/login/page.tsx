@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 function LoginContent() {
   const router = useRouter();
@@ -37,8 +38,18 @@ function LoginContent() {
         } catch (err) {
           console.error("Welcome email failed", err);
         }
+        // New users always go to onboarding
+        router.push("/onboarding");
+        return;
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        // Check if existing user has completed onboarding
+        const userDoc = await getDoc(doc(db, "users", credential.user.uid));
+        const userData = userDoc.data();
+        if (!userData?.onboardingCompleted) {
+          router.push("/onboarding");
+          return;
+        }
       }
       router.push(redirectTo);
     } catch (error) {
