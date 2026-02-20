@@ -278,9 +278,147 @@ export default function OnboardingPage() {
               ← Back
             </button>
             <button
-              onClick={() => setStep(3)}
+              onClick={() => handleStepChange(3)}
               className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
               data-testid="onboarding-continue-button"
+            >
+              Continue →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Music & Social Links */}
+      {step === 3 && (
+        <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Add your music links</h2>
+            <p className="mt-2 text-sm text-slate-400">
+              Help labels find your music. These appear on your EPK and help A&R reps discover your sound.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Music Platforms */}
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-wider text-slate-500">Music Platforms</p>
+              
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-green-400">●</span> Spotify
+                </span>
+                <input
+                  type="url"
+                  value={links.spotify}
+                  onChange={(e) => setLinks({ ...links, spotify: e.target.value })}
+                  placeholder="https://open.spotify.com/artist/..."
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-spotify-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-orange-400">●</span> SoundCloud
+                </span>
+                <input
+                  type="url"
+                  value={links.soundcloud}
+                  onChange={(e) => setLinks({ ...links, soundcloud: e.target.value })}
+                  placeholder="https://soundcloud.com/your-profile"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-soundcloud-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-teal-400">●</span> Bandcamp
+                </span>
+                <input
+                  type="url"
+                  value={links.bandcamp}
+                  onChange={(e) => setLinks({ ...links, bandcamp: e.target.value })}
+                  placeholder="https://yourname.bandcamp.com"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-bandcamp-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-pink-400">●</span> Apple Music
+                </span>
+                <input
+                  type="url"
+                  value={links.appleMusic}
+                  onChange={(e) => setLinks({ ...links, appleMusic: e.target.value })}
+                  placeholder="https://music.apple.com/artist/..."
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-apple-music-input"
+                />
+              </label>
+            </div>
+
+            {/* Social Links */}
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <p className="text-xs uppercase tracking-wider text-slate-500">Social Media <span className="text-slate-600">(optional)</span></p>
+              
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-purple-400">●</span> Instagram
+                </span>
+                <input
+                  type="url"
+                  value={links.instagram}
+                  onChange={(e) => setLinks({ ...links, instagram: e.target.value })}
+                  placeholder="https://instagram.com/yourhandle"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-instagram-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-red-400">●</span> YouTube
+                </span>
+                <input
+                  type="url"
+                  value={links.youtube}
+                  onChange={(e) => setLinks({ ...links, youtube: e.target.value })}
+                  placeholder="https://youtube.com/@yourchannel"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-youtube-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-blue-400">●</span> Website
+                </span>
+                <input
+                  type="url"
+                  value={links.website}
+                  onChange={(e) => setLinks({ ...links, website: e.target.value })}
+                  placeholder="https://yourwebsite.com"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-website-input"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setStep(2)}
+              className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => handleStepChange(4)}
+              className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
+              data-testid="onboarding-links-continue-button"
             >
               Continue →
             </button>
