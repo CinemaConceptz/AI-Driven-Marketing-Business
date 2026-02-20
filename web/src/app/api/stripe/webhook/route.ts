@@ -30,7 +30,7 @@ function extractTier(subscription: Stripe.Subscription): string {
   if (subscription.metadata?.tier) {
     return subscription.metadata.tier;
   }
-  
+
   // Try to determine from price ID
   const priceId = subscription.items.data[0]?.price?.id;
   if (priceId) {
@@ -38,33 +38,48 @@ function extractTier(subscription: Stripe.Subscription): string {
     if (priceId.includes("SzkaS")) return "tier2";
     if (priceId.includes("Szkc0")) return "tier3";
   }
-  
+
   return "tier1"; // Default
 }
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
-  
+
   try {
     const signature = req.headers.get("stripe-signature");
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!signature || !webhookSecret) {
       console.error(`[stripe/webhook] Missing signature or secret`);
-      return NextResponse.json({ ok: false, error: "Missing webhook config" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Missing webhook config" },
+        { status: 400 },
+      );
     }
 
     const body = await req.text();
     let event: Stripe.Event;
-    
+
     try {
-      event = getStripe().webhooks.constructEvent(body, signature, webhookSecret);
+      event = getStripe().webhooks.constructEvent(
+        body,
+        signature,
+        webhookSecret,
+      );
     } catch (err: any) {
-      console.error(`[stripe/webhook] Signature verification failed:`, err.message);
-      return NextResponse.json({ ok: false, error: "Invalid signature" }, { status: 400 });
+      console.error(
+        `[stripe/webhook] Signature verification failed:`,
+        err.message,
+      );
+      return NextResponse.json(
+        { ok: false, error: "Invalid signature" },
+        { status: 400 },
+      );
     }
 
-    console.log(`[stripe/webhook] Processing event: ${event.type} (${event.id})`);
+    console.log(
+      `[stripe/webhook] Processing event: ${event.type} (${event.id})`,
+    );
 
     // Handle checkout session completed (initial subscription)
     if (event.type === "checkout.session.completed") {
@@ -83,32 +98,48 @@ export async function POST(req: Request) {
       });
 
       // Record payment
-      await adminDb.collection("payments").doc(sessionId).set({
-        uid: uid || null,
-        type: "checkout",
-        status: "completed",
-        amountTotal: session.amount_total,
-        currency: session.currency,
-        customerEmail: session.customer_email || null,
-        customerId: session.customer || null,
-        subscriptionId: session.subscription || null,
-        tier,
-        billingPeriod,
-        stripeEventId: event.id,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+      await adminDb
+        .collection("payments")
+        .doc(sessionId)
+        .set(
+          {
+            uid: uid || null,
+            type: "checkout",
+            status: "completed",
+            amountTotal: session.amount_total,
+            currency: session.currency,
+            customerEmail: session.customer_email || null,
+            customerId: session.customer || null,
+            subscriptionId: session.subscription || null,
+            tier,
+            billingPeriod,
+            stripeEventId: event.id,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
 
       // Update user subscription status
       if (uid) {
-        await adminDb.collection("users").doc(uid).set({
-          paymentStatus: "paid",
-          subscriptionStatus: "active",
-          subscriptionTier: tier,
-          subscriptionBillingPeriod: billingPeriod,
-          subscriptionId: session.subscription || null,
-          stripeCustomerId: session.customer || null,
-          paymentPaidAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await adminDb
+          .collection("users")
+          .doc(uid)
+          .set(
+            {
+              paymentStatus: "paid",
+              subscriptionStatus: "active",
+              subscriptionTier: tier,
+              subscriptionBillingPeriod: billingPeriod,
+              subscriptionId: session.subscription || null,
+              stripeCustomerId: session.customer || null,
+              paymentPaidAt: admin.firestore.FieldValue.serverTimestamp(),
+              // Mark onboarding as complete when payment succeeds
+              onboardingCompleted: true,
+              onboardingCompletedAt:
+                admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
       }
     }
 
@@ -122,16 +153,24 @@ export async function POST(req: Request) {
       if (uid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sub = subscription as any;
-        const periodEnd = sub.current_period_end ?? sub.items?.data?.[0]?.current_period_end;
-        await adminDb.collection("users").doc(uid).set({
-          subscriptionStatus: status,
-          subscriptionTier: tier,
-          subscriptionCurrentPeriodEnd: periodEnd
-            ? new Date(periodEnd * 1000) 
-            : null,
-          subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
-          subscriptionUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        const periodEnd =
+          sub.current_period_end ?? sub.items?.data?.[0]?.current_period_end;
+        await adminDb
+          .collection("users")
+          .doc(uid)
+          .set(
+            {
+              subscriptionStatus: status,
+              subscriptionTier: tier,
+              subscriptionCurrentPeriodEnd: periodEnd
+                ? new Date(periodEnd * 1000)
+                : null,
+              subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
+              subscriptionUpdatedAt:
+                admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
       }
 
       // Log subscription change
@@ -156,11 +195,15 @@ export async function POST(req: Request) {
       const uid = subscription.metadata?.uid;
 
       if (uid) {
-        await adminDb.collection("users").doc(uid).set({
-          subscriptionStatus: "canceled",
-          paymentStatus: "canceled",
-          subscriptionCanceledAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await adminDb.collection("users").doc(uid).set(
+          {
+            subscriptionStatus: "canceled",
+            paymentStatus: "canceled",
+            subscriptionCanceledAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       }
 
       // Log cancellation
@@ -178,24 +221,31 @@ export async function POST(req: Request) {
       const invoice = event.data.object as Stripe.Invoice;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const subscriptionId = (invoice as any).subscription as string;
-      
+
       // Try to get uid from subscription metadata
       let uid: string | null = null;
       if (subscriptionId) {
         try {
-          const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+          const subscription =
+            await getStripe().subscriptions.retrieve(subscriptionId);
           uid = subscription.metadata?.uid || null;
         } catch (err) {
-          console.error(`[stripe/webhook] Failed to retrieve subscription:`, err);
+          console.error(
+            `[stripe/webhook] Failed to retrieve subscription:`,
+            err,
+          );
         }
       }
 
       if (uid) {
-        await adminDb.collection("users").doc(uid).set({
-          subscriptionStatus: "past_due",
-          paymentStatus: "past_due",
-          lastPaymentFailedAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await adminDb.collection("users").doc(uid).set(
+          {
+            subscriptionStatus: "past_due",
+            paymentStatus: "past_due",
+            lastPaymentFailedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       }
 
       // Log payment failure
@@ -215,7 +265,7 @@ export async function POST(req: Request) {
       const invoice = event.data.object as Stripe.Invoice;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const subscriptionId = (invoice as any).subscription as string;
-      
+
       // Skip if this is the first payment (handled by checkout.session.completed)
       if (invoice.billing_reason === "subscription_create") {
         return NextResponse.json({ ok: true, skipped: "initial_payment" });
@@ -224,19 +274,27 @@ export async function POST(req: Request) {
       let uid: string | null = null;
       if (subscriptionId) {
         try {
-          const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+          const subscription =
+            await getStripe().subscriptions.retrieve(subscriptionId);
           uid = subscription.metadata?.uid || null;
         } catch (err) {
-          console.error(`[stripe/webhook] Failed to retrieve subscription:`, err);
+          console.error(
+            `[stripe/webhook] Failed to retrieve subscription:`,
+            err,
+          );
         }
       }
 
       if (uid) {
-        await adminDb.collection("users").doc(uid).set({
-          subscriptionStatus: "active",
-          paymentStatus: "paid",
-          lastPaymentSucceededAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await adminDb.collection("users").doc(uid).set(
+          {
+            subscriptionStatus: "active",
+            paymentStatus: "paid",
+            lastPaymentSucceededAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       }
 
       // Log renewal payment
@@ -254,7 +312,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, event: event.type });
   } catch (error: any) {
-    console.error(`[stripe/webhook] requestId=${requestId}`, error?.message || error);
-    return NextResponse.json({ ok: false, error: "Webhook processing error" }, { status: 500 });
+    console.error(
+      `[stripe/webhook] requestId=${requestId}`,
+      error?.message || error,
+    );
+    return NextResponse.json(
+      { ok: false, error: "Webhook processing error" },
+      { status: 500 },
+    );
   }
 }
