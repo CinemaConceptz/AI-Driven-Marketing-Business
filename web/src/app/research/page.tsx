@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 type ResearchResult = {
   labelName: string;
@@ -76,7 +76,7 @@ export default function LabelResearchPage() {
 
     try {
       const token = await user.getIdToken();
-      
+
       // Determine submission method
       let submissionMethod = "none";
       if (result.data.submissionEmail) {
@@ -119,10 +119,14 @@ export default function LabelResearchPage() {
 
   const confidenceColor = (confidence: string) => {
     switch (confidence) {
-      case "high": return "text-green-400";
-      case "medium": return "text-yellow-400";
-      case "low": return "text-red-400";
-      default: return "text-gray-400";
+      case "high":
+        return "text-green-400";
+      case "medium":
+        return "text-yellow-400";
+      case "low":
+        return "text-red-400";
+      default:
+        return "text-gray-400";
     }
   };
 
@@ -146,7 +150,9 @@ export default function LabelResearchPage() {
         <form onSubmit={handleResearch} className="mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1">Label Name *</label>
+              <label className="block text-sm text-gray-400 mb-1">
+                Label Name *
+              </label>
               <input
                 type="text"
                 value={labelName}
@@ -157,7 +163,9 @@ export default function LabelResearchPage() {
               />
             </div>
             <div className="w-full md:w-48">
-              <label className="block text-sm text-gray-400 mb-1">Genre (optional)</label>
+              <label className="block text-sm text-gray-400 mb-1">
+                Genre (optional)
+              </label>
               <input
                 type="text"
                 value={genre}
@@ -192,10 +200,14 @@ export default function LabelResearchPage() {
               <div>
                 <h2 className="text-2xl font-bold">{result.labelName}</h2>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className={`text-sm ${result.found ? "text-green-400" : "text-red-400"}`}>
+                  <span
+                    className={`text-sm ${result.found ? "text-green-400" : "text-red-400"}`}
+                  >
                     {result.found ? "Found" : "Not Found"}
                   </span>
-                  <span className={`text-sm ${confidenceColor(result.confidence)}`}>
+                  <span
+                    className={`text-sm ${confidenceColor(result.confidence)}`}
+                  >
                     Confidence: {result.confidence}
                   </span>
                 </div>
@@ -219,16 +231,32 @@ export default function LabelResearchPage() {
             {result.found && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                 <InfoField label="Website" value={result.data.website} isLink />
-                <InfoField label="Submission Page" value={result.data.submissionUrl} isLink />
-                <InfoField label="Submission Email" value={result.data.submissionEmail} />
+                <InfoField
+                  label="Submission Page"
+                  value={result.data.submissionUrl}
+                  isLink
+                />
+                <InfoField
+                  label="Submission Email"
+                  value={result.data.submissionEmail}
+                />
                 <InfoField label="Country" value={result.data.country} />
                 <InfoField label="Tier" value={result.data.tier} />
-                <InfoField label="Accepting Demos" value={result.data.acceptingDemos} />
+                <InfoField
+                  label="Accepting Demos"
+                  value={result.data.acceptingDemos}
+                />
                 <div className="md:col-span-2">
-                  <InfoField label="Genres" value={result.data.genres?.join(", ")} />
+                  <InfoField
+                    label="Genres"
+                    value={result.data.genres?.join(", ")}
+                  />
                 </div>
                 <div className="md:col-span-2">
-                  <InfoField label="Requirements" value={result.data.requirements} />
+                  <InfoField
+                    label="Requirements"
+                    value={result.data.requirements}
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <InfoField label="Notes" value={result.data.notes} />
@@ -237,21 +265,27 @@ export default function LabelResearchPage() {
             )}
 
             <div className="mt-6 pt-4 border-t border-zinc-700">
-              <p className="text-xs text-gray-500">
-                Source: {result.sources}
-              </p>
+              <p className="text-xs text-gray-500">Source: {result.sources}</p>
             </div>
           </div>
         )}
 
         {/* Tips */}
         <div className="mt-8 p-4 bg-zinc-900/50 border border-zinc-800 rounded-lg">
-          <h3 className="font-medium text-gray-300 mb-2">Tips for best results:</h3>
+          <h3 className="font-medium text-gray-300 mb-2">
+            Tips for best results:
+          </h3>
           <ul className="text-sm text-gray-500 space-y-1">
-            <li>Enter the exact label name as it appears on streaming platforms</li>
-            <li>Add a genre hint to help narrow down labels with similar names</li>
+            <li>
+              Enter the exact label name as it appears on streaming platforms
+            </li>
+            <li>
+              Add a genre hint to help narrow down labels with similar names
+            </li>
             <li>Always verify the AI results before adding to the database</li>
-            <li>Check the submission URL manually to confirm it&apos;s current</li>
+            <li>
+              Check the submission URL manually to confirm it&apos;s current
+            </li>
           </ul>
         </div>
       </div>
@@ -259,7 +293,15 @@ export default function LabelResearchPage() {
   );
 }
 
-function InfoField({ label, value, isLink }: { label: string; value: string | null | undefined; isLink?: boolean }) {
+function InfoField({
+  label,
+  value,
+  isLink,
+}: {
+  label: string;
+  value: string | null | undefined;
+  isLink?: boolean;
+}) {
   if (!value) {
     return (
       <div>
@@ -287,4 +329,3 @@ function InfoField({ label, value, isLink }: { label: string; value: string | nu
     </div>
   );
 }
-

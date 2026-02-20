@@ -200,8 +200,12 @@ export async function POST(req: Request) {
         status: error?.status,
       }));
 
-      return NextResponse.json(
-        { ok: false, error: errorMessage },
-        { status: 500 }
-      );
-    }
+      Fix 1: web/src/app/api/chat-assistant/route.ts
+      Make sure the file ends with TWO closing braces:
+
+          return NextResponse.json(
+            { ok: false, error: errorMessage },
+            { status: 500 }
+          );
+        }
+      }
