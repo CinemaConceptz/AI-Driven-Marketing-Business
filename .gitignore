@@ -45,3 +45,7 @@ coverage/
 # Misc
 *.pem
 *.log
+-e 
+# Environment files
+*.env
+*.env.*
