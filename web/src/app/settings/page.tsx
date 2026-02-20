@@ -105,6 +105,8 @@ export default function SettingsPage() {
         links: {
           spotify: links.spotify.trim(),
           soundcloud: links.soundcloud.trim(),
+          bandcamp: links.bandcamp.trim(),
+          appleMusic: links.appleMusic.trim(),
           instagram: links.instagram.trim(),
           youtube: links.youtube.trim(),
           website: links.website.trim(),
