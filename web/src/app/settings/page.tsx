@@ -18,6 +18,8 @@ type UserProfile = {
   links?: {
     spotify?: string;
     soundcloud?: string;
+    bandcamp?: string;
+    appleMusic?: string;
     instagram?: string;
     youtube?: string;
     website?: string;
