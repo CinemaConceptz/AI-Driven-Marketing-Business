@@ -105,6 +105,15 @@ export default function OnboardingPage() {
           artistName: artistName.trim() || null,
           genre: genre || null,
           bio: bio.trim() || null,
+          links: {
+            spotify: links.spotify.trim() || null,
+            soundcloud: links.soundcloud.trim() || null,
+            bandcamp: links.bandcamp.trim() || null,
+            appleMusic: links.appleMusic.trim() || null,
+            instagram: links.instagram.trim() || null,
+            youtube: links.youtube.trim() || null,
+            website: links.website.trim() || null,
+          },
           onboardingCompleted: true,
           onboardingCompletedAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -116,6 +125,7 @@ export default function OnboardingPage() {
         hasArtistName: !!artistName.trim(),
         hasGenre: !!genre,
         hasBio: !!bio.trim(),
+        hasLinks: !!(links.spotify || links.soundcloud || links.bandcamp || links.appleMusic),
       });
     } catch (e) {
       console.error("Failed to save profile", e);
