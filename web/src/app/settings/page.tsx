@@ -69,6 +69,8 @@ export default function SettingsPage() {
           setLinks({
             spotify: data.links?.spotify || "",
             soundcloud: data.links?.soundcloud || "",
+            bandcamp: data.links?.bandcamp || "",
+            appleMusic: data.links?.appleMusic || "",
             instagram: data.links?.instagram || "",
             youtube: data.links?.youtube || "",
             website: data.links?.website || "",
