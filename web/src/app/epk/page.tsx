@@ -7,7 +7,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import EpkLayout from "@/components/epk/EpkLayout";
-import { getAllPressMedia, type PressMediaItem } from "@/services/pressMedia";
+import { getAllPressMedia, type PressMediaDoc } from "@/services/pressMedia";
 
 type UserProfile = {
   artistName?: string;
