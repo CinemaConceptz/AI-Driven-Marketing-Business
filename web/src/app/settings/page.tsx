@@ -18,6 +18,8 @@ type UserProfile = {
   links?: {
     spotify?: string;
     soundcloud?: string;
+    bandcamp?: string;
+    appleMusic?: string;
     instagram?: string;
     youtube?: string;
     website?: string;
@@ -41,6 +43,8 @@ export default function SettingsPage() {
   const [links, setLinks] = useState({
     spotify: "",
     soundcloud: "",
+    bandcamp: "",
+    appleMusic: "",
     instagram: "",
     youtube: "",
     website: "",
@@ -65,6 +69,8 @@ export default function SettingsPage() {
           setLinks({
             spotify: data.links?.spotify || "",
             soundcloud: data.links?.soundcloud || "",
+            bandcamp: data.links?.bandcamp || "",
+            appleMusic: data.links?.appleMusic || "",
             instagram: data.links?.instagram || "",
             youtube: data.links?.youtube || "",
             website: data.links?.website || "",
@@ -99,6 +105,8 @@ export default function SettingsPage() {
         links: {
           spotify: links.spotify.trim(),
           soundcloud: links.soundcloud.trim(),
+          bandcamp: links.bandcamp.trim(),
+          appleMusic: links.appleMusic.trim(),
           instagram: links.instagram.trim(),
           youtube: links.youtube.trim(),
           website: links.website.trim(),
@@ -145,7 +153,10 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       {/* Header */}
-      <div className="glass-panel rounded-3xl px-8 py-10" data-testid="settings-page">
+      <div
+        className="glass-panel rounded-3xl px-8 py-10"
+        data-testid="settings-page"
+      >
         <h1 className="text-3xl font-semibold text-white">Settings</h1>
         <p className="mt-3 text-sm text-slate-200">
           Manage your profile information and EPK settings.
@@ -165,8 +176,13 @@ export default function SettingsPage() {
       )}
 
       {/* Profile Form */}
-      <form onSubmit={handleSaveProfile} className="glass-panel rounded-3xl px-8 py-10 space-y-6">
-        <h2 className="text-xl font-semibold text-white">Profile Information</h2>
+      <form
+        onSubmit={handleSaveProfile}
+        className="glass-panel rounded-3xl px-8 py-10 space-y-6"
+      >
+        <h2 className="text-xl font-semibold text-white">
+          Profile Information
+        </h2>
         <p className="text-sm text-slate-400">
           This information will appear on your public EPK.
         </p>
@@ -250,54 +266,104 @@ export default function SettingsPage() {
 
         {/* Social Links */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-white">Social Links</h3>
+          <h3 className="text-lg font-medium text-white">
+            Music & Social Links
+          </h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Spotify</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Spotify
+              </label>
               <input
                 type="url"
                 value={links.spotify}
-                onChange={(e) => setLinks({ ...links, spotify: e.target.value })}
+                onChange={(e) =>
+                  setLinks({ ...links, spotify: e.target.value })
+                }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://open.spotify.com/artist/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">SoundCloud</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                SoundCloud
+              </label>
               <input
                 type="url"
                 value={links.soundcloud}
-                onChange={(e) => setLinks({ ...links, soundcloud: e.target.value })}
+                onChange={(e) =>
+                  setLinks({ ...links, soundcloud: e.target.value })
+                }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://soundcloud.com/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Instagram</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Bandcamp
+              </label>
+              <input
+                type="url"
+                value={links.bandcamp}
+                onChange={(e) =>
+                  setLinks({ ...links, bandcamp: e.target.value })
+                }
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                placeholder="https://yourname.bandcamp.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Apple Music
+              </label>
+              <input
+                type="url"
+                value={links.appleMusic}
+                onChange={(e) =>
+                  setLinks({ ...links, appleMusic: e.target.value })
+                }
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                placeholder="https://music.apple.com/artist/..."
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Instagram
+              </label>
               <input
                 type="url"
                 value={links.instagram}
-                onChange={(e) => setLinks({ ...links, instagram: e.target.value })}
+                onChange={(e) =>
+                  setLinks({ ...links, instagram: e.target.value })
+                }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://instagram.com/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">YouTube</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                YouTube
+              </label>
               <input
                 type="url"
                 value={links.youtube}
-                onChange={(e) => setLinks({ ...links, youtube: e.target.value })}
+                onChange={(e) =>
+                  setLinks({ ...links, youtube: e.target.value })
+                }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://youtube.com/..."
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">Website</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Website
+              </label>
               <input
                 type="url"
                 value={links.website}
-                onChange={(e) => setLinks({ ...links, website: e.target.value })}
+                onChange={(e) =>
+                  setLinks({ ...links, website: e.target.value })
+                }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://yourwebsite.com"
               />
