@@ -13,7 +13,7 @@ const GENRES = [
   "Hip-Hop", "R&B", "Pop", "Electronic", "Other",
 ];
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 function ProgressBar({ step }: { step: number }) {
   return (
