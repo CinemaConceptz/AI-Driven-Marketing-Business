@@ -42,6 +42,17 @@ export default function OnboardingPage() {
   const [genre, setGenre] = useState("");
   const [bio, setBio] = useState("");
 
+  // Social/Music links
+  const [links, setLinks] = useState({
+    spotify: "",
+    soundcloud: "",
+    bandcamp: "",
+    appleMusic: "",
+    instagram: "",
+    youtube: "",
+    website: "",
+  });
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
