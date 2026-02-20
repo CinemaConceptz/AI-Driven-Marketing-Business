@@ -258,7 +258,7 @@ export default function SettingsPage() {
 
         {/* Social Links */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-white">Social Links</h3>
+          <h3 className="text-lg font-medium text-white">Music & Social Links</h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-xs text-slate-400 mb-1.5">Spotify</label>
@@ -278,6 +278,26 @@ export default function SettingsPage() {
                 onChange={(e) => setLinks({ ...links, soundcloud: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://soundcloud.com/..."
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5">Bandcamp</label>
+              <input
+                type="url"
+                value={links.bandcamp}
+                onChange={(e) => setLinks({ ...links, bandcamp: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                placeholder="https://yourname.bandcamp.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1.5">Apple Music</label>
+              <input
+                type="url"
+                value={links.appleMusic}
+                onChange={(e) => setLinks({ ...links, appleMusic: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                placeholder="https://music.apple.com/artist/..."
               />
             </div>
             <div>
