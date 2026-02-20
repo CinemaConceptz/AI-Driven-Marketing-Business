@@ -74,6 +74,17 @@ export default function OnboardingPage() {
         if (userData?.artistName) setArtistName(userData.artistName);
         if (userData?.genre) setGenre(userData.genre);
         if (userData?.bio) setBio(userData.bio);
+        if (userData?.links) {
+          setLinks({
+            spotify: userData.links.spotify || "",
+            soundcloud: userData.links.soundcloud || "",
+            bandcamp: userData.links.bandcamp || "",
+            appleMusic: userData.links.appleMusic || "",
+            instagram: userData.links.instagram || "",
+            youtube: userData.links.youtube || "",
+            website: userData.links.website || "",
+          });
+        }
       } catch (e) {
         console.error("Error checking onboarding status", e);
       } finally {
