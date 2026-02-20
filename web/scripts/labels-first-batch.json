@@ -1,0 +1,135 @@
+{
+  "labels": [
+    {
+      "name": "Defected Records",
+      "genres": ["House"],
+      "country": "United Kingdom",
+      "website": "https://defected.com/",
+      "submissionUrl": "https://defected.com/demos",
+      "submissionEmail": "demos@defected.com",
+      "notes": "Major label. Demos with streamable links; WAV only; no artwork/promos. Accepts SoundCloud/Dropbox/WeTransfer links.",
+      "tier": "Major",
+      "subgenres": ["House"]
+    },
+    {
+      "name": "Toolroom Records",
+      "genres": ["House", "Techno"],
+      "country": "United Kingdom",
+      "website": "https://toolroomrecords.com/",
+      "submissionUrl": "https://toolroomrecords.com/demos/",
+      "notes": "Major label. Submit demos via Toolroom demo upload page.",
+      "tier": "Major",
+      "subgenres": ["House", "Tech House"]
+    },
+    {
+      "name": "Soul Candi Records",
+      "genres": ["Deep House", "House", "Afro House"],
+      "country": "South Africa",
+      "website": "https://soulcandi.co.za/",
+      "submissionUrl": "https://soulcandi.co.za/submit-a-demo/",
+      "notes": "Major label. Submit exclusively through website; originals only; specified genres only. No remixes/bootlegs/unauthorized samples.",
+      "tier": "Major",
+      "subgenres": ["Deep House", "Afro Tech"]
+    },
+    {
+      "name": "All Shades of The Drum Recordings",
+      "genres": ["Afro House"],
+      "country": "United Kingdom",
+      "website": "https://allshadesmgmt.co.uk/",
+      "submissionUrl": "https://allshadesmgmt.co.uk/demo-submission/",
+      "notes": "Mid-tier label. Demo submission form; provide artist details and demo link.",
+      "tier": "Mid-tier",
+      "subgenres": ["Afro House", "Afro Tech"]
+    },
+    {
+      "name": "Alter Soul Records",
+      "genres": ["Afro House"],
+      "country": "Morocco",
+      "website": "https://altersoul.ma/",
+      "submissionUrl": "https://altersoul.ma/demo",
+      "notes": "Underground label. Demo submission open; submit afro house/electronic track for review.",
+      "tier": "Underground",
+      "subgenres": ["Afro House"]
+    },
+    {
+      "name": "Deep In Your Soul Records",
+      "genres": ["Afro House"],
+      "country": "Belgium",
+      "website": "https://www.deepinyoursoulrecords.com/",
+      "submissionUrl": "https://www.deepinyoursoulrecords.com/demo",
+      "notes": "Underground label. Only afro house demos via demo page; mentions feedback timeframe.",
+      "tier": "Underground",
+      "subgenres": ["Afro House"]
+    },
+    {
+      "name": "NOS Recordings",
+      "genres": ["House"],
+      "country": "United States",
+      "website": "https://nosrecordings.com/",
+      "submissionUrl": "https://nosrecordings.com/demo-submissions",
+      "notes": "Underground label. House-focused; submit up to 3 tracks per inquiry.",
+      "tier": "Underground",
+      "subgenres": ["House"]
+    },
+    {
+      "name": "Hacked Records",
+      "genres": ["Techno", "House", "Drum & Bass"],
+      "country": "Worldwide",
+      "website": "https://hackedrecords.com/",
+      "submissionUrl": "https://hackedrecords.com/send-new-tracks/",
+      "notes": "Underground label. Submit demos via website form with file upload and genre selection.",
+      "tier": "Underground",
+      "subgenres": ["Hard Techno", "Minimal", "Breaks"]
+    },
+    {
+      "name": "Black Bore Records",
+      "genres": ["Techno"],
+      "country": "Worldwide",
+      "website": "https://www.techno-blackbore.com/",
+      "submissionUrl": "https://www.techno-blackbore.com/demosubmission/send/demos/techno/",
+      "notes": "Underground label. Open demo submission page; MP3 320kbps; naming + finished tracks guidelines. Response time up to two weeks.",
+      "tier": "Underground",
+      "subgenres": ["Techno"]
+    },
+    {
+      "name": "Fourfloor Records",
+      "genres": ["Techno"],
+      "country": "Worldwide",
+      "website": "https://fourfloor.net/",
+      "submissionUrl": "https://fourfloor.net/fourfloor-records-demo-submission/",
+      "notes": "Underground label. Submit techno demos via form; SoundCloud preferred.",
+      "tier": "Underground",
+      "subgenres": ["Techno"]
+    },
+    {
+      "name": "Superpos Records",
+      "genres": ["Techno", "House", "Melodic"],
+      "country": "Worldwide",
+      "website": "https://www.superposrec.com/",
+      "submissionUrl": "https://www.superposrec.com/demo-submission/",
+      "notes": "Underground label. Demo submission form; genres of interest include techno/melodic/house.",
+      "tier": "Underground",
+      "subgenres": ["Melodic Techno"]
+    },
+    {
+      "name": "DnB Doctor",
+      "genres": ["Drum & Bass"],
+      "country": "Worldwide",
+      "website": "https://dnbdoctor.com/",
+      "submissionUrl": "https://dnbdoctor.com/submit-demo",
+      "notes": "Underground label. Submit neurofunk DnB demos; guidelines on page.",
+      "tier": "Underground",
+      "subgenres": ["Neurofunk"]
+    },
+    {
+      "name": "DnB Allstars",
+      "genres": ["Drum & Bass"],
+      "country": "United Kingdom",
+      "website": "https://www.labelradar.com/labels/dnballstars/portal",
+      "submissionUrl": "https://www.labelradar.com/labels/dnballstars/portal",
+      "notes": "Mid-tier label. LabelRadar portal indicates label is waiting for demo submissions.",
+      "tier": "Mid-tier",
+      "subgenres": ["Drum & Bass"]
+    }
+  ]
+}
