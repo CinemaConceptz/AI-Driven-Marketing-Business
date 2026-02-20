@@ -7,4 +7,18 @@ export type EpkProfile = {
   website?: string;
   instagram?: string;
   location?: string;
+  genre?: string;
+  genres?: string[];
+  epkReady?: boolean;
+  epkPublished?: boolean;
+  epkSlug?: string;
+  links?: {
+    spotify?: string;
+    soundcloud?: string;
+    bandcamp?: string;
+    appleMusic?: string;
+    instagram?: string;
+    youtube?: string;
+    website?: string;
+  };
 };
