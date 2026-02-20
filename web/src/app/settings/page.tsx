@@ -43,6 +43,8 @@ export default function SettingsPage() {
   const [links, setLinks] = useState({
     spotify: "",
     soundcloud: "",
+    bandcamp: "",
+    appleMusic: "",
     instagram: "",
     youtube: "",
     website: "",
