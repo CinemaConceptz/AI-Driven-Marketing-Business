@@ -287,3 +287,4 @@ function InfoField({ label, value, isLink }: { label: string; value: string | nu
     </div>
   );
 }
+
