@@ -504,8 +504,8 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 4: Complete */}
-      {step === 4 && (
+      {/* Step 5: Complete */}
+      {step === 5 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl">
             🎵
