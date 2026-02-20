@@ -50,6 +50,8 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [startingCheckout, setStartingCheckout] = useState<string | null>(null);
+  const [showBioWarning, setShowBioWarning] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
 
   // Profile fields
   const [artistName, setArtistName] = useState("");
@@ -119,6 +121,58 @@ export default function OnboardingPage() {
     );
   };
 
+  // AI Bio Generator
+  const generateBioWithAI = async () => {
+    if (!user || !artistName.trim()) {
+      alert("Please enter your artist name first");
+      return;
+    }
+
+    setGeneratingBio(true);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/ai/generate-bio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          artistName: artistName.trim(),
+          genres: selectedGenres,
+          links: {
+            spotify: links.spotify,
+            soundcloud: links.soundcloud,
+          },
+        }),
+      });
+
+      const data = await response.json();
+      if (data.ok && data.bio) {
+        setBio(data.bio);
+      } else {
+        // Fallback: generate a simple template bio
+        const genreText =
+          selectedGenres.length > 0
+            ? selectedGenres.join(", ")
+            : "electronic music";
+        const fallbackBio = `${artistName} is a dynamic artist specializing in ${genreText}. With a passion for pushing sonic boundaries and creating immersive musical experiences, ${artistName} has been steadily building a reputation in the underground scene. Drawing inspiration from a diverse range of influences, their productions blend innovative sound design with infectious rhythms that captivate audiences on dance floors worldwide. Currently focused on developing their unique sound and connecting with forward-thinking labels, ${artistName} is ready to take their artistry to the next level.`;
+        setBio(fallbackBio.slice(0, 900));
+      }
+    } catch (error) {
+      console.error("Bio generation error:", error);
+      // Fallback template
+      const genreText =
+        selectedGenres.length > 0
+          ? selectedGenres.join(", ")
+          : "electronic music";
+      const fallbackBio = `${artistName} is a rising artist in the ${genreText} scene, dedicated to crafting unique sonic experiences that resonate with audiences worldwide. With a fresh perspective and unwavering commitment to their craft, ${artistName} continues to evolve and push creative boundaries.`;
+      setBio(fallbackBio);
+    } finally {
+      setGeneratingBio(false);
+    }
+  };
+
   const saveProfile = async () => {
     if (!user) return;
     setSaving(true);
@@ -128,8 +182,13 @@ export default function OnboardingPage() {
         {
           artistName: artistName.trim() || null,
           genres: selectedGenres.length > 0 ? selectedGenres : null,
-          genre: selectedGenres[0] || null, // Keep primary genre for backwards compatibility
+          genre: selectedGenres[0] || null,
           bio: bio.trim() || null,
+          epkReady: !!(
+            artistName.trim() &&
+            bio.trim() &&
+            selectedGenres.length > 0
+          ),
           links: {
             spotify: links.spotify.trim() || null,
             soundcloud: links.soundcloud.trim() || null,
@@ -145,7 +204,6 @@ export default function OnboardingPage() {
         },
         { merge: true },
       );
-      // Track onboarding completion
       trackEvent("onboarding_completed", user.uid, {
         hasArtistName: !!artistName.trim(),
         genreCount: selectedGenres.length,
@@ -171,17 +229,19 @@ export default function OnboardingPage() {
 
   const skipToEnd = async () => {
     if (!user) return;
-    // Track skip event
     trackEvent("onboarding_skipped", user.uid, { skippedAtStep: step });
     await setDoc(
       doc(db, "users", user.uid),
-      { onboardingCompleted: true, onboardingCompletedAt: serverTimestamp() },
+      {
+        onboardingCompleted: true,
+        onboardingCompletedAt: serverTimestamp(),
+        epkReady: false, // Mark EPK as not ready when skipping
+      },
       { merge: true },
     );
     router.push("/dashboard");
   };
 
-  // Track step changes
   const handleStepChange = (newStep: number) => {
     trackEvent("onboarding_step_completed", user?.uid, {
       step: step,
@@ -190,13 +250,27 @@ export default function OnboardingPage() {
     setStep(newStep);
   };
 
-  // Handle tier selection and checkout
+  // Handle continue from step 2 with bio check
+  const handleContinueFromProfile = () => {
+    if (!bio.trim()) {
+      setShowBioWarning(true);
+      return;
+    }
+    setShowBioWarning(false);
+    handleStepChange(3);
+  };
+
+  // Force continue without bio (with warning acknowledged)
+  const continueWithoutBio = () => {
+    setShowBioWarning(false);
+    handleStepChange(3);
+  };
+
   const handleSelectTier = async (tier: string) => {
     if (!user) return;
     setStartingCheckout(tier);
 
     try {
-      // Save profile first
       await saveProfile();
 
       const token = await user.getIdToken();
@@ -306,7 +380,7 @@ export default function OnboardingPage() {
 
           <div className="space-y-4">
             <label className="flex flex-col gap-2 text-sm text-slate-200">
-              Artist / Stage Name
+              Artist / Stage Name <span className="text-red-400">*</span>
               <input
                 type="text"
                 value={artistName}
@@ -320,7 +394,7 @@ export default function OnboardingPage() {
             {/* Multi-select Genre Checkboxes */}
             <div className="flex flex-col gap-2 text-sm text-slate-200">
               <span>
-                Genres{" "}
+                Genres <span className="text-red-400">*</span>{" "}
                 <span className="text-slate-500">(select all that apply)</span>
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1">
@@ -338,7 +412,6 @@ export default function OnboardingPage() {
                       checked={selectedGenres.includes(genre)}
                       onChange={() => toggleGenre(genre)}
                       className="w-4 h-4 accent-emerald-500"
-                      data-testid={`onboarding-genre-${genre.toLowerCase().replace(/\s+/g, "-")}`}
                     />
                     <span className="text-sm">{genre}</span>
                   </label>
@@ -351,23 +424,88 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            <label className="flex flex-col gap-2 text-sm text-slate-200">
-              Bio <span className="text-slate-500">(optional)</span>
+            {/* Bio with AI Helper */}
+            <div className="flex flex-col gap-2 text-sm text-slate-200">
+              <div className="flex items-center justify-between">
+                <span>
+                  Bio <span className="text-red-400">*</span>{" "}
+                  <span className="text-amber-400 text-xs">
+                    (Required for EPK)
+                  </span>
+                </span>
+                <button
+                  onClick={generateBioWithAI}
+                  disabled={generatingBio || !artistName.trim()}
+                  className="text-xs px-3 py-1 rounded-full bg-purple-600 hover:bg-purple-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white transition-colors flex items-center gap-1"
+                >
+                  {generatingBio ? (
+                    <>
+                      <span className="animate-spin">⚡</span> Generating...
+                    </>
+                  ) : (
+                    <>✨ AI Help Me Write</>
+                  )}
+                </button>
+              </div>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell A&R reps about your sound, career highlights, and what makes you unique..."
-                rows={5}
+                placeholder="Tell A&R reps about your sound, career highlights, and what makes you unique. Need help? Click 'AI Help Me Write' above!"
+                rows={6}
                 maxLength={900}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+                className={`rounded-xl border bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none resize-none ${
+                  showBioWarning && !bio.trim()
+                    ? "border-red-500/50 focus:border-red-500"
+                    : "border-white/10 focus:border-emerald-500/50"
+                }`}
                 data-testid="onboarding-bio-textarea"
               />
-              <span
-                className={`text-xs text-right ${bio.length > 800 ? "text-amber-400" : "text-slate-500"}`}
-              >
-                {bio.length}/900 characters
-              </span>
-            </label>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500">
+                  {bio.trim()
+                    ? "✓ Bio complete"
+                    : "Your bio is required to build your EPK"}
+                </span>
+                <span
+                  className={`text-xs ${bio.length > 800 ? "text-amber-400" : "text-slate-500"}`}
+                >
+                  {bio.length}/900 characters
+                </span>
+              </div>
+            </div>
+
+            {/* Bio Warning Modal */}
+            {showBioWarning && (
+              <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-red-400 text-xl">⚠️</span>
+                  <div>
+                    <p className="font-semibold text-red-300">
+                      Bio Required for EPK
+                    </p>
+                    <p className="text-sm text-red-200/80 mt-1">
+                      Your Electronic Press Kit (EPK) cannot be created without
+                      a bio. Labels need to know about you!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={generateBioWithAI}
+                    disabled={generatingBio}
+                    className="flex-1 rounded-full bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 transition-colors"
+                  >
+                    ✨ Let AI Write My Bio
+                  </button>
+                  <button
+                    onClick={continueWithoutBio}
+                    className="flex-1 rounded-full border border-red-500/30 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 transition-colors"
+                  >
+                    Skip Anyway →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3">
@@ -379,7 +517,7 @@ export default function OnboardingPage() {
               ← Back
             </button>
             <button
-              onClick={() => handleStepChange(3)}
+              onClick={handleContinueFromProfile}
               className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
               data-testid="onboarding-continue-button"
             >
@@ -403,130 +541,100 @@ export default function OnboardingPage() {
           </div>
 
           <div className="space-y-4">
-            {/* Music Platforms */}
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-wider text-slate-500">
                 Music Platforms
               </p>
 
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-green-400">●</span> Spotify
-                </span>
-                <input
-                  type="url"
-                  value={links.spotify}
-                  onChange={(e) =>
-                    setLinks({ ...links, spotify: e.target.value })
-                  }
-                  placeholder="https://open.spotify.com/artist/..."
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-spotify-input"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-orange-400">●</span> SoundCloud
-                </span>
-                <input
-                  type="url"
-                  value={links.soundcloud}
-                  onChange={(e) =>
-                    setLinks({ ...links, soundcloud: e.target.value })
-                  }
-                  placeholder="https://soundcloud.com/your-profile"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-soundcloud-input"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-teal-400">●</span> Bandcamp
-                </span>
-                <input
-                  type="url"
-                  value={links.bandcamp}
-                  onChange={(e) =>
-                    setLinks({ ...links, bandcamp: e.target.value })
-                  }
-                  placeholder="https://yourname.bandcamp.com"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-bandcamp-input"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-pink-400">●</span> Apple Music
-                </span>
-                <input
-                  type="url"
-                  value={links.appleMusic}
-                  onChange={(e) =>
-                    setLinks({ ...links, appleMusic: e.target.value })
-                  }
-                  placeholder="https://music.apple.com/artist/..."
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-apple-music-input"
-                />
-              </label>
+              {[
+                {
+                  key: "spotify",
+                  label: "Spotify",
+                  color: "text-green-400",
+                  placeholder: "https://open.spotify.com/artist/...",
+                },
+                {
+                  key: "soundcloud",
+                  label: "SoundCloud",
+                  color: "text-orange-400",
+                  placeholder: "https://soundcloud.com/your-profile",
+                },
+                {
+                  key: "bandcamp",
+                  label: "Bandcamp",
+                  color: "text-teal-400",
+                  placeholder: "https://yourname.bandcamp.com",
+                },
+                {
+                  key: "appleMusic",
+                  label: "Apple Music",
+                  color: "text-pink-400",
+                  placeholder: "https://music.apple.com/artist/...",
+                },
+              ].map((platform) => (
+                <label
+                  key={platform.key}
+                  className="flex flex-col gap-2 text-sm text-slate-200"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={platform.color}>●</span> {platform.label}
+                  </span>
+                  <input
+                    type="url"
+                    value={links[platform.key as keyof typeof links]}
+                    onChange={(e) =>
+                      setLinks({ ...links, [platform.key]: e.target.value })
+                    }
+                    placeholder={platform.placeholder}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  />
+                </label>
+              ))}
             </div>
 
-            {/* Social Links */}
             <div className="space-y-3 pt-4 border-t border-white/10">
               <p className="text-xs uppercase tracking-wider text-slate-500">
                 Social Media <span className="text-slate-600">(optional)</span>
               </p>
 
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-purple-400">●</span> Instagram
-                </span>
-                <input
-                  type="url"
-                  value={links.instagram}
-                  onChange={(e) =>
-                    setLinks({ ...links, instagram: e.target.value })
-                  }
-                  placeholder="https://instagram.com/yourhandle"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-instagram-input"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-red-400">●</span> YouTube
-                </span>
-                <input
-                  type="url"
-                  value={links.youtube}
-                  onChange={(e) =>
-                    setLinks({ ...links, youtube: e.target.value })
-                  }
-                  placeholder="https://youtube.com/@yourchannel"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-youtube-input"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-sm text-slate-200">
-                <span className="flex items-center gap-2">
-                  <span className="text-blue-400">●</span> Website
-                </span>
-                <input
-                  type="url"
-                  value={links.website}
-                  onChange={(e) =>
-                    setLinks({ ...links, website: e.target.value })
-                  }
-                  placeholder="https://yourwebsite.com"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-                  data-testid="onboarding-website-input"
-                />
-              </label>
+              {[
+                {
+                  key: "instagram",
+                  label: "Instagram",
+                  color: "text-purple-400",
+                  placeholder: "https://instagram.com/yourhandle",
+                },
+                {
+                  key: "youtube",
+                  label: "YouTube",
+                  color: "text-red-400",
+                  placeholder: "https://youtube.com/@yourchannel",
+                },
+                {
+                  key: "website",
+                  label: "Website",
+                  color: "text-blue-400",
+                  placeholder: "https://yourwebsite.com",
+                },
+              ].map((platform) => (
+                <label
+                  key={platform.key}
+                  className="flex flex-col gap-2 text-sm text-slate-200"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={platform.color}>●</span> {platform.label}
+                  </span>
+                  <input
+                    type="url"
+                    value={links[platform.key as keyof typeof links]}
+                    onChange={(e) =>
+                      setLinks({ ...links, [platform.key]: e.target.value })
+                    }
+                    placeholder={platform.placeholder}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  />
+                </label>
+              ))}
             </div>
           </div>
 
@@ -540,7 +648,6 @@ export default function OnboardingPage() {
             <button
               onClick={() => handleStepChange(4)}
               className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
-              data-testid="onboarding-links-continue-button"
             >
               Continue →
             </button>
@@ -548,7 +655,7 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 4: Choose Plan - WITH DIRECT TIER SELECTION */}
+      {/* Step 4: Choose Plan */}
       {step === 4 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div>
@@ -590,7 +697,7 @@ export default function OnboardingPage() {
                   plan.highlight
                     ? "border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20"
                     : "border-white/10 bg-white/5 hover:bg-white/10"
-                } ${startingCheckout === plan.tier ? "opacity-70" : ""} disabled:cursor-wait`}
+                } disabled:cursor-wait`}
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -606,7 +713,7 @@ export default function OnboardingPage() {
                   <p className="text-xs text-slate-400 mt-0.5">{plan.desc}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="shrink-0 text-sm font-semibold text-emerald-400">
+                  <span className="text-sm font-semibold text-emerald-400">
                     {plan.price}
                   </span>
                   {startingCheckout === plan.tier ? (
@@ -656,10 +763,21 @@ export default function OnboardingPage() {
             </h2>
             <p className="mt-3 text-slate-300">
               {artistName ? `Welcome, ${artistName}.` : "Welcome."} Your
-              Verified Sound A&R profile is ready. Head to your dashboard to
-              upload press images and download your EPK.
+              Verified Sound A&R profile is ready.
             </p>
           </div>
+
+          {/* EPK Status Warning */}
+          {!bio.trim() && (
+            <div className="rounded-xl border border-amber-500/50 bg-amber-500/10 p-4 text-left">
+              <p className="text-sm text-amber-300">
+                <span className="font-semibold">Note:</span> Your EPK is
+                incomplete. Add a bio in Settings to enable your Electronic
+                Press Kit.
+              </p>
+            </div>
+          )}
+
           <ul className="text-left space-y-2 text-sm text-slate-300">
             {[
               "Upload your press images",
