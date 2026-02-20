@@ -9,11 +9,20 @@ import { trackEvent } from "@/lib/analytics/trackEvent";
 import Link from "next/link";
 
 const GENRES = [
-  "House", "EDM", "Afro", "Disco", "Soulful", "Trance",
-  "Hip-Hop", "R&B", "Pop", "Electronic", "Other",
+  "House",
+  "EDM",
+  "Afro",
+  "Disco",
+  "Soulful",
+  "Trance",
+  "Hip-Hop",
+  "R&B",
+  "Pop",
+  "Electronic",
+  "Other",
 ];
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 function ProgressBar({ step }: { step: number }) {
   return (
@@ -42,6 +51,17 @@ export default function OnboardingPage() {
   const [genre, setGenre] = useState("");
   const [bio, setBio] = useState("");
 
+  // Social/Music links
+  const [links, setLinks] = useState({
+    spotify: "",
+    soundcloud: "",
+    bandcamp: "",
+    appleMusic: "",
+    instagram: "",
+    youtube: "",
+    website: "",
+  });
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -50,7 +70,7 @@ export default function OnboardingPage() {
   // Check if user already completed onboarding - redirect to dashboard
   useEffect(() => {
     if (loading || !user) return;
-    
+
     const checkOnboardingStatus = async () => {
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -63,13 +83,24 @@ export default function OnboardingPage() {
         if (userData?.artistName) setArtistName(userData.artistName);
         if (userData?.genre) setGenre(userData.genre);
         if (userData?.bio) setBio(userData.bio);
+        if (userData?.links) {
+          setLinks({
+            spotify: userData.links.spotify || "",
+            soundcloud: userData.links.soundcloud || "",
+            bandcamp: userData.links.bandcamp || "",
+            appleMusic: userData.links.appleMusic || "",
+            instagram: userData.links.instagram || "",
+            youtube: userData.links.youtube || "",
+            website: userData.links.website || "",
+          });
+        }
       } catch (e) {
         console.error("Error checking onboarding status", e);
       } finally {
         setCheckingOnboarding(false);
       }
     };
-    
+
     checkOnboardingStatus();
   }, [user, loading, router]);
 
@@ -83,17 +114,32 @@ export default function OnboardingPage() {
           artistName: artistName.trim() || null,
           genre: genre || null,
           bio: bio.trim() || null,
+          links: {
+            spotify: links.spotify.trim() || null,
+            soundcloud: links.soundcloud.trim() || null,
+            bandcamp: links.bandcamp.trim() || null,
+            appleMusic: links.appleMusic.trim() || null,
+            instagram: links.instagram.trim() || null,
+            youtube: links.youtube.trim() || null,
+            website: links.website.trim() || null,
+          },
           onboardingCompleted: true,
           onboardingCompletedAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
-        { merge: true }
+        { merge: true },
       );
       // Track onboarding completion
-      trackEvent("onboarding_completed", user.uid, { 
+      trackEvent("onboarding_completed", user.uid, {
         hasArtistName: !!artistName.trim(),
         hasGenre: !!genre,
         hasBio: !!bio.trim(),
+        hasLinks: !!(
+          links.spotify ||
+          links.soundcloud ||
+          links.bandcamp ||
+          links.appleMusic
+        ),
       });
     } catch (e) {
       console.error("Failed to save profile", e);
@@ -114,14 +160,17 @@ export default function OnboardingPage() {
     await setDoc(
       doc(db, "users", user.uid),
       { onboardingCompleted: true, onboardingCompletedAt: serverTimestamp() },
-      { merge: true }
+      { merge: true },
     );
     router.push("/dashboard");
   };
 
   // Track step changes
   const handleStepChange = (newStep: number) => {
-    trackEvent("onboarding_step_completed", user?.uid, { step: step, nextStep: newStep });
+    trackEvent("onboarding_step_completed", user?.uid, {
+      step: step,
+      nextStep: newStep,
+    });
     setStep(newStep);
   };
 
@@ -138,7 +187,10 @@ export default function OnboardingPage() {
       {/* Progress */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400" data-testid="onboarding-step-indicator">
+          <p
+            className="text-xs uppercase tracking-[0.2em] text-slate-400"
+            data-testid="onboarding-step-indicator"
+          >
             Step {step} of {TOTAL_STEPS}
           </p>
           <button
@@ -157,10 +209,13 @@ export default function OnboardingPage() {
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div className="text-4xl">👋</div>
           <div>
-            <h1 className="text-3xl font-bold text-white">Welcome to Verified Sound A&R</h1>
+            <h1 className="text-3xl font-bold text-white">
+              Welcome to Verified Sound A&R
+            </h1>
             <p className="mt-3 text-slate-300">
-              You&apos;re now part of an executive-grade representation platform built
-              for label-ready artists. Let&apos;s get you set up in 3 quick steps.
+              You&apos;re now part of an executive-grade representation platform
+              built for label-ready artists. Let&apos;s get you set up in 3
+              quick steps.
             </p>
           </div>
           <ul className="space-y-2 text-sm text-slate-300">
@@ -188,9 +243,12 @@ export default function OnboardingPage() {
       {step === 2 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-white">Set up your artist profile</h2>
+            <h2 className="text-2xl font-bold text-white">
+              Set up your artist profile
+            </h2>
             <p className="mt-2 text-sm text-slate-400">
-              This helps us personalize your EPK and A&R outreach. You can edit anytime.
+              This helps us personalize your EPK and A&R outreach. You can edit
+              anytime.
             </p>
           </div>
 
@@ -217,7 +275,9 @@ export default function OnboardingPage() {
               >
                 <option value="">Select your genre</option>
                 {GENRES.map((g) => (
-                  <option key={g} value={g}>{g}</option>
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
                 ))}
               </select>
             </label>
@@ -233,7 +293,9 @@ export default function OnboardingPage() {
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
                 data-testid="onboarding-bio-textarea"
               />
-              <span className="text-xs text-slate-500 text-right">{bio.length}/300</span>
+              <span className="text-xs text-slate-500 text-right">
+                {bio.length}/300
+              </span>
             </label>
           </div>
 
@@ -246,7 +308,7 @@ export default function OnboardingPage() {
               ← Back
             </button>
             <button
-              onClick={() => setStep(3)}
+              onClick={() => handleStepChange(3)}
               className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
               data-testid="onboarding-continue-button"
             >
@@ -256,8 +318,167 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 3: Choose Plan */}
+      {/* Step 3: Music & Social Links */}
       {step === 3 && (
+        <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">
+              Add your music links
+            </h2>
+            <p className="mt-2 text-sm text-slate-400">
+              Help labels find your music. These appear on your EPK and help A&R
+              reps discover your sound.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Music Platforms */}
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-wider text-slate-500">
+                Music Platforms
+              </p>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-green-400">●</span> Spotify
+                </span>
+                <input
+                  type="url"
+                  value={links.spotify}
+                  onChange={(e) =>
+                    setLinks({ ...links, spotify: e.target.value })
+                  }
+                  placeholder="https://open.spotify.com/artist/..."
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-spotify-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-orange-400">●</span> SoundCloud
+                </span>
+                <input
+                  type="url"
+                  value={links.soundcloud}
+                  onChange={(e) =>
+                    setLinks({ ...links, soundcloud: e.target.value })
+                  }
+                  placeholder="https://soundcloud.com/your-profile"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-soundcloud-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-teal-400">●</span> Bandcamp
+                </span>
+                <input
+                  type="url"
+                  value={links.bandcamp}
+                  onChange={(e) =>
+                    setLinks({ ...links, bandcamp: e.target.value })
+                  }
+                  placeholder="https://yourname.bandcamp.com"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-bandcamp-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-pink-400">●</span> Apple Music
+                </span>
+                <input
+                  type="url"
+                  value={links.appleMusic}
+                  onChange={(e) =>
+                    setLinks({ ...links, appleMusic: e.target.value })
+                  }
+                  placeholder="https://music.apple.com/artist/..."
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-apple-music-input"
+                />
+              </label>
+            </div>
+
+            {/* Social Links */}
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <p className="text-xs uppercase tracking-wider text-slate-500">
+                Social Media <span className="text-slate-600">(optional)</span>
+              </p>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-purple-400">●</span> Instagram
+                </span>
+                <input
+                  type="url"
+                  value={links.instagram}
+                  onChange={(e) =>
+                    setLinks({ ...links, instagram: e.target.value })
+                  }
+                  placeholder="https://instagram.com/yourhandle"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-instagram-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-red-400">●</span> YouTube
+                </span>
+                <input
+                  type="url"
+                  value={links.youtube}
+                  onChange={(e) =>
+                    setLinks({ ...links, youtube: e.target.value })
+                  }
+                  placeholder="https://youtube.com/@yourchannel"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-youtube-input"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-200">
+                <span className="flex items-center gap-2">
+                  <span className="text-blue-400">●</span> Website
+                </span>
+                <input
+                  type="url"
+                  value={links.website}
+                  onChange={(e) =>
+                    setLinks({ ...links, website: e.target.value })
+                  }
+                  placeholder="https://yourwebsite.com"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+                  data-testid="onboarding-website-input"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setStep(2)}
+              className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => handleStepChange(4)}
+              className="flex-1 rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white hover:bg-emerald-400 transition-colors"
+              data-testid="onboarding-links-continue-button"
+            >
+              Continue →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Choose Plan */}
+      {step === 4 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-white">Choose your plan</h2>
@@ -297,14 +518,20 @@ export default function OnboardingPage() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-white">{plan.tier}</span>
+                    <span className="font-semibold text-white">
+                      {plan.tier}
+                    </span>
                     {plan.highlight && (
-                      <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">POPULAR</span>
+                      <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                        POPULAR
+                      </span>
                     )}
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">{plan.desc}</p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-emerald-400">{plan.price}</span>
+                <span className="shrink-0 text-sm font-semibold text-emerald-400">
+                  {plan.price}
+                </span>
               </div>
             ))}
           </div>
@@ -318,13 +545,13 @@ export default function OnboardingPage() {
             </Link>
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 ← Back
               </button>
               <button
-                onClick={() => setStep(4)}
+                onClick={() => handleStepChange(5)}
                 className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 Skip for now →
@@ -334,17 +561,20 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 4: Complete */}
-      {step === 4 && (
+      {/* Step 5: Complete */}
+      {step === 5 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl">
             🎵
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">You&apos;re all set!</h2>
+            <h2 className="text-2xl font-bold text-white">
+              You&apos;re all set!
+            </h2>
             <p className="mt-3 text-slate-300">
-              {artistName ? `Welcome, ${artistName}.` : "Welcome."} Your Verified Sound A&R profile is ready.
-              Head to your dashboard to upload press images and download your EPK.
+              {artistName ? `Welcome, ${artistName}.` : "Welcome."} Your
+              Verified Sound A&R profile is ready. Head to your dashboard to
+              upload press images and download your EPK.
             </p>
           </div>
           <ul className="text-left space-y-2 text-sm text-slate-300">
