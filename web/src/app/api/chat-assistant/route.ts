@@ -82,10 +82,15 @@ export async function POST(req: Request) {
   try {
     // Check daily limit first (cost protection)
     if (!checkDailyLimit()) {
-      console.warn(`[chat-assistant] Daily limit reached: ${dailyUsage.count}/${dailyUsage.maxDaily}`);
+      console.warn(
+        `[chat-assistant] Daily limit reached: ${dailyUsage.count}/${dailyUsage.maxDaily}`,
+      );
       return NextResponse.json(
-        { ok: false, error: "Chat service is at capacity. Please try again tomorrow." },
-        { status: 503 }
+        {
+          ok: false,
+          error: "Chat service is at capacity. Please try again tomorrow.",
+        },
+        { status: 503 },
       );
     }
 
@@ -95,7 +100,7 @@ export async function POST(req: Request) {
     if (!limit.allowed) {
       return NextResponse.json(
         { ok: false, error: "Rate limit exceeded. Please slow down." },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -104,7 +109,7 @@ export async function POST(req: Request) {
     if (!hourlyLimit.allowed) {
       return NextResponse.json(
         { ok: false, error: "Hourly limit exceeded. Please try again later." },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -115,14 +120,17 @@ export async function POST(req: Request) {
     if (!userMessage || typeof userMessage !== "string") {
       return NextResponse.json(
         { ok: false, error: "Message is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (userMessage.length > 1000) {
       return NextResponse.json(
-        { ok: false, error: "Message too long. Please keep it under 1000 characters." },
-        { status: 400 }
+        {
+          ok: false,
+          error: "Message too long. Please keep it under 1000 characters.",
+        },
+        { status: 400 },
       );
     }
 
@@ -148,7 +156,9 @@ export async function POST(req: Request) {
     // Send message and get response
     const result = await chat.sendMessage(userMessage);
     const response = result.response;
-    const assistantReply = response.text() || "I'm sorry, I couldn't process that. Please try again.";
+    const assistantReply =
+      response.text() ||
+      "I'm sorry, I couldn't process that. Please try again.";
 
     // Update history
     history.push({ role: "user", parts: [{ text: userMessage }] });
@@ -173,39 +183,59 @@ export async function POST(req: Request) {
       reply: assistantReply,
     });
   } catch (error: any) {
-      const errorMsg = error?.message || String(error);
-      console.error(`[chat-assistant] requestId=${requestId} error=${errorMsg}`, error);
+    const errorMsg = error?.message || String(error);
+    console.error(
+      `[chat-assistant] requestId=${requestId} error=${errorMsg}`,
+      error,
+    );
 
-      // Determine user-friendly error message
-      let errorMessage = "Failed to process message. Please try again.";
+    // Determine user-friendly error message
+    let errorMessage = "Failed to process message. Please try again.";
 
-      if (errorMsg.includes("API_KEY") || errorMsg.includes("API key") || errorMsg.includes("PERMISSION_DENIED")) {
-        errorMessage = "Chat service is temporarily unavailable. (Auth issue)";
-      } else if (errorMsg.includes("quota") || errorMsg.includes("RATE_LIMIT") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
-        errorMessage = "Service is busy. Please try again in a moment.";
-      } else if (errorMsg.includes("not found") || errorMsg.includes("404") || errorMsg.includes("NOT_FOUND")) {
-        errorMessage = "Chat model not available. Please try again later.";
-      } else if (errorMsg.includes("blocked") || errorMsg.includes("safety") || errorMsg.includes("SAFETY")) {
-        errorMessage = "Message could not be processed. Please rephrase your question.";
-      } else if (errorMsg.includes("INVALID_ARGUMENT")) {
-        errorMessage = "Invalid request. Please try a different message.";
-      }
+    if (
+      errorMsg.includes("API_KEY") ||
+      errorMsg.includes("API key") ||
+      errorMsg.includes("PERMISSION_DENIED")
+    ) {
+      errorMessage = "Chat service is temporarily unavailable. (Auth issue)";
+    } else if (
+      errorMsg.includes("quota") ||
+      errorMsg.includes("RATE_LIMIT") ||
+      errorMsg.includes("RESOURCE_EXHAUSTED")
+    ) {
+      errorMessage = "Service is busy. Please try again in a moment.";
+    } else if (
+      errorMsg.includes("not found") ||
+      errorMsg.includes("404") ||
+      errorMsg.includes("NOT_FOUND")
+    ) {
+      errorMessage = "Chat model not available. Please try again later.";
+    } else if (
+      errorMsg.includes("blocked") ||
+      errorMsg.includes("safety") ||
+      errorMsg.includes("SAFETY")
+    ) {
+      errorMessage =
+        "Message could not be processed. Please rephrase your question.";
+    } else if (errorMsg.includes("INVALID_ARGUMENT")) {
+      errorMessage = "Invalid request. Please try a different message.";
+    }
 
-      // Log full error for debugging
-      console.error(`[chat-assistant] Full error details:`, JSON.stringify({
+    // Log full error for debugging
+    console.error(
+      `[chat-assistant] Full error details:`,
+      JSON.stringify({
         requestId,
         message: errorMsg,
         name: error?.name,
         code: error?.code,
         status: error?.status,
-      }));
+      }),
+    );
 
-      Fix 1: web/src/app/api/chat-assistant/route.ts
-      Make sure the file ends with TWO closing braces:
-
-          return NextResponse.json(
-            { ok: false, error: errorMessage },
-            { status: 500 }
-          );
-        }
-      }
+    return NextResponse.json(
+      { ok: false, error: errorMessage },
+      { status: 500 },
+    );
+  }
+}
