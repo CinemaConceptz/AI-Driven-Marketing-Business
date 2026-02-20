@@ -78,7 +78,7 @@ function getGeminiClient() {
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
-  
+
   try {
     // Check daily limit first (cost protection)
     if (!checkDailyLimit()) {
@@ -128,10 +128,10 @@ export async function POST(req: Request) {
 
     // Get or create session history
     let history = sessionHistory.get(sessionId) || [];
-    
+
     // Initialize Gemini
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       systemInstruction: SYSTEM_PROMPT,
     });
@@ -153,12 +153,12 @@ export async function POST(req: Request) {
     // Update history
     history.push({ role: "user", parts: [{ text: userMessage }] });
     history.push({ role: "model", parts: [{ text: assistantReply }] });
-    
+
     // Keep only last 10 exchanges (20 messages)
     if (history.length > 20) {
       history = history.slice(-20);
     }
-    
+
     // Save updated history
     sessionHistory.set(sessionId, history);
 
@@ -173,36 +173,35 @@ export async function POST(req: Request) {
       reply: assistantReply,
     });
   } catch (error: any) {
-    const errorMsg = error?.message || String(error);
-    console.error(`[chat-assistant] requestId=${requestId} error=${errorMsg}`, error);
+      const errorMsg = error?.message || String(error);
+      console.error(`[chat-assistant] requestId=${requestId} error=${errorMsg}`, error);
 
-    // Determine user-friendly error message
-    let errorMessage = "Failed to process message. Please try again.";
-    
-    if (errorMsg.includes("API_KEY") || errorMsg.includes("API key") || errorMsg.includes("PERMISSION_DENIED")) {
-      errorMessage = "Chat service is temporarily unavailable. (Auth issue)";
-    } else if (errorMsg.includes("quota") || errorMsg.includes("RATE_LIMIT") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
-      errorMessage = "Service is busy. Please try again in a moment.";
-    } else if (errorMsg.includes("not found") || errorMsg.includes("404") || errorMsg.includes("NOT_FOUND")) {
-      errorMessage = "Chat model not available. Please try again later.";
-    } else if (errorMsg.includes("blocked") || errorMsg.includes("safety") || errorMsg.includes("SAFETY")) {
-      errorMessage = "Message could not be processed. Please rephrase your question.";
-    } else if (errorMsg.includes("INVALID_ARGUMENT")) {
-      errorMessage = "Invalid request. Please try a different message.";
+      // Determine user-friendly error message
+      let errorMessage = "Failed to process message. Please try again.";
+
+      if (errorMsg.includes("API_KEY") || errorMsg.includes("API key") || errorMsg.includes("PERMISSION_DENIED")) {
+        errorMessage = "Chat service is temporarily unavailable. (Auth issue)";
+      } else if (errorMsg.includes("quota") || errorMsg.includes("RATE_LIMIT") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
+        errorMessage = "Service is busy. Please try again in a moment.";
+      } else if (errorMsg.includes("not found") || errorMsg.includes("404") || errorMsg.includes("NOT_FOUND")) {
+        errorMessage = "Chat model not available. Please try again later.";
+      } else if (errorMsg.includes("blocked") || errorMsg.includes("safety") || errorMsg.includes("SAFETY")) {
+        errorMessage = "Message could not be processed. Please rephrase your question.";
+      } else if (errorMsg.includes("INVALID_ARGUMENT")) {
+        errorMessage = "Invalid request. Please try a different message.";
+      }
+
+      // Log full error for debugging
+      console.error(`[chat-assistant] Full error details:`, JSON.stringify({
+        requestId,
+        message: errorMsg,
+        name: error?.name,
+        code: error?.code,
+        status: error?.status,
+      }));
+
+      return NextResponse.json(
+        { ok: false, error: errorMessage },
+        { status: 500 }
+      );
     }
-
-    // Log full error for debugging
-    console.error(`[chat-assistant] Full error details:`, JSON.stringify({
-      requestId,
-      message: errorMsg,
-      name: error?.name,
-      code: error?.code,
-      status: error?.status,
-    }));
-
-    return NextResponse.json(
-      { ok: false, error: errorMessage },
-      { status: 500 }
-    );
-  }
-}
