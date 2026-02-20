@@ -426,8 +426,8 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 3: Choose Plan */}
-      {step === 3 && (
+      {/* Step 4: Choose Plan */}
+      {step === 4 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-white">Choose your plan</h2>
@@ -488,13 +488,13 @@ export default function OnboardingPage() {
             </Link>
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 ← Back
               </button>
               <button
-                onClick={() => setStep(4)}
+                onClick={() => handleStepChange(5)}
                 className="flex-1 rounded-full border border-white/10 px-6 py-3 text-sm text-slate-300 hover:bg-white/5 transition-colors"
               >
                 Skip for now →
