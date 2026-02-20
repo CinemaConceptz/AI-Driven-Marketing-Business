@@ -19,6 +19,10 @@ const GENRES = [
   "R&B",
   "Pop",
   "Electronic",
+  "Techno",
+  "Deep House",
+  "Drum & Bass",
+  "Dubstep",
   "Other",
 ];
 
@@ -45,10 +49,11 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  const [startingCheckout, setStartingCheckout] = useState<string | null>(null);
 
   // Profile fields
   const [artistName, setArtistName] = useState("");
-  const [genre, setGenre] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [bio, setBio] = useState("");
 
   // Social/Music links
@@ -81,7 +86,11 @@ export default function OnboardingPage() {
         }
         // Pre-fill existing profile data if available
         if (userData?.artistName) setArtistName(userData.artistName);
-        if (userData?.genre) setGenre(userData.genre);
+        if (userData?.genres && Array.isArray(userData.genres)) {
+          setSelectedGenres(userData.genres);
+        } else if (userData?.genre) {
+          setSelectedGenres([userData.genre]);
+        }
         if (userData?.bio) setBio(userData.bio);
         if (userData?.links) {
           setLinks({
@@ -104,6 +113,12 @@ export default function OnboardingPage() {
     checkOnboardingStatus();
   }, [user, loading, router]);
 
+  const toggleGenre = (genre: string) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
+    );
+  };
+
   const saveProfile = async () => {
     if (!user) return;
     setSaving(true);
@@ -112,7 +127,8 @@ export default function OnboardingPage() {
         doc(db, "users", user.uid),
         {
           artistName: artistName.trim() || null,
-          genre: genre || null,
+          genres: selectedGenres.length > 0 ? selectedGenres : null,
+          genre: selectedGenres[0] || null, // Keep primary genre for backwards compatibility
           bio: bio.trim() || null,
           links: {
             spotify: links.spotify.trim() || null,
@@ -132,7 +148,7 @@ export default function OnboardingPage() {
       // Track onboarding completion
       trackEvent("onboarding_completed", user.uid, {
         hasArtistName: !!artistName.trim(),
-        hasGenre: !!genre,
+        genreCount: selectedGenres.length,
         hasBio: !!bio.trim(),
         hasLinks: !!(
           links.spotify ||
@@ -172,6 +188,42 @@ export default function OnboardingPage() {
       nextStep: newStep,
     });
     setStep(newStep);
+  };
+
+  // Handle tier selection and checkout
+  const handleSelectTier = async (tier: string) => {
+    if (!user) return;
+    setStartingCheckout(tier);
+
+    try {
+      // Save profile first
+      await saveProfile();
+
+      const token = await user.getIdToken();
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tier,
+          billingPeriod: "monthly",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout error:", data.error);
+        setStartingCheckout(null);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      setStartingCheckout(null);
+    }
   };
 
   if (loading || !user || checkingOnboarding) {
@@ -265,36 +317,55 @@ export default function OnboardingPage() {
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm text-slate-200">
-              Primary Genre
-              <select
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                className="rounded-xl border border-white/10 bg-[#0a1628] px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
-                data-testid="onboarding-genre-select"
-              >
-                <option value="">Select your genre</option>
-                {GENRES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
+            {/* Multi-select Genre Checkboxes */}
+            <div className="flex flex-col gap-2 text-sm text-slate-200">
+              <span>
+                Genres{" "}
+                <span className="text-slate-500">(select all that apply)</span>
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1">
+                {GENRES.map((genre) => (
+                  <label
+                    key={genre}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                      selectedGenres.includes(genre)
+                        ? "bg-emerald-500/20 border border-emerald-500/50"
+                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedGenres.includes(genre)}
+                      onChange={() => toggleGenre(genre)}
+                      className="w-4 h-4 accent-emerald-500"
+                      data-testid={`onboarding-genre-${genre.toLowerCase().replace(/\s+/g, "-")}`}
+                    />
+                    <span className="text-sm">{genre}</span>
+                  </label>
                 ))}
-              </select>
-            </label>
+              </div>
+              {selectedGenres.length > 0 && (
+                <p className="text-xs text-emerald-400 mt-1">
+                  Selected: {selectedGenres.join(", ")}
+                </p>
+              )}
+            </div>
 
             <label className="flex flex-col gap-2 text-sm text-slate-200">
-              Short Bio <span className="text-slate-500">(optional)</span>
+              Bio <span className="text-slate-500">(optional)</span>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell A&R reps about your sound and career so far..."
-                rows={3}
-                maxLength={300}
+                placeholder="Tell A&R reps about your sound, career highlights, and what makes you unique..."
+                rows={5}
+                maxLength={900}
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
                 data-testid="onboarding-bio-textarea"
               />
-              <span className="text-xs text-slate-500 text-right">
-                {bio.length}/300
+              <span
+                className={`text-xs text-right ${bio.length > 800 ? "text-amber-400" : "text-slate-500"}`}
+              >
+                {bio.length}/900 characters
               </span>
             </label>
           </div>
@@ -477,49 +548,54 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Step 4: Choose Plan */}
+      {/* Step 4: Choose Plan - WITH DIRECT TIER SELECTION */}
       {step === 4 && (
         <div className="glass-panel rounded-3xl px-8 py-10 space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-white">Choose your plan</h2>
             <p className="mt-2 text-sm text-slate-400">
-              Start with any tier. You can upgrade anytime from your dashboard.
+              Select a tier to start your subscription. You can upgrade anytime.
             </p>
           </div>
 
           <div className="space-y-3">
             {[
               {
-                tier: "Tier I",
+                tier: "tier1",
+                label: "Tier I",
                 price: "$39/mo",
                 desc: "EPK hosting, 3 press images, basic PDF, A&R review",
                 highlight: false,
               },
               {
-                tier: "Tier II",
+                tier: "tier2",
+                label: "Tier II",
                 price: "$89/mo",
                 desc: "Everything in Tier I + 10 images, priority review, strategy call",
                 highlight: true,
               },
               {
-                tier: "Tier III",
+                tier: "tier3",
+                label: "Tier III",
                 price: "$139/mo",
                 desc: "Everything in Tier II + dedicated A&R, label showcases, 24/7 support",
                 highlight: false,
               },
             ].map((plan) => (
-              <div
+              <button
                 key={plan.tier}
-                className={`flex items-center justify-between rounded-2xl border px-5 py-4 ${
+                onClick={() => handleSelectTier(plan.tier)}
+                disabled={startingCheckout !== null}
+                className={`w-full flex items-center justify-between rounded-2xl border px-5 py-4 text-left transition-all ${
                   plan.highlight
-                    ? "border-emerald-500/40 bg-emerald-500/10"
-                    : "border-white/10 bg-white/5"
-                }`}
+                    ? "border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20"
+                    : "border-white/10 bg-white/5 hover:bg-white/10"
+                } ${startingCheckout === plan.tier ? "opacity-70" : ""} disabled:cursor-wait`}
               >
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-white">
-                      {plan.tier}
+                      {plan.label}
                     </span>
                     {plan.highlight && (
                       <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
@@ -529,19 +605,26 @@ export default function OnboardingPage() {
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">{plan.desc}</p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-emerald-400">
-                  {plan.price}
-                </span>
-              </div>
+                <div className="flex items-center gap-3">
+                  <span className="shrink-0 text-sm font-semibold text-emerald-400">
+                    {plan.price}
+                  </span>
+                  {startingCheckout === plan.tier ? (
+                    <span className="text-xs text-slate-400">Loading...</span>
+                  ) : (
+                    <span className="text-xs text-slate-500">Select →</span>
+                  )}
+                </div>
+              </button>
             ))}
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 pt-2">
             <Link
               href="/pricing"
-              className="w-full rounded-full bg-emerald-500 px-6 py-3 text-center font-semibold text-white hover:bg-emerald-400 transition-colors"
+              className="w-full rounded-full border border-white/20 px-6 py-3 text-center text-sm text-slate-300 hover:bg-white/5 transition-colors"
             >
-              View full pricing & subscribe →
+              View full pricing details & annual plans →
             </Link>
             <div className="flex gap-3">
               <button
