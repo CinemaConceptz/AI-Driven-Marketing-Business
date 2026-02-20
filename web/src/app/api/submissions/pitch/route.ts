@@ -1,168 +1,276 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
-import { generatePitches, type PitchInput } from "@/lib/submissions/pitchGenerator";
-import { saveArtistPitch, getArtistPitch } from "@/lib/submissions/queries";
+import { verifyAuth, adminDb } from "@/lib/firebaseAdmin";
+import { getRequestIp, rateLimit } from "@/lib/rateLimit";
 
-// Verify user token
-async function verifyUser(req: Request): Promise<string | null> {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) return null;
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-  const token = authHeader.split("Bearer ")[1];
+type EpkContent = {
+  enhancedBio?: string;
+  tagline?: string;
+  styleDescription?: string;
+  highlights?: string[];
+};
 
-  try {
-    const { getAuth } = await import("firebase-admin/auth");
-    const decoded = await getAuth().verifyIdToken(token);
-    return decoded.uid;
-  } catch {
-    return null;
+type AudioTrack = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+type UserProfile = {
+  artistName?: string;
+  bio?: string;
+  genre?: string;
+  genres?: string[];
+  location?: string;
+  epkContent?: EpkContent;
+  audioTracks?: AudioTrack[];
+  links?: {
+    spotify?: string;
+    soundcloud?: string;
+    bandcamp?: string;
+    appleMusic?: string;
+  };
+  epkSlug?: string;
+  submissionPitch?: Pitch;
+};
+
+type Pitch = {
+  artistName: string;
+  genre: string;
+  hookLine: string;
+  shortPitch: string;
+  mediumPitch: string;
+  subjectLine: string;
+  trackUrl: string;
+  epkUrl: string;
+  generatedAt: string;
+};
+
+async function generateAIPitch(profile: UserProfile, baseUrl: string): Promise<Pitch> {
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error("AI service not configured");
   }
+
+  const artistName = profile.artistName || "Artist";
+  const genres = profile.genres?.length ? profile.genres : (profile.genre ? [profile.genre] : ["Electronic"]);
+  const genreText = genres.join(", ");
+  const location = profile.location || "";
+
+  // Use EPK content if available, otherwise use basic bio
+  const epk = profile.epkContent;
+  const bio = epk?.enhancedBio || profile.bio || "";
+  const tagline = epk?.tagline || "";
+  const styleDescription = epk?.styleDescription || "";
+  const highlights = epk?.highlights || [];
+
+  // Get track info
+  const tracks = profile.audioTracks || [];
+  const trackNames = tracks.map(t => t.name).join(", ");
+  const primaryTrackUrl = tracks[0]?.url || profile.links?.soundcloud || profile.links?.spotify || "";
+
+  // Get EPK URL
+  const epkUrl = profile.epkSlug ? `${baseUrl}/epk/${profile.epkSlug}` : `${baseUrl}/epk`;
+
+  // Build streaming links
+  const streamingLinks: string[] = [];
+  if (profile.links?.spotify) streamingLinks.push(`Spotify: ${profile.links.spotify}`);
+  if (profile.links?.soundcloud) streamingLinks.push(`SoundCloud: ${profile.links.soundcloud}`);
+  if (profile.links?.bandcamp) streamingLinks.push(`Bandcamp: ${profile.links.bandcamp}`);
+  if (profile.links?.appleMusic) streamingLinks.push(`Apple Music: ${profile.links.appleMusic}`);
+
+  const prompt = `You are an elite music industry PR specialist. Create compelling pitches for an artist to send to record labels.
+
+ARTIST INFORMATION:
+- Name: ${artistName}
+- Genres: ${genreText}
+- Location: ${location || "Not specified"}
+- Tagline: ${tagline || "N/A"}
+- Style: ${styleDescription || "N/A"}
+
+BIO:
+${bio || "No bio available"}
+
+${highlights.length > 0 ? `HIGHLIGHTS:\n${highlights.map(h => `- ${h}`).join("\n")}` : ""}
+
+MUSIC:
+${trackNames ? `Tracks: ${trackNames}` : "No tracks uploaded"}
+${streamingLinks.length > 0 ? `\nStreaming Links:\n${streamingLinks.join("\n")}` : ""}
+
+EPK Link: ${epkUrl}
+
+Generate the following pitches. Be professional, engaging, and make A&R reps want to listen. Use proper grammar and spelling.
+
+1. HOOK LINE (1 sentence, max 20 words):
+A compelling opening that grabs attention immediately.
+
+2. SUBJECT LINE (max 60 characters):
+Email subject that gets opened. Include artist name and genre hint.
+
+3. SHORT PITCH (80-100 words):
+Quick pitch for busy A&Rs. Include: who you are, your sound, why they should care, and a call to action.
+
+4. MEDIUM PITCH (250-300 words):
+Full pitch with: introduction, sound description, achievements/highlights, what you're looking for, links, and professional sign-off.
+
+Format your response EXACTLY like this:
+===HOOK===
+[hook line]
+===SUBJECT===
+[subject line]
+===SHORT===
+[short pitch]
+===MEDIUM===
+[medium pitch]`;
+
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: 1500,
+        temperature: 0.7,
+      },
+    }),
+  });
+
+  const data = await response.json();
+  const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+  // Parse the response
+  const parseSection = (marker: string, nextMarker?: string): string => {
+    const startIdx = result.indexOf(`===${marker}===`);
+    if (startIdx === -1) return "";
+    const contentStart = startIdx + `===${marker}===`.length;
+    const endIdx = nextMarker ? result.indexOf(`===${nextMarker}===`) : result.length;
+    return result.slice(contentStart, endIdx === -1 ? undefined : endIdx).trim();
+  };
+
+  const hookLine = parseSection("HOOK", "SUBJECT") || `${artistName} delivers fresh ${genreText} that commands attention.`;
+  const subjectLine = parseSection("SUBJECT", "SHORT") || `Demo Submission: ${artistName} - ${genres[0]} Artist`;
+  const shortPitch = parseSection("SHORT", "MEDIUM") || `${artistName} is a ${genreText} artist creating innovative sounds. Check out the attached demo and EPK for more information.`;
+  const mediumPitch = parseSection("MEDIUM") || shortPitch;
+
+  return {
+    artistName,
+    genre: genreText,
+    hookLine,
+    shortPitch,
+    mediumPitch,
+    subjectLine,
+    trackUrl: primaryTrackUrl,
+    epkUrl,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
-/**
- * GET /api/submissions/pitch
- * Get user's current pitch content
- */
+// GET: Retrieve existing pitch
 export async function GET(req: Request) {
-  const uid = await verifyUser(req);
-  if (!uid) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const pitch = await getArtistPitch(uid);
+    const { uid } = await verifyAuth(req);
 
-    if (!pitch) {
-      return NextResponse.json({
-        ok: true,
-        pitch: null,
-        message: "No pitch generated yet",
-      });
+    const userDoc = await adminDb.collection("users").doc(uid).get();
+    if (!userDoc.exists) {
+      return NextResponse.json({ ok: true, pitch: null });
     }
 
-    return NextResponse.json({
-      ok: true,
-      pitch,
-    });
+    const userData = userDoc.data();
+    const pitch = userData?.submissionPitch || null;
+
+    return NextResponse.json({ ok: true, pitch });
   } catch (error: any) {
-    console.error("[api/submissions/pitch] GET error:", error);
+    console.error("[submissions/pitch] GET error:", error);
     return NextResponse.json(
-      { ok: false, error: error?.message || "Failed to fetch pitch" },
-      { status: 500 }
+      { ok: false, error: error?.message || "Failed to get pitch" },
+      { status: error?.message === "Unauthorized" ? 401 : 500 }
     );
   }
 }
 
-/**
- * POST /api/submissions/pitch
- * Generate or regenerate pitch content
- */
+// POST: Generate new pitch
 export async function POST(req: Request) {
-  const uid = await verifyUser(req);
-  if (!uid) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await req.json();
-    const forceRegenerate = body.forceRegenerate === true;
+    const { uid } = await verifyAuth(req);
+    const ip = getRequestIp(req);
 
-    // Get user profile data
-    const userDoc = await adminDb.collection("users").doc(uid).get();
-    if (!userDoc.exists) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    // Rate limit: 10 pitch generations per day
+    const limit = rateLimit(`pitch:generate:${uid}:${ip}`, 10, 86400);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "Rate limit exceeded. Try again tomorrow." },
+        { status: 429 }
+      );
     }
 
-    const userData = userDoc.data()!;
-    const baseUrl = process.env.APP_BASE_URL || "https://verifiedsoundar.com";
-    const epkSlug = userData.epkSlug || uid;
+    const body = await req.json().catch(() => ({}));
+    const forceRegenerate = body?.forceRegenerate === true;
 
-    // Check if pitch already exists and is recent (within 24 hours)
-    if (!forceRegenerate) {
-      const existingPitch = await getArtistPitch(uid);
-      if (existingPitch) {
-        const hoursSinceGeneration = 
-          (Date.now() - existingPitch.generatedAt.getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceGeneration < 24) {
-          return NextResponse.json({
-            ok: true,
-            pitch: existingPitch,
-            cached: true,
-            message: "Using cached pitch (regenerate available in " + 
-              Math.round(24 - hoursSinceGeneration) + " hours)",
-          });
-        }
+    // Get user profile
+    const userDoc = await adminDb.collection("users").doc(uid).get();
+    if (!userDoc.exists) {
+      return NextResponse.json(
+        { ok: false, error: "User profile not found" },
+        { status: 404 }
+      );
+    }
+
+    const profile = userDoc.data() as UserProfile;
+
+    // Check if we have a cached pitch and don't need to regenerate
+    if (!forceRegenerate && profile.submissionPitch) {
+      const existingPitch = profile.submissionPitch as Pitch;
+      const generatedAt = new Date(existingPitch.generatedAt);
+      const hoursSinceGeneration = (Date.now() - generatedAt.getTime()) / (1000 * 60 * 60);
+
+      // Return cached pitch if less than 24 hours old
+      if (hoursSinceGeneration < 24) {
+        return NextResponse.json({
+          ok: true,
+          pitch: existingPitch,
+          cached: true,
+        });
       }
     }
 
-    // Build pitch input from user data
-    const pitchInput: PitchInput = {
-      artistName: userData.artistName || userData.displayName || "Artist",
-      genre: userData.genre || "Electronic",
-      subGenres: userData.subGenres || [],
-      bio: userData.bio || undefined,
-      trackTitle: body.trackTitle || userData.featuredTrack || undefined,
-      trackUrl: body.trackUrl || userData.featuredTrackUrl || userData.spotifyUrl || userData.soundcloudUrl || "",
-      spotifyUrl: userData.spotifyUrl || undefined,
-      soundcloudUrl: userData.soundcloudUrl || undefined,
-      monthlyListeners: userData.monthlyListeners || undefined,
-      pressHighlights: userData.pressHighlights || [],
-      achievements: userData.achievements || [],
-      epkUrl: `${baseUrl}/epk/${epkSlug}`,
-      contactEmail: userData.contactEmail || userData.email || "",
-    };
-
-    // Validate we have minimum required data
-    if (!pitchInput.trackUrl) {
-      return NextResponse.json({
-        ok: false,
-        error: "Missing track URL. Please add a Spotify or SoundCloud link in your profile.",
-      }, { status: 400 });
+    // Validate required fields
+    if (!profile.artistName) {
+      return NextResponse.json(
+        { ok: false, error: "Artist name is required. Please complete your profile." },
+        { status: 400 }
+      );
     }
 
-    if (!pitchInput.contactEmail) {
-      return NextResponse.json({
-        ok: false,
-        error: "Missing contact email. Please update your profile.",
-      }, { status: 400 });
+    // Check if EPK has been generated (recommended but not required)
+    if (!profile.epkContent?.enhancedBio && !profile.bio) {
+      return NextResponse.json(
+        { ok: false, error: "Please add a bio or generate your EPK first for a better pitch." },
+        { status: 400 }
+      );
     }
 
-    // Generate pitches
-    const generatedPitch = await generatePitches(pitchInput);
+    // Generate pitch
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://verifiedsoundar.com";
+    const pitch = await generateAIPitch(profile, baseUrl);
 
-    // Save to database
-    await saveArtistPitch(uid, {
-      artistName: pitchInput.artistName,
-      genre: pitchInput.genre,
-      subGenres: pitchInput.subGenres,
-      hookLine: generatedPitch.hookLine,
-      shortPitch: generatedPitch.shortPitch,
-      mediumPitch: generatedPitch.mediumPitch,
-      subjectLine: generatedPitch.subjectLine,
-      trackUrl: pitchInput.trackUrl,
-      epkUrl: pitchInput.epkUrl,
-      spotifyUrl: pitchInput.spotifyUrl,
-      soundcloudUrl: pitchInput.soundcloudUrl,
-      pressHighlights: pitchInput.pressHighlights,
-      monthlyListeners: pitchInput.monthlyListeners,
-      contactEmail: pitchInput.contactEmail,
-    });
-
-    // Fetch the saved pitch (to get timestamps)
-    const savedPitch = await getArtistPitch(uid);
+    // Save pitch to user profile
+    await adminDb.collection("users").doc(uid).set({
+      submissionPitch: pitch,
+      updatedAt: new Date(),
+    }, { merge: true });
 
     return NextResponse.json({
       ok: true,
-      pitch: savedPitch,
+      pitch,
       cached: false,
-      message: "Pitch generated successfully",
     });
+
   } catch (error: any) {
-    console.error("[api/submissions/pitch] POST error:", error);
+    console.error("[submissions/pitch] POST error:", error);
     return NextResponse.json(
       { ok: false, error: error?.message || "Failed to generate pitch" },
-      { status: 500 }
+      { status: error?.message === "Unauthorized" ? 401 : 500 }
     );
   }
 }
