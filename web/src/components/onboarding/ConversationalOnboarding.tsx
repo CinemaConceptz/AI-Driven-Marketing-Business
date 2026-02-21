@@ -403,9 +403,9 @@ export default function ConversationalOnboarding() {
   const handlePhase3Response = async (value: string) => {
     const questions = [
       { field: "soundDescription", next: "I can picture it! Now, name three artists your sound aligns with — this helps me understand your lane:" },
-      { field: "artistInfluences", next: "Are you currently releasing music independently?", type: "confirm", options: ["Yes, independently", "No, not yet"] },
-      { field: "releasingIndependently", next: "Have you ever released music under a record label before?", type: "confirm", options: ["Yes, I have", "No, this would be my first"] },
-      { field: "previousLabel", next: "Important question: Are you currently under any exclusive agreement with a label or distributor?", type: "confirm", options: ["Yes, I am", "No, I'm free"] },
+      { field: "artistInfluences", next: "Are you currently releasing music independently?", nextType: "confirm", nextOptions: ["Yes, independently", "No, not yet"] },
+      { field: "releasingIndependently", next: "Have you ever released music under a record label before?", nextType: "confirm", nextOptions: ["Yes, I have", "No, this would be my first"] },
+      { field: "previousLabel", next: "Important question: Are you currently under any exclusive agreement with a label or distributor?", nextType: "confirm", nextOptions: ["Yes, I am", "No, I'm free"] },
       { field: "exclusiveContract", next: null },
     ];
 
@@ -414,8 +414,9 @@ export default function ConversationalOnboarding() {
     // Process and save value
     if (q.field === "artistInfluences") {
       setData(prev => ({ ...prev, [q.field]: value.split(",").map(s => s.trim()) }));
-    } else if (q.type === "confirm") {
-      setData(prev => ({ ...prev, [q.field]: value.toLowerCase() === "yes" }));
+    } else if (questions[currentQuestion - 1]?.nextType === "confirm") {
+      // Previous question was a confirm type, so this value is yes/no
+      setData(prev => ({ ...prev, [q.field]: value.toLowerCase().includes("yes") }));
     } else {
       setData(prev => ({ ...prev, [q.field]: value }));
     }
@@ -430,17 +431,17 @@ export default function ConversationalOnboarding() {
 
     setCurrentQuestion(prev => prev + 1);
 
-    if (currentQuestion < questions.length - 1) {
-      const nextQ = questions[currentQuestion + 1];
-      if (nextQ.type === "confirm") {
+    // Use current question's next/nextType/nextOptions to show the next prompt
+    if (q.next) {
+      if (q.nextType === "confirm") {
         await typeMessage(
-          nextQ.next!,
-          nextQ.options?.map(o => ({ label: o, value: o })),
+          q.next,
+          q.nextOptions?.map(o => ({ label: o, value: o })),
           "select",
-          nextQ.field
+          questions[currentQuestion + 1]?.field
         );
       } else {
-        await typeMessage(nextQ.next!, undefined, "textarea", nextQ.field);
+        await typeMessage(q.next, undefined, "textarea", questions[currentQuestion + 1]?.field);
       }
     } else {
       // Move to Phase 4
@@ -467,15 +468,15 @@ export default function ConversationalOnboarding() {
       { field: "releasedTracks", next: "Great! Drop your Spotify artist link here (or type 'skip' if you don't have one):" },
       { field: "spotifyLink", next: "Apple Music link? (or 'skip'):" },
       { field: "appleMusicLink", next: "Beatport link? (or 'skip'):" },
-      { field: "beatportLink", next: "Do you have any releases coming up in the next 90 days?", type: "confirm", options: ["Yes, I do!", "Not at the moment"] },
-      { field: "upcomingReleases", next: "Last one for this section — do you have professionally mixed and mastered tracks ready to submit to labels?", type: "confirm", options: ["Yes, ready to go!", "Still working on it"] },
+      { field: "beatportLink", next: "Do you have any releases coming up in the next 90 days?", nextType: "confirm", nextOptions: ["Yes, I do!", "Not at the moment"] },
+      { field: "upcomingReleases", next: "Last one for this section — do you have professionally mixed and mastered tracks ready to submit to labels?", nextType: "confirm", nextOptions: ["Yes, ready to go!", "Still working on it"] },
       { field: "professionalMaterial", next: null },
     ];
 
     const q = questions[currentQuestion];
     
-    if (q.type === "confirm") {
-      setData(prev => ({ ...prev, [q.field]: value.toLowerCase() === "yes" }));
+    if (questions[currentQuestion - 1]?.nextType === "confirm") {
+      setData(prev => ({ ...prev, [q.field]: value.toLowerCase().includes("yes") }));
     } else {
       const cleanValue = value.toLowerCase() === "skip" ? "" : value;
       setData(prev => ({ ...prev, [q.field]: cleanValue }));
@@ -483,17 +484,17 @@ export default function ConversationalOnboarding() {
 
     setCurrentQuestion(prev => prev + 1);
 
-    if (currentQuestion < questions.length - 1) {
-      const nextQ = questions[currentQuestion + 1];
-      if (nextQ.type === "confirm") {
+    // Use current question's next/nextType/nextOptions
+    if (q.next) {
+      if (q.nextType === "confirm") {
         await typeMessage(
-          nextQ.next!,
-          nextQ.options?.map(o => ({ label: o, value: o })),
+          q.next,
+          q.nextOptions?.map(o => ({ label: o, value: o })),
           "select",
-          nextQ.field
+          questions[currentQuestion + 1]?.field
         );
       } else {
-        await typeMessage(nextQ.next!, undefined, "text", nextQ.field);
+        await typeMessage(q.next, undefined, "text", questions[currentQuestion + 1]?.field);
       }
     } else {
       setCurrentPhase(5);
@@ -517,7 +518,7 @@ export default function ConversationalOnboarding() {
   const handlePhase5Response = async (value: string) => {
     const questions = [
       { field: "uniqueValue", next: "Love that! Now, describe your ideal listener. Who's vibing to your music?" },
-      { field: "idealListener", next: "Which geographic markets are you targeting? (Select all that apply)", type: "multiselect", options: MARKETS },
+      { field: "idealListener", next: "Which geographic markets are you targeting? (Select all that apply)", nextType: "multiselect", nextOptions: MARKETS },
       { field: "targetMarkets", next: "Last creative question — where do you see yourself in 2 years? What's the dream?" },
       { field: "careerObjective", next: null },
     ];
@@ -525,7 +526,7 @@ export default function ConversationalOnboarding() {
     const q = questions[currentQuestion];
     
     if (q.field === "targetMarkets") {
-      setData(prev => ({ ...prev, [q.field]: selectedOptions }));
+      setData(prev => ({ ...prev, [q.field]: Array.isArray(selectedOptions) ? selectedOptions : [] }));
       setSelectedOptions([]);
     } else {
       setData(prev => ({ ...prev, [q.field]: value }));
@@ -533,17 +534,17 @@ export default function ConversationalOnboarding() {
 
     setCurrentQuestion(prev => prev + 1);
 
-    if (currentQuestion < questions.length - 1) {
-      const nextQ = questions[currentQuestion + 1];
-      if (nextQ.type === "multiselect") {
+    // Use current question's next/nextType/nextOptions
+    if (q.next) {
+      if (q.nextType === "multiselect") {
         await typeMessage(
-          nextQ.next!,
-          nextQ.options?.map(o => ({ label: o, value: o })),
+          q.next,
+          q.nextOptions?.map(o => ({ label: o, value: o })),
           "multiselect",
-          nextQ.field
+          questions[currentQuestion + 1]?.field
         );
       } else {
-        await typeMessage(nextQ.next!, undefined, "textarea", nextQ.field);
+        await typeMessage(q.next, undefined, "textarea", questions[currentQuestion + 1]?.field);
       }
     } else {
       setCurrentPhase(6);
@@ -594,8 +595,8 @@ export default function ConversationalOnboarding() {
 
   const handlePhase7Response = async (value: string) => {
     const questions = [
-      { field: "preferredLabels", next: "What type of label appeals to you most?", type: "select", options: ["Boutique Labels (small, specialized)", "Established Independents (mid-size)", "Major Labels (big reach)", "No Preference (open to all)"] },
-      { field: "labelPreference", next: "How often do you plan to release music each year?", type: "select", options: ["1-2 releases (quality focus)", "3-5 releases (steady)", "6-10 releases (prolific)", "10+ releases (very active)"] },
+      { field: "preferredLabels", next: "What type of label appeals to you most?", nextType: "select", nextOptions: ["Boutique Labels (small, specialized)", "Established Independents (mid-size)", "Major Labels (big reach)", "No Preference (open to all)"] },
+      { field: "labelPreference", next: "How often do you plan to release music each year?", nextType: "select", nextOptions: ["1-2 releases (quality focus)", "3-5 releases (steady)", "6-10 releases (prolific)", "10+ releases (very active)"] },
       { field: "releaseFrequency", next: null },
     ];
 
@@ -604,13 +605,13 @@ export default function ConversationalOnboarding() {
 
     setCurrentQuestion(prev => prev + 1);
 
-    if (currentQuestion < questions.length - 1) {
-      const nextQ = questions[currentQuestion + 1];
+    // Use current question's next/nextType/nextOptions
+    if (q.next) {
       await typeMessage(
-        nextQ.next!,
-        nextQ.options?.map(o => ({ label: o, value: o })),
+        q.next,
+        q.nextOptions?.map(o => ({ label: o, value: o })),
         "select",
-        nextQ.field
+        questions[currentQuestion + 1]?.field
       );
     } else {
       setCurrentPhase(8);
@@ -974,28 +975,45 @@ What's next? I'll generate your professional EPK and set up your campaign config
           )}
 
           {/* Options */}
-          {showOptions && !isTyping && (
+          {showOptions && !isTyping && lastMessage?.options && (
             <div className="flex flex-wrap gap-2 pl-4">
-              {lastMessage.options?.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => handleOptionClick(opt.value)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    isMultiselect && selectedOptions.includes(opt.value)
-                      ? "bg-emerald-600 text-white border border-emerald-500"
-                      : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
-                  }`}
-                >
-                  {isMultiselect && selectedOptions.includes(opt.value) && "✓ "}
-                  {opt.label}
-                </button>
-              ))}
-              {isMultiselect && selectedOptions.length > 0 && (
+              {lastMessage.options.map((opt) => {
+                if (!opt || !opt.value) return null;
+                const isSelected = Array.isArray(selectedOptions) && selectedOptions.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleOptionClick(opt.value)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      isMultiselect && isSelected
+                        ? "bg-emerald-600 text-white border border-emerald-500"
+                        : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
+                    }`}
+                  >
+                    {isMultiselect && isSelected && "✓ "}
+                    {opt.label}
+                  </button>
+                );
+              })}
+              {isMultiselect && Array.isArray(selectedOptions) && selectedOptions.length > 0 && (
                 <button
                   onClick={handleMultiselectConfirm}
                   className="px-4 py-2 rounded-full text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
                 >
                   Continue →
+                </button>
+              )}
+              {/* Always show Skip option for multiselect */}
+              {isMultiselect && (!selectedOptions || selectedOptions.length === 0) && (
+                <button
+                  onClick={() => {
+                    addMessage({ role: "user", content: "No secondary genres" });
+                    setSelectedOptions([]);
+                    processResponse("None / Just my primary genre");
+                  }}
+                  className="px-4 py-2 rounded-full text-sm font-medium bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  Skip / None →
                 </button>
               )}
             </div>
