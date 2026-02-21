@@ -82,10 +82,12 @@ Generate the following (respond in JSON format):
 4. "mediumPitch": An expanded pitch (EXACTLY 40 words) for longer webforms. Include: artist name, genre, sound description, key achievement or unique angle, and a call-to-action. No greetings or sign-offs.
 5. "recommendedTrack": Which track to lead with and why (just the track name if only one)
 
-CRITICAL WORD COUNT REQUIREMENTS:
-- hookLine: EXACTLY 10 words (punchy, memorable)
-- shortPitch: EXACTLY 20 words (essential facts only)
-- mediumPitch: EXACTLY 40 words (concise but informative)
+CRITICAL REQUIREMENTS:
+- hookLine: EXACTLY 10 words (punchy, memorable) - must be a complete thought
+- shortPitch: EXACTLY 20 words - MUST end with a complete sentence, not a fragment
+- mediumPitch: EXACTLY 40 words - MUST end with a complete sentence, not a fragment
+- Never cut off words mid-sentence
+- Each pitch must read as a polished, complete statement
 
 Respond ONLY with valid JSON, no markdown.`;
 

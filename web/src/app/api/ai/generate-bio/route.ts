@@ -1,100 +1,98 @@
-import { NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/firebaseAdmin";
-import { getRequestIp, rateLimit } from "@/lib/rateLimit";
+import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function POST(req: Request) {
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+
+/**
+ * Helper function to end text at a complete sentence
+ */
+function endAtSentence(text: string, maxWords: number): string {
+  const words = text.split(/\s+/);
+  if (words.length <= maxWords) return text;
+  
+  // Take maxWords and find the last sentence ending
+  const truncated = words.slice(0, maxWords).join(" ");
+  
+  // Find the last sentence-ending punctuation
+  const lastPeriod = truncated.lastIndexOf(".");
+  const lastExclamation = truncated.lastIndexOf("!");
+  const lastQuestion = truncated.lastIndexOf("?");
+  
+  const lastEnding = Math.max(lastPeriod, lastExclamation, lastQuestion);
+  
+  if (lastEnding > truncated.length * 0.5) {
+    // Only cut at sentence if we're past halfway
+    return truncated.slice(0, lastEnding + 1).trim();
+  }
+  
+  // Otherwise, add ellipsis at a word boundary
+  return truncated.trim() + "...";
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { uid } = await verifyAuth(req);
-    const ip = getRequestIp(req);
+    const body = await request.json();
+    const {
+      artistName,
+      genre,
+      secondaryGenres,
+      location,
+      yearsActive,
+      soundDescription,
+      artistInfluences,
+      uniqueValue,
+      careerObjective,
+    } = body;
 
-    // Rate limit: 5 bio generations per hour
-    const limit = rateLimit(`ai:bio:${uid}:${ip}`, 5, 3600);
-    if (!limit.allowed) {
+    if (!artistName || !genre) {
       return NextResponse.json(
-        { ok: false, error: "Rate limit exceeded" },
-        { status: 429 },
+        { error: "Missing required fields" },
+        { status: 400 }
       );
     }
 
-    const body = await req.json();
-    const { artistName, genres, links } = body;
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    if (!artistName) {
-      return NextResponse.json(
-        { ok: false, error: "Artist name required" },
-        { status: 400 },
-      );
-    }
+    const prompt = `You are a professional music industry copywriter. Create a compelling, polished artist biography for a record label submission.
 
-    const genreList =
-      genres?.length > 0 ? genres.join(", ") : "electronic music";
-    const hasSpotify = !!links?.spotify;
-    const hasSoundcloud = !!links?.soundcloud;
+Artist Information:
+- Name: ${artistName}
+- Primary Genre: ${genre}
+- Secondary Genres: ${secondaryGenres?.join(", ") || "None"}
+- Location: ${location}
+- Years Active: ${yearsActive}
+- Sound Description (from artist): "${soundDescription}"
+- Influences: ${artistInfluences?.join(", ") || "Various artists"}
+- Unique Value: "${uniqueValue}"
+- Career Goals: "${careerObjective}"
 
-    // Build context for AI
-    const platformContext =
-      hasSpotify || hasSoundcloud
-        ? `They have presence on ${[hasSpotify && "Spotify", hasSoundcloud && "SoundCloud"].filter(Boolean).join(" and ")}.`
-        : "";
+Requirements:
+1. Write in third person, professional tone
+2. Create 3-4 well-structured paragraphs (150-200 words total)
+3. Start with a strong hook that captures attention
+4. Highlight what makes this artist unique
+5. End each paragraph with a COMPLETE sentence - never cut off mid-word or mid-sentence
+6. Make it sound professional and polished, not like a templated bio
+7. Include their influences naturally, not as a list
+8. End with forward momentum about their future
 
-    const prompt = `Write a professional artist bio for a musician named "${artistName}" who specializes in ${genreList}. ${platformContext}
+DO NOT just rewrite what the artist said - transform it into a professional narrative that would impress A&R representatives.
 
-The bio should be:
-- 150-250 words (around 800-900 characters)
-- Written in third person
-- Professional but engaging
-- Highlight their unique sound and artistic vision
-- Mention their dedication to their craft
-- End with forward-looking statement about their career
+Return ONLY the bio text, no headers or formatting.`;
 
-Do not include any placeholder text or brackets. Write as if this is a real, established artist.`;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let bio = response.text().trim();
+    
+    // Ensure bio ends at a complete sentence (max 250 words)
+    bio = endAtSentence(bio, 250);
 
-    // Try to use Google AI (Gemini)
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-
-    if (apiKey) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                maxOutputTokens: 500,
-                temperature: 0.8,
-              },
-            }),
-          },
-        );
-
-        const data = await response.json();
-        const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (generatedText) {
-          // Trim to 900 characters if needed
-          const bio = generatedText.trim().slice(0, 900);
-          return NextResponse.json({ ok: true, bio });
-        }
-      } catch (aiError) {
-        console.error("[ai/generate-bio] AI error:", aiError);
-      }
-    }
-
-    // Fallback: Generate a template bio
-    const fallbackBio = `${artistName} is a dynamic force in the ${genreList} scene, crafting immersive sonic experiences that push the boundaries of modern electronic music. With a distinctive sound that blends innovative production techniques with infectious rhythms, ${artistName} has been steadily building a reputation among tastemakers and dance floor enthusiasts alike.
-
-Drawing inspiration from a diverse palette of influences, ${artistName}'s productions showcase a meticulous attention to detail and an unwavering commitment to artistic authenticity. Each track tells a story, taking listeners on a journey through carefully constructed soundscapes that resonate on both emotional and physical levels.
-
-Currently focused on expanding their creative horizons and connecting with forward-thinking labels, ${artistName} continues to evolve while staying true to their artistic vision. With upcoming releases and live performances on the horizon, this is an artist poised to make significant waves in the global electronic music community.`;
-
-    return NextResponse.json({ ok: true, bio: fallbackBio.slice(0, 900) });
-  } catch (error: any) {
-    console.error("[ai/generate-bio] Error:", error);
+    return NextResponse.json({ bio });
+  } catch (error) {
+    console.error("Bio generation error:", error);
     return NextResponse.json(
-      { ok: false, error: error?.message || "Failed to generate bio" },
-      { status: error?.message === "Unauthorized" ? 401 : 500 },
+      { error: "Failed to generate bio" },
+      { status: 500 }
     );
   }
 }

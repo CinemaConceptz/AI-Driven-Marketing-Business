@@ -338,7 +338,8 @@ export default function ConversationalOnboarding() {
     const questions = [
       { field: "legalName", next: "Great! And what's your artist or stage name? This is how you'll be presented to labels." },
       { field: "artistName", next: "Love it! Where are you based? (City, State/Province, Country)" },
-      { field: "location", next: "How many years have you been making music professionally?" },
+      { field: "location", next: "What's the best phone number to reach you? (This will only be shared on your EPK if you choose)" },
+      { field: "phone", next: "How many years have you been making music professionally?" },
       { field: "yearsActive", next: "Now let's talk about your sound. What's your primary genre?", nextType: "select", nextOptions: GENRES },
       { field: "primaryGenre", next: "Excellent choice! Do any secondary genres also apply to your sound? Select all that apply, or click 'Continue' if none apply.", nextType: "multiselect", nextOptions: [...GENRES, "None / Just my primary genre"] },
       { field: "secondaryGenres", next: null },
@@ -690,8 +691,37 @@ What's next? I'll generate your professional EPK and set up your campaign config
     await typeMessage(`Setting up your profile now, ${data.artistName}... ✨`);
 
     try {
-      // Generate bio from collected data
-      const generatedBio = `${data.artistName} is a ${data.yearsActive}-year veteran in the ${data.primaryGenre} scene, based in ${data.location}. ${data.soundDescription} With influences from ${data.artistInfluences.join(", ")}, ${data.artistName} brings a unique perspective to the genre. ${data.uniqueValue}`;
+      // Generate AI-enhanced bio
+      let generatedBio = "";
+      try {
+        const bioResponse = await fetch("/api/ai/generate-bio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            artistName: data.artistName,
+            genre: data.primaryGenre,
+            secondaryGenres: data.secondaryGenres,
+            location: data.location,
+            yearsActive: data.yearsActive,
+            soundDescription: data.soundDescription,
+            artistInfluences: data.artistInfluences,
+            uniqueValue: data.uniqueValue,
+            careerObjective: data.careerObjective,
+          }),
+        });
+        
+        if (bioResponse.ok) {
+          const bioData = await bioResponse.json();
+          generatedBio = bioData.bio;
+        }
+      } catch (bioError) {
+        console.error("AI bio generation failed, using fallback:", bioError);
+      }
+
+      // Fallback bio if AI fails
+      if (!generatedBio) {
+        generatedBio = `${data.artistName} is a ${data.yearsActive}-year veteran ${data.primaryGenre} artist based in ${data.location}. ${data.soundDescription} Drawing inspiration from ${data.artistInfluences.join(", ")}, ${data.artistName} brings a distinctive sound to the scene. ${data.uniqueValue}`;
+      }
 
       await setDoc(
         doc(db, "users", user.uid),
@@ -743,8 +773,8 @@ What's next? I'll generate your professional EPK and set up your campaign config
           labelPreference: data.labelPreference,
           releaseFrequency: data.releaseFrequency,
           
-          // Generated content
-          bio: generatedBio.slice(0, 900),
+          // Generated content - AI-enhanced bio
+          bio: generatedBio,
           
           // Status
           onboardingCompleted: true,
@@ -759,7 +789,7 @@ What's next? I'll generate your professional EPK and set up your campaign config
       trackEvent("onboarding_completed", user.uid, { method: "conversational" });
 
       await typeMessage(
-        `🎉 You're all set, ${data.artistName}!\n\nYour representation profile is now active. I'll be working behind the scenes to match you with the right opportunities.\n\nHeading to your dashboard now — this is where the magic happens!`
+        `🎉 You're all set, ${data.artistName}!\n\nI've created a professional bio for you based on our conversation. You can edit it anytime in Settings.\n\nYour representation profile is now active. Heading to your dashboard!`
       );
 
       await new Promise(r => setTimeout(r, 2500));

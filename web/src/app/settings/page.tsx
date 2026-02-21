@@ -12,6 +12,7 @@ type UserProfile = {
   displayName?: string;
   email?: string;
   contactEmail?: string;
+  phone?: string;
   bio?: string;
   genre?: string;
   location?: string;
@@ -37,6 +38,7 @@ export default function SettingsPage() {
   // Form state
   const [artistName, setArtistName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [genre, setGenre] = useState("");
   const [location, setLocation] = useState("");
@@ -63,6 +65,7 @@ export default function SettingsPage() {
           setProfile(data);
           setArtistName(data.artistName || data.displayName || "");
           setContactEmail(data.contactEmail || data.email || "");
+          setPhone(data.phone || "");
           setBio(data.bio || "");
           setGenre(data.genre || "");
           setLocation(data.location || "");
@@ -99,6 +102,7 @@ export default function SettingsPage() {
       await updateDoc(userRef, {
         artistName: artistName.trim(),
         contactEmail: contactEmail.trim(),
+        phone: phone.trim(),
         bio: bio.trim(),
         genre: genre.trim(),
         location: location.trim(),
@@ -153,10 +157,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       {/* Header */}
-      <div
-        className="glass-panel rounded-3xl px-8 py-10"
-        data-testid="settings-page"
-      >
+      <div className="glass-panel rounded-3xl px-8 py-10" data-testid="settings-page">
         <h1 className="text-3xl font-semibold text-white">Settings</h1>
         <p className="mt-3 text-sm text-slate-200">
           Manage your profile information and EPK settings.
@@ -176,13 +177,8 @@ export default function SettingsPage() {
       )}
 
       {/* Profile Form */}
-      <form
-        onSubmit={handleSaveProfile}
-        className="glass-panel rounded-3xl px-8 py-10 space-y-6"
-      >
-        <h2 className="text-xl font-semibold text-white">
-          Profile Information
-        </h2>
+      <form onSubmit={handleSaveProfile} className="glass-panel rounded-3xl px-8 py-10 space-y-6">
+        <h2 className="text-xl font-semibold text-white">Profile Information</h2>
         <p className="text-sm text-slate-400">
           This information will appear on your public EPK.
         </p>
@@ -215,6 +211,21 @@ export default function SettingsPage() {
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
               placeholder="Public contact email"
               data-testid="settings-contact-email"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+              placeholder="+1 (555) 123-4567"
+              data-testid="settings-phone"
             />
           </div>
 
@@ -266,104 +277,74 @@ export default function SettingsPage() {
 
         {/* Social Links */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-white">
-            Music & Social Links
-          </h3>
+          <h3 className="text-lg font-medium text-white">Music & Social Links</h3>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Spotify
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">Spotify</label>
               <input
                 type="url"
                 value={links.spotify}
-                onChange={(e) =>
-                  setLinks({ ...links, spotify: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, spotify: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://open.spotify.com/artist/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                SoundCloud
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">SoundCloud</label>
               <input
                 type="url"
                 value={links.soundcloud}
-                onChange={(e) =>
-                  setLinks({ ...links, soundcloud: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, soundcloud: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://soundcloud.com/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Bandcamp
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">Bandcamp</label>
               <input
                 type="url"
                 value={links.bandcamp}
-                onChange={(e) =>
-                  setLinks({ ...links, bandcamp: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, bandcamp: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://yourname.bandcamp.com"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Apple Music
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">Apple Music</label>
               <input
                 type="url"
                 value={links.appleMusic}
-                onChange={(e) =>
-                  setLinks({ ...links, appleMusic: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, appleMusic: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://music.apple.com/artist/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Instagram
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">Instagram</label>
               <input
                 type="url"
                 value={links.instagram}
-                onChange={(e) =>
-                  setLinks({ ...links, instagram: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, instagram: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://instagram.com/..."
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                YouTube
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">YouTube</label>
               <input
                 type="url"
                 value={links.youtube}
-                onChange={(e) =>
-                  setLinks({ ...links, youtube: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, youtube: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://youtube.com/..."
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1.5">
-                Website
-              </label>
+              <label className="block text-xs text-slate-400 mb-1.5">Website</label>
               <input
                 type="url"
                 value={links.website}
-                onChange={(e) =>
-                  setLinks({ ...links, website: e.target.value })
-                }
+                onChange={(e) => setLinks({ ...links, website: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 placeholder="https://yourwebsite.com"
               />
