@@ -11,11 +11,13 @@ export type SubscriptionTier = "tier1" | "tier2" | "tier3" | "free";
 export type EpkContent = {
   tagline?: string;
   styleDescription?: string;
+  enhancedBio?: string;
+  pressRelease?: string;
+  highlights?: string[];
   artistOverview?: string;
   shortPressBio?: string;
   strategicPositioning?: string;
   labelPitchParagraph?: string;
-  highlights?: string[];
   achievements?: string[];
   pressQuotes?: { source: string; quote: string }[];
   representationSnapshot?: {
