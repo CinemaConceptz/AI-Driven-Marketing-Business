@@ -45,10 +45,14 @@ export type EpkProfile = {
     tiktok?: string;
     twitter?: string;
   export type EpkContent = {
+  tagline?: string;
   artistOverview?: string;
   shortPressBio?: string;
   strategicPositioning?: string;
   labelPitchParagraph?: string;
+  highlights?: string[];
+  achievements?: string[];
+  pressQuotes?: { source: string; quote: string }[];
   representationSnapshot?: {
     genre?: string;
     yearsActive?: number;
