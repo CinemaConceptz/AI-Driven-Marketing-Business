@@ -10,6 +10,7 @@ export type SubscriptionTier = "tier1" | "tier2" | "tier3" | "free";
 
 export type EpkContent = {
   tagline?: string;
+  styleDescription?: string;
   artistOverview?: string;
   shortPressBio?: string;
   strategicPositioning?: string;
