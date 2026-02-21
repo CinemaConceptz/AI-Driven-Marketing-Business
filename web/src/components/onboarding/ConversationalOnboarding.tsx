@@ -19,12 +19,25 @@ const PHASES = [
   { id: 8, name: "Summary", description: "Campaign readiness" },
 ];
 
-// Maya - The Verified Sound Representative
-const REPRESENTATIVE = {
-  name: "Maya",
-  title: "A&R Representative",
+// ===========================================
+// REPRESENTATIVE CONFIGURATION
+// Change these values to customize your rep
+// ===========================================
+const REPRESENTATIVE_CONFIG = {
+  name: "Maya",                    // Change this to any name
+  title: "A&R Representative",     // Their title/role
+  company: "Verified Sound",       // Company name
+  // Avatar options - use any image URL or set to null for initials
   avatar: "https://api.dicebear.com/7.x/personas/svg?seed=Maya&backgroundColor=0a0f1a",
-  greeting: "Hi, I'm Maya",
+  // Alternative avatars you can use:
+  // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maya",
+  // avatar: "https://api.dicebear.com/7.x/lorelei/svg?seed=Maya",
+  // avatar: null, // Will show initials instead
+};
+
+// Get initials from name for fallback avatar
+const getInitials = (name: string) => {
+  return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 };
 
 type Message = {
@@ -119,8 +132,95 @@ export default function ConversationalOnboarding() {
   });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [showAvatar, setShowAvatar] = useState(true); // Toggle avatar mode
+  const [isListening, setIsListening] = useState(false); // Speech recognition state
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false); // Processing state
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  // Start voice recording
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm;codecs=opus",
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Process the audio
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        await processAudioWithGoogleAPI(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setIsListening(true);
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  // Stop voice recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  // Process audio with Google Cloud Speech-to-Text API
+  const processAudioWithGoogleAPI = async (audioBlob: Blob) => {
+    setIsProcessingAudio(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob);
+
+      const response = await fetch("/api/speech-to-text", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.transcription) {
+        setInput(prev => prev + (prev ? " " : "") + data.transcription);
+      } else if (data.error) {
+        console.error("Speech-to-text error:", data.error);
+        // Fallback message
+        if (data.transcription === "") {
+          alert("Could not understand audio. Please try again or type your response.");
+        }
+      }
+    } catch (error) {
+      console.error("Error processing audio:", error);
+      alert("Error processing audio. Please try again.");
+    } finally {
+      setIsProcessingAudio(false);
+    }
+  };
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -170,16 +270,16 @@ export default function ConversationalOnboarding() {
   };
 
   const startConversation = async () => {
-    // Phase 1: Welcome - Maya introduces herself
+    // Phase 1: Welcome - Rep introduces themselves
     await typeMessage(
-      `${REPRESENTATIVE.greeting}! I'm your A&R Representative here at Verified Sound.\n\nI'll be guiding you through our structured representation onboarding process. This allows us to evaluate your positioning, prepare your professional profile, and determine strategic label compatibility.\n\nI'm excited to learn more about you and your music. Let's get started!`
+      `Hi, I'm ${REPRESENTATIVE_CONFIG.name}! I'm your ${REPRESENTATIVE_CONFIG.title} here at ${REPRESENTATIVE_CONFIG.company}.\n\nI'll be guiding you through our structured representation onboarding process. This allows us to evaluate your positioning, prepare your professional profile, and determine strategic label compatibility.\n\nI'm excited to learn more about you and your music. Let's get started!`
     );
     
     await new Promise(r => setTimeout(r, 1000));
     
     await typeMessage(
       "To properly structure your representation profile, I'll ask you a series of questions across a few key areas. Please answer each one accurately — the more I know, the better I can position you for success.",
-      [{ label: "I'm ready, Maya!", value: "ready" }],
+      [{ label: `I'm ready, ${REPRESENTATIVE_CONFIG.name}!`, value: "ready" }],
       "confirm"
     );
   };
@@ -704,37 +804,76 @@ What's next? I'll generate your professional EPK and set up your campaign config
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5">
-                  <img 
-                    src={REPRESENTATIVE.avatar}
-                    alt={REPRESENTATIVE.name}
-                    className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
-                  />
+              {showAvatar ? (
+                <div className="relative">
+                  <div className="h-11 w-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5">
+                    {REPRESENTATIVE_CONFIG.avatar ? (
+                      <img 
+                        src={REPRESENTATIVE_CONFIG.avatar}
+                        alt={REPRESENTATIVE_CONFIG.name}
+                        className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
+                      />
+                    ) : (
+                      <div className="h-full w-full rounded-full bg-[#0a0f1a] flex items-center justify-center text-white font-bold text-sm">
+                        {getInitials(REPRESENTATIVE_CONFIG.name)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-[#0a0f1a]" />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-[#0a0f1a]" />
-              </div>
+              ) : (
+                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+              )}
               <div>
-                <h1 className="text-white font-semibold">{REPRESENTATIVE.name}</h1>
-                <p className="text-xs text-slate-400">{REPRESENTATIVE.title} • Verified Sound</p>
+                <h1 className="text-white font-semibold">{REPRESENTATIVE_CONFIG.name}</h1>
+                <p className="text-xs text-slate-400">{REPRESENTATIVE_CONFIG.title} • {REPRESENTATIVE_CONFIG.company}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Phase {currentPhase}/8</span>
-              <div className="flex gap-1">
-                {PHASES.map(phase => (
-                  <div
-                    key={phase.id}
-                    className={`h-1.5 w-6 rounded-full transition-colors ${
-                      phase.id < currentPhase
-                        ? "bg-emerald-500"
-                        : phase.id === currentPhase
-                        ? "bg-emerald-400/50"
-                        : "bg-white/10"
-                    }`}
-                    title={phase.name}
-                  />
-                ))}
+            <div className="flex items-center gap-4">
+              {/* Avatar Toggle */}
+              <button
+                onClick={() => setShowAvatar(!showAvatar)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+                title={showAvatar ? "Switch to text mode" : "Switch to avatar mode"}
+              >
+                {showAvatar ? (
+                  <>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="hidden sm:inline">Avatar</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span className="hidden sm:inline">Text</span>
+                  </>
+                )}
+              </button>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500">Phase {currentPhase}/8</span>
+                <div className="flex gap-1">
+                  {PHASES.map(phase => (
+                    <div
+                      key={phase.id}
+                      className={`h-1.5 w-6 rounded-full transition-colors ${
+                        phase.id < currentPhase
+                          ? "bg-emerald-500"
+                          : phase.id === currentPhase
+                          ? "bg-emerald-400/50"
+                          : "bg-white/10"
+                      }`}
+                      title={phase.name}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -749,13 +888,19 @@ What's next? I'll generate your professional EPK and set up your campaign config
               key={msg.id}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {msg.role === "representative" && (
+              {msg.role === "representative" && showAvatar && (
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shrink-0 mr-3 mt-1">
-                  <img 
-                    src={REPRESENTATIVE.avatar}
-                    alt={REPRESENTATIVE.name}
-                    className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
-                  />
+                  {REPRESENTATIVE_CONFIG.avatar ? (
+                    <img 
+                      src={REPRESENTATIVE_CONFIG.avatar}
+                      alt={REPRESENTATIVE_CONFIG.name}
+                      className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
+                    />
+                  ) : (
+                    <div className="h-full w-full rounded-full bg-[#0a0f1a] flex items-center justify-center text-white font-bold text-[10px]">
+                      {getInitials(REPRESENTATIVE_CONFIG.name)}
+                    </div>
+                  )}
                 </div>
               )}
               <div
@@ -765,6 +910,9 @@ What's next? I'll generate your professional EPK and set up your campaign config
                     : "bg-white/5 border border-white/10 text-slate-200"
                 }`}
               >
+                {msg.role === "representative" && !showAvatar && (
+                  <p className="text-xs text-emerald-400 font-medium mb-1">{REPRESENTATIVE_CONFIG.name}</p>
+                )}
                 <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </div>
             </div>
@@ -774,16 +922,24 @@ What's next? I'll generate your professional EPK and set up your campaign config
           {isTyping && (
             <div className="flex justify-start">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shrink-0">
-                  <img 
-                    src={REPRESENTATIVE.avatar}
-                    alt={REPRESENTATIVE.name}
-                    className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
-                  />
-                </div>
+                {showAvatar && (
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shrink-0">
+                    {REPRESENTATIVE_CONFIG.avatar ? (
+                      <img 
+                        src={REPRESENTATIVE_CONFIG.avatar}
+                        alt={REPRESENTATIVE_CONFIG.name}
+                        className="h-full w-full rounded-full object-cover bg-[#0a0f1a]"
+                      />
+                    ) : (
+                      <div className="h-full w-full rounded-full bg-[#0a0f1a] flex items-center justify-center text-white font-bold text-[10px]">
+                        {getInitials(REPRESENTATIVE_CONFIG.name)}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400">{REPRESENTATIVE.name} is typing</span>
+                    <span className="text-xs text-slate-400">{REPRESENTATIVE_CONFIG.name} is typing</span>
                     <div className="flex gap-1">
                       <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" />
                       <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
@@ -833,25 +989,75 @@ What's next? I'll generate your professional EPK and set up your campaign config
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 py-4">
             <div className="flex gap-3">
               {lastMessage.inputType === "textarea" ? (
-                <textarea
-                  ref={inputRef as any}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your response..."
-                  rows={3}
-                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none resize-none"
-                  autoFocus
-                />
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={inputRef as any}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your response..."
+                    rows={3}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 pr-12 text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none resize-none"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleVoiceInput}
+                    disabled={isProcessingAudio}
+                    className={`absolute right-3 top-3 p-2 rounded-full transition-colors ${
+                      isProcessingAudio
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : isListening 
+                          ? "bg-red-500/20 text-red-400 animate-pulse" 
+                          : "bg-white/10 text-slate-400 hover:text-white hover:bg-white/20"
+                    }`}
+                    title={isProcessingAudio ? "Processing..." : isListening ? "Stop recording" : "Voice input (Google AI)"}
+                  >
+                    {isProcessingAudio ? (
+                      <svg className="h-5 w-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               ) : (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your response..."
-                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
-                  autoFocus
-                />
+                <div className="flex-1 relative">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your response..."
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 pr-12 text-white placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleVoiceInput}
+                    disabled={isProcessingAudio}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${
+                      isProcessingAudio
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : isListening 
+                          ? "bg-red-500/20 text-red-400 animate-pulse" 
+                          : "bg-white/10 text-slate-400 hover:text-white hover:bg-white/20"
+                    }`}
+                    title={isProcessingAudio ? "Processing..." : isListening ? "Stop recording" : "Voice input (Google AI)"}
+                  >
+                    {isProcessingAudio ? (
+                      <svg className="h-5 w-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               )}
               <button
                 type="submit"
@@ -861,6 +1067,18 @@ What's next? I'll generate your professional EPK and set up your campaign config
                 Send
               </button>
             </div>
+            {isListening && (
+              <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                Recording... click mic again to stop
+              </p>
+            )}
+            {isProcessingAudio && (
+              <p className="text-xs text-yellow-400 mt-2 flex items-center gap-1">
+                <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                Processing with Google AI...
+              </p>
+            )}
           </form>
         </footer>
       )}

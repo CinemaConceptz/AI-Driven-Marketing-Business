@@ -81,3 +81,7 @@ env:
       - RUNTIME
   - variable: SENTRY_RELEASE
     value: "verifiedsound@1.0.0"
+  - variable: GOOGLE_SPEECH_API_KEY
+    secret: GOOGLE_SPEECH_API_KEY
+    availability:
+      - RUNTIME
