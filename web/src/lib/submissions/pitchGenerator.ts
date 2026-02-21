@@ -78,9 +78,13 @@ Generate the following (respond in JSON format):
 
 1. "hookLine": A compelling one-liner (max 15 words) that captures their sound
 2. "subjectLine": Professional email subject line for label submission (max 60 characters)
-3. "shortPitch": 100-word pitch suitable for webform submissions
-4. "mediumPitch": 300-word pitch for email submissions with full context
+3. "shortPitch": A concise 100-word pitch for webform submissions. Keep it brief, direct, and focused on the essential information: artist name, genre, what makes them stand out, and links. No greetings or sign-offs.
+4. "mediumPitch": A detailed 300-word pitch for email submissions. Include: professional greeting to A&R team, expanded artist background, sound description, notable achievements, streaming stats if impressive, all relevant links (track, EPK, Spotify, SoundCloud), and professional closing with contact info. This should be a complete, ready-to-send email body.
 5. "recommendedTrack": Which track to lead with and why (just the track name if only one)
+
+IMPORTANT: The shortPitch and mediumPitch MUST be distinctly different:
+- shortPitch: Brief paragraph format, ~100 words, facts only, no salutations
+- mediumPitch: Full email format, ~300 words, includes greeting, multiple paragraphs, and closing
 
 Respond ONLY with valid JSON, no markdown.`;
 

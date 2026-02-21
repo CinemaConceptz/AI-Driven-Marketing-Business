@@ -49,7 +49,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
-              Electronic Press Kit
+              Official Press Kit
             </p>
             <h1 
               className="mt-2 text-4xl font-bold text-white"

@@ -6,9 +6,14 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/providers/AuthProvider";
 
-const links = [
+// Public links shown to all users
+const publicLinks = [
   { href: "/", label: "Home", testId: "nav-home-link" },
   { href: "/pricing", label: "Pricing", testId: "nav-pricing-link" },
+];
+
+// Links for non-logged-in users only
+const guestLinks = [
   { href: "/apply", label: "Apply", testId: "nav-apply-link" },
 ];
 
@@ -31,7 +36,21 @@ export default function NavBar() {
           <span className="text-lg font-semibold text-white">Verified Sound A&R</span>
         </Link>
         <nav className="flex items-center gap-6 text-sm text-slate-200">
-          {links.map((link) => (
+          {/* Public links shown to everyone */}
+          {publicLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              data-testid={link.testId}
+              className={`transition hover:text-white ${
+                pathname === link.href ? "text-white" : "text-slate-200"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+          {/* Guest-only links (Apply) - hidden when logged in */}
+          {!user && guestLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

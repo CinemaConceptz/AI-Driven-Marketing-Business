@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { User } from "firebase/auth";
 import { db, storage } from "@/lib/firebase";
-import { Play, Pause, Trash2, Music, Upload, Volume2 } from "lucide-react";
 
 type Props = {
   user: User;
@@ -28,10 +27,8 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState<Record<string, number>>({});
-  const [duration, setDuration] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  const audioRefs = useRef<{ [key: string]: HTMLAudioElement | null }>({});
 
   // Load existing tracks
   useEffect(() => {
@@ -52,72 +49,56 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
     loadTracks();
   }, [user.uid]);
 
-  // Handle play/pause
-  const togglePlay = (trackId: string) => {
-    const audio = audioRefs.current[trackId];
-    if (!audio) return;
+  // Play/Pause toggle
+  const togglePlay = async (track: AudioTrack) => {
+    const audioEl = audioRefs.current[track.id];
+    if (!audioEl) return;
 
-    if (playingTrackId === trackId) {
-      audio.pause();
-      setPlayingTrackId(null);
-    } else {
-      // Pause any currently playing track
-      if (playingTrackId && audioRefs.current[playingTrackId]) {
-        audioRefs.current[playingTrackId]?.pause();
+    try {
+      if (playingTrackId === track.id) {
+        audioEl.pause();
+        setPlayingTrackId(null);
+      } else {
+        // Pause any other playing track
+        Object.entries(audioRefs.current).forEach(([id, el]) => {
+          if (el && id !== track.id) {
+            el.pause();
+          }
+        });
+        
+        await audioEl.play();
+        setPlayingTrackId(track.id);
       }
-      audio.play();
-      setPlayingTrackId(trackId);
+    } catch (err: any) {
+      console.error("Playback error:", err);
+      setError(`Playback failed: ${err.message || "Unable to play audio"}`);
     }
   };
 
-  // Handle time update
-  const handleTimeUpdate = (trackId: string, audio: HTMLAudioElement) => {
-    setCurrentTime((prev) => ({ ...prev, [trackId]: audio.currentTime }));
-  };
-
-  // Handle loaded metadata
-  const handleLoadedMetadata = (trackId: string, audio: HTMLAudioElement) => {
-    setDuration((prev) => ({ ...prev, [trackId]: audio.duration }));
-  };
-
-  // Handle track ended
-  const handleEnded = (trackId: string) => {
-    setPlayingTrackId(null);
-    setCurrentTime((prev) => ({ ...prev, [trackId]: 0 }));
-  };
-
-  // Seek to position
-  const handleSeek = (trackId: string, e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRefs.current[trackId];
-    if (!audio || !duration[trackId]) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    audio.currentTime = percent * duration[trackId];
-  };
-
-  // Format time
-  const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  // Handle audio ended
+  const handleAudioEnded = (trackId: string) => {
+    if (playingTrackId === trackId) {
+      setPlayingTrackId(null);
+    }
   };
 
   // Handle file upload
   const handleUpload = async (file: File) => {
+    // Validate file type
     const validTypes = ["audio/mpeg", "audio/wav", "audio/mp3", "audio/x-wav"];
     if (!validTypes.includes(file.type)) {
       setError("Only MP3 and WAV files are allowed");
       return;
     }
 
+    // Validate file size (50MB max)
     const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
       setError("File size must be under 50MB");
       return;
     }
 
+    // Check track limit
     if (tracks.length >= maxTracks) {
       setError(`Maximum ${maxTracks} tracks allowed. Delete one to upload another.`);
       return;
@@ -129,10 +110,12 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
     setUploadProgress(0);
 
     try {
+      // Generate unique ID
       const trackId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const extension = file.name.split(".").pop()?.toLowerCase() || "mp3";
       const storagePath = `users/${user.uid}/audio/${trackId}.${extension}`;
-
+      
+      // Upload to Firebase Storage
       const storageRef = ref(storage, storagePath);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -147,15 +130,18 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
           setUploading(false);
         },
         async () => {
+          // Get download URL
           const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
+          // Create track entry
           const newTrack: AudioTrack = {
             id: trackId,
-            name: file.name.replace(/\.[^/.]+$/, ""),
+            name: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
             url: downloadUrl,
             uploadedAt: new Date().toISOString(),
           };
 
+          // Update Firestore
           const userRef = doc(db, "users", user.uid);
           const updatedTracks = [...tracks, newTrack];
           await updateDoc(userRef, {
@@ -175,16 +161,19 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
     }
   };
 
+  // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleUpload(file);
     }
+    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
+  // Delete track
   const handleDelete = async (track: AudioTrack) => {
     if (!confirm(`Delete "${track.name}"?`)) return;
 
@@ -193,19 +182,22 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
 
     // Stop if playing
     if (playingTrackId === track.id) {
-      audioRefs.current[track.id]?.pause();
+      const audioEl = audioRefs.current[track.id];
+      if (audioEl) audioEl.pause();
       setPlayingTrackId(null);
     }
 
     try {
+      // Delete from Storage
       const storagePath = `users/${user.uid}/audio/${track.id}.${track.url.includes(".wav") ? "wav" : "mp3"}`;
       try {
         const storageRef = ref(storage, storagePath);
         await deleteObject(storageRef);
       } catch {
-        // File might not exist
+        // File might not exist, continue with Firestore update
       }
 
+      // Update Firestore
       const userRef = doc(db, "users", user.uid);
       const updatedTracks = tracks.filter((t) => t.id !== track.id);
       await updateDoc(userRef, {
@@ -233,10 +225,7 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
     <div className="glass-panel rounded-2xl px-6 py-6 space-y-6" data-testid="audio-upload-manager">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Volume2 className="w-5 h-5 text-emerald-400" />
-          Audio Tracks
-        </h3>
+        <h3 className="text-lg font-semibold text-white">Audio Tracks</h3>
         <p className="text-sm text-slate-400 mt-1">
           Upload your best {maxTracks} tracks (MP3 or WAV, max 50MB each)
         </p>
@@ -255,88 +244,83 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
       )}
 
       {/* Track List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {tracks.map((track) => (
           <div
             key={track.id}
-            className="p-4 rounded-xl bg-white/5 border border-white/10"
+            className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10"
             data-testid={`audio-track-${track.id}`}
           >
-            {/* Hidden audio element */}
+            {/* Play/Pause Button */}
+            <button
+              onClick={() => togglePlay(track)}
+              className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors"
+              data-testid={`play-track-${track.id}`}
+            >
+              {playingTrackId === track.id ? (
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
+            </button>
+
+            {/* Track Info */}
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-white truncate">{track.name}</p>
+              <p className="text-xs text-slate-400">
+                {playingTrackId === track.id ? (
+                  <span className="text-emerald-400">Now Playing</span>
+                ) : (
+                  `Uploaded ${new Date(track.uploadedAt).toLocaleDateString()}`
+                )}
+              </p>
+            </div>
+
+            {/* Hidden Audio Element */}
             <audio
-              ref={(el) => {
-                audioRefs.current[track.id] = el;
-              }}
+              ref={(el) => { audioRefs.current[track.id] = el; }}
               src={track.url}
               preload="metadata"
-              onTimeUpdate={(e) => handleTimeUpdate(track.id, e.currentTarget)}
-              onLoadedMetadata={(e) => handleLoadedMetadata(track.id, e.currentTarget)}
-              onEnded={() => handleEnded(track.id)}
+              crossOrigin="anonymous"
+              onEnded={() => handleAudioEnded(track.id)}
+              onError={(e) => {
+                const audioEl = e.target as HTMLAudioElement;
+                console.error("Audio error:", audioEl.error?.message || "Unknown error");
+                setError(`Failed to load "${track.name}". The audio file may not be accessible.`);
+              }}
+              onCanPlay={() => {
+                // Clear any previous errors when audio is ready
+                if (error?.includes(track.name)) {
+                  setError(null);
+                }
+              }}
             />
 
-            <div className="flex items-center gap-4">
-              {/* Play/Pause Button */}
-              <button
-                onClick={() => togglePlay(track.id)}
-                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                  playingTrackId === track.id
-                    ? "bg-emerald-500 text-white"
-                    : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                }`}
-              >
-                {playingTrackId === track.id ? (
-                  <Pause className="w-5 h-5" />
-                ) : (
-                  <Play className="w-5 h-5 ml-0.5" />
-                )}
-              </button>
-
-              {/* Track Info & Progress */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium text-white truncate">{track.name}</p>
-                  <button
-                    onClick={() => handleDelete(track)}
-                    className="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                    title="Delete track"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Progress Bar */}
-                <div
-                  className="h-2 bg-white/10 rounded-full cursor-pointer overflow-hidden"
-                  onClick={(e) => handleSeek(track.id, e)}
-                >
-                  <div
-                    className="h-full bg-emerald-500 rounded-full transition-all"
-                    style={{
-                      width: `${
-                        duration[track.id]
-                          ? ((currentTime[track.id] || 0) / duration[track.id]) * 100
-                          : 0
-                      }%`,
-                    }}
-                  />
-                </div>
-
-                {/* Time Display */}
-                <div className="flex items-center justify-between mt-1.5 text-xs text-slate-500">
-                  <span>{formatTime(currentTime[track.id] || 0)}</span>
-                  <span>{formatTime(duration[track.id] || 0)}</span>
-                </div>
-              </div>
-            </div>
+            {/* Delete Button */}
+            <button
+              onClick={() => handleDelete(track)}
+              className="flex-shrink-0 p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Delete track"
+              data-testid={`delete-track-${track.id}`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
           </div>
         ))}
 
         {/* Empty State */}
         {tracks.length === 0 && (
           <div className="text-center py-8 text-slate-400">
-            <Music className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
             <p>No tracks uploaded yet</p>
-            <p className="text-sm text-slate-500 mt-1">Upload your music to include in your EPK</p>
           </div>
         )}
       </div>
@@ -352,7 +336,7 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
             className="hidden"
             data-testid="audio-file-input"
           />
-
+          
           {uploading ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
@@ -369,12 +353,13 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
           ) : (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full rounded-xl border-2 border-dashed border-white/20 py-6 text-sm text-slate-300 hover:border-emerald-500/50 hover:text-white transition-colors flex flex-col items-center gap-2"
+              className="w-full rounded-xl border-2 border-dashed border-white/20 py-6 text-sm text-slate-300 hover:border-emerald-500/50 hover:text-white transition-colors"
               data-testid="audio-upload-button"
             >
-              <Upload className="w-8 h-8 opacity-50" />
-              <span>Click to upload audio ({tracks.length}/{maxTracks})</span>
-              <span className="text-xs text-slate-500">MP3 or WAV, max 50MB</span>
+              <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Click to upload audio ({tracks.length}/{maxTracks})
             </button>
           )}
         </div>

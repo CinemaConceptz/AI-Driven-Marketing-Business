@@ -44,7 +44,7 @@ export function getBioParagraphCount(tier: SubscriptionTier): number {
 export function getImagePlaceholderCount(tier: SubscriptionTier): number {
   switch (tier) {
     case "tier3": return 3;
-    case "tier2": return 2;
+    case "tier2": return 5;
     case "tier1": return 1;
     default: return 1;
   }
@@ -53,7 +53,7 @@ export function getImagePlaceholderCount(tier: SubscriptionTier): number {
 export default function EpkLayout({ profile, pressMedia, uid }: Props) {
   const tier = getEffectiveTier(profile);
   const tierLabel = getTierLabel(tier);
-  const showMusic = tier === "tier1" || tier === "tier2" || tier === "tier3";
+  const showMusic = tier === "tier1" || tier === "tier2" || tier === "tier3"; // All paid tiers get music
   const showHighlights = tier === "tier2" || tier === "tier3";
   const showFullContact = tier === "tier3";
 
@@ -74,15 +74,17 @@ export default function EpkLayout({ profile, pressMedia, uid }: Props) {
       <EpkHeader profile={profile} uid={uid} tier={tier} />
       <EpkPressImage pressMedia={pressMedia} tier={tier} />
       <EpkBio profile={profile} tier={tier} />
-
+      
+      {/* Music Section - Tier 2 & 3 only */}
       {showMusic && (
         <EpkMusic profile={profile} tier={tier} />
       )}
-
+      
+      {/* Highlights Section - Tier 2 & 3 only */}
       {showHighlights && (
         <EpkHighlights profile={profile} tier={tier} />
       )}
-
+      
       <EpkContact profile={profile} tier={tier} showFull={showFullContact} />
     </div>
   );
