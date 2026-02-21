@@ -12,7 +12,7 @@ function EmailTestContent() {
   const [key, setKey] = useState("");
 
   useEffect(() => {
-    const queryKey = searchParams.get("key");
+    const queryKey = searchParams?.get("key");
     if (queryKey) {
       setKey(queryKey);
     }
