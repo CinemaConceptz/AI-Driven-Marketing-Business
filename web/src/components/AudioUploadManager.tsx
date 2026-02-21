@@ -285,21 +285,18 @@ export default function AudioUploadManager({ user, maxTracks = 2 }: Props) {
               ref={(el) => { audioRefs.current[track.id] = el; }}
               src={track.url}
               preload="metadata"
-              crossOrigin="anonymous"
               onEnded={() => handleAudioEnded(track.id)}
               onError={(e) => {
                 const audioEl = e.target as HTMLAudioElement;
-                console.error("Audio error:", audioEl.error?.message || "Unknown error");
+                console.error("Audio error:", audioEl.error?.message || "Unknown error", track.url);
                 setError(`Failed to load "${track.name}". The audio file may not be accessible.`);
               }}
               onCanPlay={() => {
-                // Clear any previous errors when audio is ready
                 if (error?.includes(track.name)) {
                   setError(null);
                 }
               }}
             />
-
             {/* Delete Button */}
             <button
               onClick={() => handleDelete(track)}
