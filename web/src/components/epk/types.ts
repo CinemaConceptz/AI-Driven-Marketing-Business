@@ -32,6 +32,8 @@ export type EpkProfile = {
   bookingAgent?: string;
   achievements?: string[];
   pressQuotes?: { source: string; quote: string }[];
+  epkEnhanced?: boolean;
+  epkContent?: EpkContent;
   links?: {
     spotify?: string;
     soundcloud?: string;
