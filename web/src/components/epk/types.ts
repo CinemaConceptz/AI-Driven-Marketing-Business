@@ -42,5 +42,17 @@ export type EpkProfile = {
     website?: string;
     tiktok?: string;
     twitter?: string;
+  export type EpkContent = {
+  artistOverview?: string;
+  shortPressBio?: string;
+  strategicPositioning?: string;
+  labelPitchParagraph?: string;
+  representationSnapshot?: {
+    genre?: string;
+    yearsActive?: number;
+    releaseCount?: number;
+    targetMarket?: string;
+    contractStatus?: string;
+    recommendedTier?: string;
   };
 };
