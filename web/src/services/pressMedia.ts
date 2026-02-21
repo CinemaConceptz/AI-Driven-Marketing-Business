@@ -40,8 +40,8 @@ export type UploadProgress = {
 };
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MAX_W = 1000;
-const MAX_H = 1000;
+const MAX_W = 2000;
+const MAX_H = 2000;
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_IMAGES = 3;
 const MAX_RETRIES = 3;
