@@ -9,6 +9,63 @@ type Message = {
   content: string;
 };
 
+// Component to render message content with clickable links/buttons
+function MessageContent({ content }: { content: string }) {
+  // Define internal paths that should become buttons
+  const pathButtons: Record<string, { label: string; style: string }> = {
+    "/apply": { label: "Apply Now", style: "bg-emerald-600 hover:bg-emerald-500" },
+    "/pricing": { label: "View Pricing", style: "bg-teal-600 hover:bg-teal-500" },
+    "/login": { label: "Sign In", style: "bg-white/20 hover:bg-white/30" },
+    "/dashboard": { label: "Go to Dashboard", style: "bg-white/20 hover:bg-white/30" },
+  };
+
+  // Split content and replace paths with buttons
+  const parts: (string | React.ReactElement)[] = [];
+  let remaining = content;
+  let keyIndex = 0;
+
+  // Find and replace paths
+  const pathRegex = /\/(apply|pricing|login|dashboard)\b/gi;
+  let match;
+  let lastIndex = 0;
+
+  while ((match = pathRegex.exec(content)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(remaining.substring(lastIndex, match.index));
+    }
+
+    const path = match[0].toLowerCase();
+    const buttonConfig = pathButtons[path];
+
+    if (buttonConfig) {
+      parts.push(
+        <a
+          key={`btn-${keyIndex++}`}
+          href={path}
+          className={`inline-flex items-center gap-1 px-3 py-1.5 my-1 rounded-full text-xs font-medium text-white transition-colors ${buttonConfig.style}`}
+        >
+          {buttonConfig.label}
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      );
+    } else {
+      parts.push(match[0]);
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < content.length) {
+    parts.push(content.substring(lastIndex));
+  }
+
+  return <>{parts.length > 0 ? parts : content}</>;
+}
+
 export default function GlobalChatbox() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -165,7 +222,7 @@ export default function GlobalChatbox() {
                   }`}
                   data-testid={`global-chat-message-${msg.role}`}
                 >
-                  {msg.content}
+                  <MessageContent content={msg.content} />
                 </div>
               </div>
             ))}
