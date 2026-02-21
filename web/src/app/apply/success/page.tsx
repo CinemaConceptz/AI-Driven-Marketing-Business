@@ -11,7 +11,7 @@ function ApplySuccessContent() {
   const { user } = useAuth();
   const [status, setStatus] = useState<"checking" | "paid" | "pending">("checking");
 
-  const sessionId = searchParams.get("session_id");
+  const sessionId = searchParams?.get("session_id") ?? null;
 
   const checkPayment = async () => {
     if (!user) {
