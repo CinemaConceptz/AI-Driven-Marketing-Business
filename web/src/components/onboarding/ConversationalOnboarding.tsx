@@ -339,8 +339,8 @@ export default function ConversationalOnboarding() {
       { field: "legalName", next: "Great! And what's your artist or stage name? This is how you'll be presented to labels." },
       { field: "artistName", next: "Love it! Where are you based? (City, State/Province, Country)" },
       { field: "location", next: "How many years have you been making music professionally?" },
-      { field: "yearsActive", next: "Now let's talk about your sound. What's your primary genre?", type: "select", options: GENRES },
-      { field: "primaryGenre", next: "Excellent choice! Do any secondary genres also apply to your sound? Select all that apply, or click 'Continue' if none apply.", type: "multiselect", options: [...GENRES, "None / Just my primary genre"] },
+      { field: "yearsActive", next: "Now let's talk about your sound. What's your primary genre?", nextType: "select", nextOptions: GENRES },
+      { field: "primaryGenre", next: "Excellent choice! Do any secondary genres also apply to your sound? Select all that apply, or click 'Continue' if none apply.", nextType: "multiselect", nextOptions: [...GENRES, "None / Just my primary genre"] },
       { field: "secondaryGenres", next: null },
     ];
 
@@ -358,24 +358,25 @@ export default function ConversationalOnboarding() {
 
     setCurrentQuestion(prev => prev + 1);
 
-    if (currentQuestion < questions.length - 1) {
-      const nextQ = questions[currentQuestion + 1];
-      if (nextQ.type === "select") {
+    // Check if there's a next prompt to show (q.next contains the text for the NEXT question)
+    if (q.next) {
+      // Use current question's nextType and nextOptions to determine how to show the next prompt
+      if (q.nextType === "select") {
         await typeMessage(
-          nextQ.next!,
-          nextQ.options?.map(o => ({ label: o, value: o })),
+          q.next,
+          q.nextOptions?.map(o => ({ label: o, value: o })),
           "select",
-          nextQ.field
+          questions[currentQuestion + 1]?.field
         );
-      } else if (nextQ.type === "multiselect") {
+      } else if (q.nextType === "multiselect") {
         await typeMessage(
-          nextQ.next!,
-          nextQ.options?.map(o => ({ label: o, value: o })),
+          q.next,
+          q.nextOptions?.map(o => ({ label: o, value: o })),
           "multiselect",
-          nextQ.field
+          questions[currentQuestion + 1]?.field
         );
       } else {
-        await typeMessage(nextQ.next!, undefined, "text", nextQ.field);
+        await typeMessage(q.next, undefined, "text", questions[currentQuestion + 1]?.field);
       }
     } else {
       // Move to Phase 3
@@ -776,7 +777,7 @@ What's next? I'll generate your professional EPK and set up your campaign config
   };
 
   const handleOptionClick = (value: string) => {
-    const lastMessage = messages[messages.length - 1];
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
     
     if (lastMessage?.inputType === "multiselect") {
       // If "None / Just my primary genre" is selected, auto-continue with no secondary genres
@@ -799,7 +800,7 @@ What's next? I'll generate your professional EPK and set up your campaign config
   };
 
   const handleMultiselectConfirm = () => {
-    if (selectedOptions.length > 0) {
+    if (selectedOptions && selectedOptions.length > 0) {
       const displayOptions = selectedOptions.filter(opt => opt !== "None / Just my primary genre");
       addMessage({ role: "user", content: displayOptions.length > 0 ? displayOptions.join(", ") : "None" });
       processResponse(selectedOptions.join(", "));
@@ -814,8 +815,8 @@ What's next? I'll generate your professional EPK and set up your campaign config
     );
   }
 
-  const lastMessage = messages[messages.length - 1];
-  const showOptions = lastMessage?.options && lastMessage.role === "representative";
+  const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+  const showOptions = lastMessage?.options && lastMessage?.role === "representative";
   const isMultiselect = lastMessage?.inputType === "multiselect";
 
   return (
