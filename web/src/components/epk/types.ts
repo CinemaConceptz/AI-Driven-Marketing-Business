@@ -35,6 +35,7 @@ export type EpkProfile = {
   artistName?: string;
   bio?: string;
   email?: string;
+  contactEmail?: string;
   phone?: string;
   website?: string;
   instagram?: string;
