@@ -13,7 +13,7 @@ import { trackEvent } from "@/lib/analytics/trackEvent";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("next") || "/dashboard";
+  const redirectTo = searchParams?.get("next") || "/dashboard";
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
