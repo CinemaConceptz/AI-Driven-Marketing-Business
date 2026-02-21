@@ -21,7 +21,7 @@ The Verified Sound EPK includes:
 
 Full Professional Biography
 
-Short Press Bio (150–200 words)
+Short Press Bio (200–300 words)
 
 Strategic Positioning Summary
 

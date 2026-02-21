@@ -1,19 +1,18 @@
-export type EpkContent = {
-  enhancedBio: string;
-  tagline: string;
-  pressRelease: string;
-  highlights: string[];
-  styleDescription: string;
-  generatedAt?: string;
-  publicInfoFound?: boolean;
+export type AudioTrack = {
+  id: string;
+  name: string;
+  url: string;
+  duration?: number;
+  uploadedAt: string;
 };
+
+export type SubscriptionTier = "tier1" | "tier2" | "tier3" | "free";
 
 export type EpkProfile = {
   displayName?: string;
   artistName?: string;
   bio?: string;
   email?: string;
-  contactEmail?: string;
   phone?: string;
   website?: string;
   instagram?: string;
@@ -23,10 +22,16 @@ export type EpkProfile = {
   epkReady?: boolean;
   epkPublished?: boolean;
   epkSlug?: string;
-  epkEnhanced?: boolean;
-  epkContent?: EpkContent;
-  subscriptionTier?: string;
-  subscriptionStatus?: string;
+  subscriptionTier?: SubscriptionTier;
+  subscriptionStatus?: "active" | "inactive";
+  audioTracks?: AudioTrack[];
+  monthlyListeners?: number;
+  recordLabel?: string;
+  management?: string;
+  publicist?: string;
+  bookingAgent?: string;
+  achievements?: string[];
+  pressQuotes?: { source: string; quote: string }[];
   links?: {
     spotify?: string;
     soundcloud?: string;
@@ -35,5 +40,7 @@ export type EpkProfile = {
     instagram?: string;
     youtube?: string;
     website?: string;
+    tiktok?: string;
+    twitter?: string;
   };
 };
