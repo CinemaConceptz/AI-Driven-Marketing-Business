@@ -11,7 +11,7 @@ type FeatureRow = {
 
 const FEATURES: FeatureRow[] = [
   { label: "EPK hosting",             tier1: true,      tier2: true,       tier3: true },
-  { label: "Press images",            tier1: "Up to 3",  tier2: "Up to 10", tier3: "Up to 10" },
+  { label: "Press images",            tier1: "Up to 3",  tier2: "Up to 5", tier3: "Up to 10" },
   { label: "PDF EPK download",        tier1: "Basic",   tier2: "Enhanced", tier3: "Branded" },
   { label: "A&R review",             tier1: "Standard", tier2: "Priority", tier3: "Priority" },
   { label: "Strategy call",          tier1: false,     tier2: "Monthly",  tier3: "Monthly" },

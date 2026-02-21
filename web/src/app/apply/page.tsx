@@ -177,19 +177,39 @@ export default function ApplyPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-        <div className="glass-panel rounded-3xl px-8 py-10" data-testid="apply-login-required">
-          <h1 className="text-2xl font-semibold text-white">Login required</h1>
-          <p className="mt-3 text-sm text-slate-200">
-            Sign in to continue your submission.
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+        <div className="glass-panel rounded-3xl px-8 py-10" data-testid="apply-auth-form">
+          <p className="text-sm uppercase tracking-[0.2em] text-slate-400 text-center">Get Started</p>
+          <h1 className="mt-3 text-2xl font-semibold text-white text-center">
+            Join Verified Sound
+          </h1>
+          <p className="mt-3 text-sm text-slate-300 text-center">
+            Sign in or create an account to start your artist journey.
           </p>
-          <button
-            onClick={() => router.push("/login?next=/apply")}
-            className="mt-6 rounded-full bg-white px-6 py-3 text-xs font-semibold text-[#021024]"
-            data-testid="apply-login-cta"
-          >
-            Go to login
-          </button>
+          
+          <div className="mt-8 flex flex-col gap-3">
+            <button
+              onClick={() => router.push("/login?next=/apply")}
+              className="w-full rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#021024] hover:bg-slate-100 transition-colors"
+              data-testid="apply-signin-btn"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => router.push("/login?next=/apply&mode=signup")}
+              className="w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-500 transition-colors"
+              data-testid="apply-signup-btn"
+            >
+              Create Account
+            </button>
+          </div>
+          
+          <p className="mt-6 text-xs text-slate-400 text-center">
+            Already have an account?{" "}
+            <a href="/login?next=/apply" className="text-emerald-400 hover:underline">
+              Sign in here
+            </a>
+          </p>
         </div>
       </div>
     );

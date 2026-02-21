@@ -231,7 +231,7 @@ export default function DashboardPage() {
           ctaLabel="Upgrade to Tier II →"
           ctaHref="/pricing"
           features={[
-            "Up to 10 press images (you have 3)",
+            "Up to 5 press images (you have 3)",
             "Watermark-free enhanced PDF EPK",
             "Priority A&R review",
             "Monthly strategy call",
@@ -240,17 +240,6 @@ export default function DashboardPage() {
           dismissible={true}
         />
       )}
-
-      {/* Feature Access Grid */}
-      <section className="glass-panel rounded-3xl px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Your plan features</h2>
-          {!isActive && (
-            <a href="/pricing" className="text-xs text-emerald-400 hover:underline">Upgrade →</a>
-          )}
-        </div>
-        <FeatureAccessGrid rawTier={rawTier} status={rawStatus} />
-      </section>
 
       {/* Application status */}
       <section className="glass-panel rounded-3xl px-8 py-10">
@@ -277,7 +266,9 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-semibold text-white">Press images</h2>
             <p className="mt-1 text-sm text-slate-400">
               {effectiveTier === "tier1"
-                ? "Upload up to 3 press images. Upgrade to Tier II for up to 10."
+                ? "Upload up to 3 press images. Upgrade to Tier II for up to 5."
+                : effectiveTier === "tier2"
+                ? "Upload up to 5 press images. Upgrade to Tier III for up to 10."
                 : `Upload up to ${maxImages} press images (JPG/PNG/WEBP, max 10MB).`}
             </p>
           </div>
@@ -340,6 +331,12 @@ export default function DashboardPage() {
             No profile found yet. Submit your intake to get started.
           </div>
         )}
+      </section>
+
+      {/* Your Plan Features — at the bottom */}
+      <section className="glass-panel rounded-3xl px-8 py-10" data-testid="dashboard-plan-features-section">
+        <h2 className="text-2xl font-semibold text-white mb-6">Your plan features</h2>
+        <FeatureAccessGrid rawTier={rawTier} status={rawStatus} />
       </section>
     </div>
   );

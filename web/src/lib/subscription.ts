@@ -108,7 +108,8 @@ export function getMaxPressImages(
   status?: string | null
 ): number {
   const tier = getEffectiveTier(rawTier, status);
-  if (tier === "tier2" || tier === "tier3") return 10;
+  if (tier === "tier3") return 10;
+  if (tier === "tier2") return 5;
   return 3;
 }
 

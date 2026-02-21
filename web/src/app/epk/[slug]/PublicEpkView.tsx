@@ -1,6 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { 
+  Music, 
+  Cloud, 
+  Instagram, 
+  Youtube, 
+  Globe, 
+  Mail, 
+  Phone,
+  Twitter,
+  Facebook,
+  Headphones
+} from "lucide-react";
 
 type PressMedia = {
   id: string;
@@ -26,6 +38,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
   const genre = userData?.genre || "";
   const location = userData?.location || "";
   const email = userData?.contactEmail || userData?.email || "";
+  const phone = userData?.phone || "";
   const links = userData?.links || {};
 
   const shareUrl = typeof window !== "undefined" 
@@ -159,7 +172,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
         </section>
       )}
 
-      {/* Links */}
+      {/* Links with Icons */}
       {Object.keys(links).length > 0 && (
         <section className="glass-panel rounded-3xl px-8 py-10" data-testid="epk-links-section">
           <h2 className="text-xl font-semibold text-white mb-4">Links</h2>
@@ -171,6 +184,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-[#1DB954]/20 border border-[#1DB954]/30 px-4 py-2 text-sm text-[#1DB954] hover:bg-[#1DB954]/30 transition-colors"
               >
+                <Music className="h-4 w-4" />
                 Spotify
               </a>
             )}
@@ -181,7 +195,30 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-[#FF5500]/20 border border-[#FF5500]/30 px-4 py-2 text-sm text-[#FF5500] hover:bg-[#FF5500]/30 transition-colors"
               >
+                <Cloud className="h-4 w-4" />
                 SoundCloud
+              </a>
+            )}
+            {links.appleMusic && (
+              <a
+                href={links.appleMusic}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#FC3C44]/20 border border-[#FC3C44]/30 px-4 py-2 text-sm text-[#FC3C44] hover:bg-[#FC3C44]/30 transition-colors"
+              >
+                <Headphones className="h-4 w-4" />
+                Apple Music
+              </a>
+            )}
+            {links.beatport && (
+              <a
+                href={links.beatport}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#94D500]/20 border border-[#94D500]/30 px-4 py-2 text-sm text-[#94D500] hover:bg-[#94D500]/30 transition-colors"
+              >
+                <Headphones className="h-4 w-4" />
+                Beatport
               </a>
             )}
             {links.instagram && (
@@ -191,6 +228,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-[#E4405F]/20 border border-[#E4405F]/30 px-4 py-2 text-sm text-[#E4405F] hover:bg-[#E4405F]/30 transition-colors"
               >
+                <Instagram className="h-4 w-4" />
                 Instagram
               </a>
             )}
@@ -201,7 +239,30 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-[#FF0000]/20 border border-[#FF0000]/30 px-4 py-2 text-sm text-[#FF0000] hover:bg-[#FF0000]/30 transition-colors"
               >
+                <Youtube className="h-4 w-4" />
                 YouTube
+              </a>
+            )}
+            {links.twitter && (
+              <a
+                href={links.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#1DA1F2]/20 border border-[#1DA1F2]/30 px-4 py-2 text-sm text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors"
+              >
+                <Twitter className="h-4 w-4" />
+                Twitter
+              </a>
+            )}
+            {links.facebook && (
+              <a
+                href={links.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#1877F2]/20 border border-[#1877F2]/30 px-4 py-2 text-sm text-[#1877F2] hover:bg-[#1877F2]/30 transition-colors"
+              >
+                <Facebook className="h-4 w-4" />
+                Facebook
               </a>
             )}
             {links.website && (
@@ -211,6 +272,7 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/20 transition-colors"
               >
+                <Globe className="h-4 w-4" />
                 Website
               </a>
             )}
@@ -218,22 +280,44 @@ export default function PublicEpkView({ userData, media, slug }: Props) {
         </section>
       )}
 
-      {/* Contact CTA */}
-      <section className="glass-panel rounded-3xl px-8 py-10 text-center" data-testid="epk-contact-section">
-        <h2 className="text-xl font-semibold text-white mb-2">Interested in working together?</h2>
+      {/* Contact Section with Phone & Email */}
+      <section className="glass-panel rounded-3xl px-8 py-10" data-testid="epk-contact-section">
+        <h2 className="text-xl font-semibold text-white mb-4">Contact</h2>
+        
+        {/* Contact Info */}
+        {(email || phone) && (
+          <div className="flex flex-wrap gap-4 mb-6">
+            {email && (
+              <div className="flex items-center gap-2 text-slate-300">
+                <Mail className="h-4 w-4 text-emerald-400" />
+                <a href={`mailto:${email}`} className="hover:text-emerald-400 transition-colors">
+                  {email}
+                </a>
+              </div>
+            )}
+            {phone && (
+              <div className="flex items-center gap-2 text-slate-300">
+                <Phone className="h-4 w-4 text-emerald-400" />
+                <a href={`tel:${phone}`} className="hover:text-emerald-400 transition-colors">
+                  {phone}
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* CTA Buttons */}
         <p className="text-slate-400 mb-6">
           Get in touch to discuss collaborations, bookings, or representation.
         </p>
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap gap-3">
           {email && (
             <a
               href={`mailto:${email}?subject=Inquiry from EPK`}
               className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-500 transition-colors"
               data-testid="epk-contact-btn"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+              <Mail className="h-4 w-4" />
               Contact Artist
             </a>
           )}

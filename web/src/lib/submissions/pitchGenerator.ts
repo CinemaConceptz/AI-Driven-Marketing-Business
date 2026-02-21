@@ -27,9 +27,9 @@ export interface PitchInput {
 }
 
 export interface GeneratedPitch {
-  hookLine: string;
-  shortPitch: string;
-  mediumPitch: string;
+  hookLine: string;      // 10 words - quick attention grabber
+  shortPitch: string;    // 20 words - ultra-concise pitch
+  mediumPitch: string;   // 40 words - expanded pitch
   subjectLine: string;
   recommendedTrack: string;
 }
@@ -76,15 +76,16 @@ ${context}
 
 Generate the following (respond in JSON format):
 
-1. "hookLine": A compelling one-liner (max 15 words) that captures their sound
+1. "hookLine": A compelling attention-grabbing hook (EXACTLY 10 words) that captures their unique sound and makes A&Rs want to listen immediately
 2. "subjectLine": Professional email subject line for label submission (max 60 characters)
-3. "shortPitch": A concise 100-word pitch for webform submissions. Keep it brief, direct, and focused on the essential information: artist name, genre, what makes them stand out, and links. No greetings or sign-offs.
-4. "mediumPitch": A detailed 300-word pitch for email submissions. Include: professional greeting to A&R team, expanded artist background, sound description, notable achievements, streaming stats if impressive, all relevant links (track, EPK, Spotify, SoundCloud), and professional closing with contact info. This should be a complete, ready-to-send email body.
+3. "shortPitch": An ultra-concise pitch (EXACTLY 20 words) for quick webform submissions. Include: artist name, genre, one standout quality. No greetings.
+4. "mediumPitch": An expanded pitch (EXACTLY 40 words) for longer webforms. Include: artist name, genre, sound description, key achievement or unique angle, and a call-to-action. No greetings or sign-offs.
 5. "recommendedTrack": Which track to lead with and why (just the track name if only one)
 
-IMPORTANT: The shortPitch and mediumPitch MUST be distinctly different:
-- shortPitch: Brief paragraph format, ~100 words, facts only, no salutations
-- mediumPitch: Full email format, ~300 words, includes greeting, multiple paragraphs, and closing
+CRITICAL WORD COUNT REQUIREMENTS:
+- hookLine: EXACTLY 10 words (punchy, memorable)
+- shortPitch: EXACTLY 20 words (essential facts only)
+- mediumPitch: EXACTLY 40 words (concise but informative)
 
 Respond ONLY with valid JSON, no markdown.`;
 
@@ -172,25 +173,10 @@ function generateFallbackPitch(input: PitchInput): GeneratedPitch {
   const genre = input.genre;
 
   return {
-    hookLine: `${artistName} delivers quality ${genre} productions ready for label consideration.`,
+    hookLine: `${artistName} delivers authentic ${genre} with unique sonic character.`,
     subjectLine: `Demo Submission: ${artistName} - ${genre}`,
-    shortPitch: `${artistName} is a ${genre} producer presenting new material for your consideration. The attached track showcases a professional production style suited to your label's catalog. Full EPK and additional tracks available at ${input.epkUrl}. Contact: ${input.contactEmail}`,
-    mediumPitch: `Dear A&R Team,
-
-${artistName} is pleased to submit new ${genre} material for your consideration.
-
-The featured track demonstrates production quality and style aligned with your label's releases. ${input.bio ? input.bio.slice(0, 200) : ""}
-
-Links:
-- Featured Track: ${input.trackUrl}
-- Full EPK: ${input.epkUrl}
-${input.spotifyUrl ? `- Spotify: ${input.spotifyUrl}` : ""}
-${input.soundcloudUrl ? `- SoundCloud: ${input.soundcloudUrl}` : ""}
-
-For further information or additional material, please contact ${input.contactEmail}.
-
-Best regards,
-${artistName}`,
+    shortPitch: `${artistName}, a ${genre} producer, presents professionally crafted material for your label's consideration.`,
+    mediumPitch: `${artistName} is a ${genre} producer presenting new material. The featured track showcases professional production quality suited to your catalog. Full EPK available.`,
     recommendedTrack: input.trackTitle || "Featured Track",
   };
 }

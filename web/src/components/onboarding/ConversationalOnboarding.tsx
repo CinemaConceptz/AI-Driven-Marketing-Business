@@ -27,12 +27,8 @@ const REPRESENTATIVE_CONFIG = {
   name: "Maya",                    // Change this to any name
   title: "A&R Representative",     // Their title/role
   company: "Verified Sound",       // Company name
-  // Avatar options - use any image URL or set to null for initials
-  avatar: "https://api.dicebear.com/7.x/personas/svg?seed=Maya&backgroundColor=0a0f1a",
-  // Alternative avatars you can use:
-  // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maya",
-  // avatar: "https://api.dicebear.com/7.x/lorelei/svg?seed=Maya",
-  // avatar: null, // Will show initials instead
+  // Custom avatar image
+  avatar: "/maya-avatar.png",
 };
 
 // Get initials from name for fallback avatar
@@ -87,9 +83,22 @@ type OnboardingData = {
 };
 
 const GENRES = [
-  "House", "EDM", "Afro", "Disco", "Soulful", "Trance",
-  "Techno", "Deep House", "Progressive", "Melodic Techno",
-  "Drum & Bass", "Dubstep", "Ambient", "Other",
+  "House", "Deep House", "Tech House", "Progressive House", "Afro House",
+  "EDM", "Electro", "Future Bass", "Trap", "Bass House",
+  "Techno", "Melodic Techno", "Minimal Techno", "Industrial Techno",
+  "Trance", "Progressive Trance", "Psytrance", "Uplifting Trance",
+  "Drum & Bass", "Jungle", "Liquid DnB",
+  "Dubstep", "Riddim", "Brostep",
+  "Disco", "Nu-Disco", "Funk",
+  "Afrobeats", "Amapiano",
+  "Soulful House", "Gospel House",
+  "Ambient", "Downtempo", "Chillout",
+  "Breakbeat", "UK Garage", "2-Step",
+  "Hardstyle", "Hardcore",
+  "Lo-Fi", "Synthwave", "Retrowave",
+  "Hip-Hop", "R&B", "Soul",
+  "Pop", "Indie", "Alternative",
+  "Experimental", "IDM",
 ];
 
 const MARKETS = ["United States", "Europe", "United Kingdom", "Asia", "Global"];
@@ -331,7 +340,7 @@ export default function ConversationalOnboarding() {
       { field: "artistName", next: "Love it! Where are you based? (City, State/Province, Country)" },
       { field: "location", next: "How many years have you been making music professionally?" },
       { field: "yearsActive", next: "Now let's talk about your sound. What's your primary genre?", type: "select", options: GENRES },
-      { field: "primaryGenre", next: "Excellent choice! Do any of these secondary genres also apply to your sound?", type: "multiselect", options: GENRES },
+      { field: "primaryGenre", next: "Excellent choice! Do any secondary genres also apply to your sound? Select all that apply, or click 'Continue' if none apply.", type: "multiselect", options: [...GENRES, "None / Just my primary genre"] },
       { field: "secondaryGenres", next: null },
     ];
 
@@ -339,7 +348,9 @@ export default function ConversationalOnboarding() {
     
     // Save the value
     if (q.field === "secondaryGenres") {
-      setData(prev => ({ ...prev, [q.field]: selectedOptions }));
+      // Filter out the "None / Just my primary genre" option and save
+      const filteredOptions = selectedOptions.filter(opt => opt !== "None / Just my primary genre");
+      setData(prev => ({ ...prev, [q.field]: filteredOptions }));
       setSelectedOptions([]);
     } else {
       setData(prev => ({ ...prev, [q.field]: value }));
@@ -768,10 +779,19 @@ What's next? I'll generate your professional EPK and set up your campaign config
     const lastMessage = messages[messages.length - 1];
     
     if (lastMessage?.inputType === "multiselect") {
+      // If "None / Just my primary genre" is selected, auto-continue with no secondary genres
+      if (value === "None / Just my primary genre") {
+        addMessage({ role: "user", content: "None - just my primary genre" });
+        setSelectedOptions([]);
+        processResponse(value);
+        return;
+      }
+      
+      // If selecting a genre, remove "None" from selection
       if (selectedOptions.includes(value)) {
         setSelectedOptions(prev => prev.filter(v => v !== value));
       } else {
-        setSelectedOptions(prev => [...prev, value]);
+        setSelectedOptions(prev => [...prev.filter(v => v !== "None / Just my primary genre"), value]);
       }
     } else {
       handleUserResponse(value);
@@ -780,7 +800,8 @@ What's next? I'll generate your professional EPK and set up your campaign config
 
   const handleMultiselectConfirm = () => {
     if (selectedOptions.length > 0) {
-      addMessage({ role: "user", content: selectedOptions.join(", ") });
+      const displayOptions = selectedOptions.filter(opt => opt !== "None / Just my primary genre");
+      addMessage({ role: "user", content: displayOptions.length > 0 ? displayOptions.join(", ") : "None" });
       processResponse(selectedOptions.join(", "));
     }
   };
