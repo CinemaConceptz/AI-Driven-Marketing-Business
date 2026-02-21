@@ -8,6 +8,25 @@ export type AudioTrack = {
 
 export type SubscriptionTier = "tier1" | "tier2" | "tier3" | "free";
 
+export type EpkContent = {
+  tagline?: string;
+  artistOverview?: string;
+  shortPressBio?: string;
+  strategicPositioning?: string;
+  labelPitchParagraph?: string;
+  highlights?: string[];
+  achievements?: string[];
+  pressQuotes?: { source: string; quote: string }[];
+  representationSnapshot?: {
+    genre?: string;
+    yearsActive?: number;
+    releaseCount?: number;
+    targetMarket?: string;
+    contractStatus?: string;
+    recommendedTier?: string;
+  };
+};
+
 export type EpkProfile = {
   displayName?: string;
   artistName?: string;
@@ -44,21 +63,5 @@ export type EpkProfile = {
     website?: string;
     tiktok?: string;
     twitter?: string;
-  export type EpkContent = {
-  tagline?: string;
-  artistOverview?: string;
-  shortPressBio?: string;
-  strategicPositioning?: string;
-  labelPitchParagraph?: string;
-  highlights?: string[];
-  achievements?: string[];
-  pressQuotes?: { source: string; quote: string }[];
-  representationSnapshot?: {
-    genre?: string;
-    yearsActive?: number;
-    releaseCount?: number;
-    targetMarket?: string;
-    contractStatus?: string;
-    recommendedTier?: string;
   };
 };
